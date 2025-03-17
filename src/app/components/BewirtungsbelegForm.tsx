@@ -20,6 +20,7 @@ import {
   Divider,
   rem,
   Notification,
+  Radio,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
@@ -32,6 +33,7 @@ interface BewirtungsbelegFormData {
   anlass: string;
   gesamtbetrag: string;
   trinkgeld: string;
+  zahlungsart: 'firma' | 'privat' | 'bar';
   geschaeftlicherAnlass: string;
   geschaeftspartnerNamen: string;
   geschaeftspartnerFirma: string;
@@ -53,6 +55,7 @@ export default function BewirtungsbelegForm() {
       anlass: '',
       gesamtbetrag: '',
       trinkgeld: '',
+      zahlungsart: 'firma',
       geschaeftlicherAnlass: '',
       geschaeftspartnerNamen: '',
       geschaeftspartnerFirma: '',
@@ -65,6 +68,7 @@ export default function BewirtungsbelegForm() {
       anlass: (value) => (value ? null : 'Anlass ist erforderlich'),
       gesamtbetrag: (value) => (value ? null : 'Gesamtbetrag ist erforderlich'),
       trinkgeld: (value) => (value ? null : 'Trinkgeld ist erforderlich'),
+      zahlungsart: (value) => (value ? null : 'Zahlungsart ist erforderlich'),
     },
   });
 
@@ -113,8 +117,25 @@ export default function BewirtungsbelegForm() {
     try {
       const doc = new jsPDF();
       
-      // Header
-      doc.setFontSize(20);
+      // Logo hinzufügen
+      const logo = new Image();
+      logo.src = '/docbits.svg';
+      // Warte auf das Laden des Logos
+      await new Promise((resolve) => {
+        logo.onload = () => {
+          // Berechne die Höhe basierend auf dem Seitenverhältnis
+          const aspectRatio = logo.height / logo.width;
+          const logoWidth = 150;
+          const logoHeight = logoWidth * aspectRatio;
+          
+          // Füge das Logo hinzu
+          doc.addImage(logo, 'SVG', 20, 10, logoWidth, logoHeight);
+          resolve(null);
+        };
+      });
+      
+      // Titel
+      doc.setFontSize(16);
       doc.text('Bewirtungsbeleg', 105, 20, { align: 'center' });
       
       // Allgemeine Angaben
@@ -124,7 +145,7 @@ export default function BewirtungsbelegForm() {
       doc.text(`Datum: ${data.datum?.toLocaleDateString('de-DE')}`, 20, 50);
       doc.text(`Restaurant: ${data.restaurantName}`, 20, 60);
       doc.text(`Anschrift: ${data.restaurantAnschrift}`, 20, 70);
-
+      
       // Finanzielle Details
       doc.setFontSize(12);
       doc.text('Finanzielle Details:', 20, 90);
@@ -132,33 +153,37 @@ export default function BewirtungsbelegForm() {
       doc.text(`Gesamtbetrag: ${data.gesamtbetrag}€`, 20, 100);
       doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, 110);
       doc.text(`Rechnungsbetrag ohne Trinkgeld: ${Number(data.gesamtbetrag) - Number(data.trinkgeld)}€`, 20, 120);
+      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, 130);
 
       // Geschäftlicher Anlass
       doc.setFontSize(12);
-      doc.text('Geschäftlicher Anlass:', 20, 140);
+      doc.text('Geschäftlicher Anlass:', 20, 150);
       doc.setFontSize(10);
-      doc.text(`Anlass: ${data.anlass}`, 20, 150);
-      doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, 160);
-      doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, 170);
-      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, 180);
+      doc.text(`Anlass: ${data.geschaeftlicherAnlass}`, 20, 160);
+      doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, 170);
+      doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, 180);
+      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, 190);
 
-      // Wenn ein Bild ausgewählt wurde
-      if (selectedImage) {
-        const reader = new FileReader();
-        await new Promise<void>((resolve) => {
-          reader.onload = (e) => {
-            if (e.target?.result) {
-              doc.addPage();
-              doc.text('Beleg:', 20, 20);
-              doc.addImage(e.target.result as string, 'JPEG', 20, 30, 170, 200);
-            }
-            resolve();
-          };
-          reader.readAsDataURL(selectedImage);
-        });
+      // Footer auf jeder Seite
+      const pageCount = (doc as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.text('DocBits Bewirtungsbeleg', 105, 285, { align: 'center' });
+        doc.text('https://bewirtungsbeleg.docbits.com/', 105, 290, { align: 'center' });
       }
 
-      doc.save('Bewirtungsbeleg.pdf');
+      // Beleg als Bild auf der zweiten Seite
+      if (selectedImage) {
+        const img = new Image();
+        img.src = URL.createObjectURL(selectedImage);
+        const imgWidth = 170;
+        const imgHeight = (img.height * imgWidth) / img.width;
+        doc.addImage(img, 'JPEG', 20, 20, imgWidth, imgHeight);
+      }
+
+      // PDF speichern
+      doc.save('bewirtungsbeleg.pdf');
       setSuccess(true);
       setShowConfirm(false);
     } catch (err) {
@@ -261,36 +286,51 @@ export default function BewirtungsbelegForm() {
               <Title order={2} size="h4" mb="md">
                 Finanzielle Details
               </Title>
-              <Grid align="flex-end">
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <NumberInput
-                    label="Gesamtbetrag (€)"
-                    description="Rechnungsbetrag inkl. Trinkgeld"
-                    placeholder="0,00"
-                    {...form.getInputProps('gesamtbetrag')}
-                    required
-                    decimalSeparator=","
-                    thousandSeparator="."
-                    fixedDecimalScale
-                    decimalScale={2}
-                    min={0}
-                  />
-                </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}>
-                  <NumberInput
-                    label="Trinkgeld (€)"
-                    description=" "
-                    placeholder="0,00"
-                    {...form.getInputProps('trinkgeld')}
-                    required
-                    decimalSeparator=","
-                    thousandSeparator="."
-                    fixedDecimalScale
-                    decimalScale={2}
-                    min={0}
-                  />
-                </Grid.Col>
-              </Grid>
+              <Stack gap={rem(12)}>
+                <Grid align="flex-end">
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <NumberInput
+                      label="Gesamtbetrag (€)"
+                      description="Rechnungsbetrag inkl. Trinkgeld"
+                      placeholder="0,00"
+                      {...form.getInputProps('gesamtbetrag')}
+                      required
+                      decimalSeparator=","
+                      thousandSeparator="."
+                      fixedDecimalScale
+                      decimalScale={2}
+                      min={0}
+                    />
+                  </Grid.Col>
+                  <Grid.Col span={{ base: 12, sm: 6 }}>
+                    <NumberInput
+                      label="Trinkgeld (€)"
+                      description=" "
+                      placeholder="0,00"
+                      {...form.getInputProps('trinkgeld')}
+                      required
+                      decimalSeparator=","
+                      thousandSeparator="."
+                      fixedDecimalScale
+                      decimalScale={2}
+                      min={0}
+                    />
+                  </Grid.Col>
+                </Grid>
+
+                <Radio.Group
+                  label="Zahlungsart"
+                  description="Wie wurde der Betrag bezahlt?"
+                  {...form.getInputProps('zahlungsart')}
+                  required
+                >
+                  <Stack gap={rem(8)} mt="xs">
+                    <Radio value="firma" label="Firmenkreditkarte" />
+                    <Radio value="privat" label="Private Kreditkarte" />
+                    <Radio value="bar" label="Bar" />
+                  </Stack>
+                </Radio.Group>
+              </Stack>
             </Box>
 
             <Divider />
@@ -354,6 +394,9 @@ export default function BewirtungsbelegForm() {
             </Text>
             <Text size="sm">
               <strong>Gesamtbetrag:</strong> {form.values.gesamtbetrag}€
+            </Text>
+            <Text size="sm">
+              <strong>Zahlungsart:</strong> {form.values.zahlungsart === 'firma' ? 'Firmenkreditkarte' : form.values.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}
             </Text>
           </Stack>
 
