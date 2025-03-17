@@ -120,54 +120,62 @@ export default function BewirtungsbelegForm() {
       // Logo hinzufügen
       const logo = new Image();
       logo.src = '/docbits.svg';
-      // Warte auf das Laden des Logos
       await new Promise((resolve) => {
         logo.onload = () => {
-          // Berechne die Höhe basierend auf dem Seitenverhältnis
           const aspectRatio = logo.height / logo.width;
           const logoWidth = 150;
           const logoHeight = logoWidth * aspectRatio;
-          
-          // Füge das Logo hinzu
           doc.addImage(logo, 'SVG', 20, 10, logoWidth, logoHeight);
           resolve(null);
         };
       });
       
-      // Titel
+      // Titel mit Linie
       doc.setFontSize(16);
-      doc.text('Bewirtungsbeleg', 105, 20, { align: 'center' });
+      doc.text('Bewirtungsbeleg', 105, 35, { align: 'center' });
+      doc.setLineWidth(0.5);
+      doc.line(20, 40, 190, 40);
       
       // Allgemeine Angaben
       doc.setFontSize(12);
-      doc.text('Allgemeine Angaben:', 20, 40);
+      doc.setFont(undefined, 'bold');
+      doc.text('Allgemeine Angaben:', 20, 55);
+      doc.setFont(undefined, 'normal');
       doc.setFontSize(10);
-      doc.text(`Datum: ${data.datum?.toLocaleDateString('de-DE')}`, 20, 50);
-      doc.text(`Restaurant: ${data.restaurantName}`, 20, 60);
-      doc.text(`Anschrift: ${data.restaurantAnschrift}`, 20, 70);
+      doc.text(`Datum: ${data.datum?.toLocaleDateString('de-DE')}`, 20, 65);
+      doc.text(`Restaurant: ${data.restaurantName}`, 20, 75);
+      doc.text(`Anschrift: ${data.restaurantAnschrift}`, 20, 85);
       
       // Finanzielle Details
       doc.setFontSize(12);
-      doc.text('Finanzielle Details:', 20, 90);
+      doc.setFont(undefined, 'bold');
+      doc.text('Finanzielle Details:', 20, 105);
+      doc.setFont(undefined, 'normal');
       doc.setFontSize(10);
-      doc.text(`Gesamtbetrag: ${data.gesamtbetrag}€`, 20, 100);
-      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, 110);
-      doc.text(`Rechnungsbetrag ohne Trinkgeld: ${Number(data.gesamtbetrag) - Number(data.trinkgeld)}€`, 20, 120);
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, 130);
+      doc.text(`Gesamtbetrag: ${data.gesamtbetrag}€`, 20, 115);
+      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, 125);
+      doc.text(`Rechnungsbetrag ohne Trinkgeld: ${Number(data.gesamtbetrag) - Number(data.trinkgeld)}€`, 20, 135);
+      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, 145);
 
       // Geschäftlicher Anlass
       doc.setFontSize(12);
-      doc.text('Geschäftlicher Anlass:', 20, 150);
+      doc.setFont(undefined, 'bold');
+      doc.text('Geschäftlicher Anlass:', 20, 165);
+      doc.setFont(undefined, 'normal');
       doc.setFontSize(10);
-      doc.text(`Anlass: ${data.geschaeftlicherAnlass}`, 20, 160);
-      doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, 170);
-      doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, 180);
-      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, 190);
+      doc.text(`Anlass: ${data.geschaeftlicherAnlass}`, 20, 175);
+      doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, 185);
+      doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, 195);
+      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, 205);
 
       // Footer auf jeder Seite
       const pageCount = (doc as any).internal.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
         doc.setPage(i);
+        // Footer Linie
+        doc.setLineWidth(0.5);
+        doc.line(20, 280, 190, 280);
+        // Footer Text
         doc.setFontSize(8);
         doc.text('DocBits Bewirtungsbeleg', 105, 285, { align: 'center' });
         doc.text('https://bewirtungsbeleg.docbits.com/', 105, 290, { align: 'center' });
@@ -175,11 +183,32 @@ export default function BewirtungsbelegForm() {
 
       // Beleg als Bild auf der zweiten Seite
       if (selectedImage) {
+        doc.addPage();
         const img = new Image();
         img.src = URL.createObjectURL(selectedImage);
-        const imgWidth = 170;
-        const imgHeight = (img.height * imgWidth) / img.width;
-        doc.addImage(img, 'JPEG', 20, 20, imgWidth, imgHeight);
+        await new Promise((resolve) => {
+          img.onload = () => {
+            // Berechne die maximale Größe für das Bild
+            const maxWidth = 170;
+            const maxHeight = 200;
+            const aspectRatio = img.width / img.height;
+            
+            let imgWidth = maxWidth;
+            let imgHeight = imgWidth / aspectRatio;
+            
+            if (imgHeight > maxHeight) {
+              imgHeight = maxHeight;
+              imgWidth = imgHeight * aspectRatio;
+            }
+            
+            // Zentriere das Bild
+            const xOffset = (210 - imgWidth) / 2;
+            const yOffset = (297 - imgHeight) / 2;
+            
+            doc.addImage(img, 'JPEG', xOffset, yOffset, imgWidth, imgHeight);
+            resolve(null);
+          };
+        });
       }
 
       // PDF speichern

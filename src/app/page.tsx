@@ -15,6 +15,7 @@ export default function Home() {
           width={200}
           height={50}
           fit="contain"
+          style={{ maxWidth: '200px', height: '50px' }}
         />
       </Stack>
 
