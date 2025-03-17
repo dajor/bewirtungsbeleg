@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1d4ed8;
+  --background: #f8fafc;
+  --card: #ffffff;
+}
+
+body {
+  background-color: var(--background);
+  color: #1a1a1a;
+}
+
+.form-card {
+  background: var(--card);
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  transition: all 0.3s ease;
+}
+
+.form-card:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.input-group {
+  @apply space-y-1;
+}
+
+.input-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.input-field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors;
+}
+
+.input-field:hover {
+  @apply border-gray-400;
+}
+
+.input-error {
+  @apply text-sm text-red-500 mt-1;
+}
+
+.section-title {
+  @apply text-xl font-semibold text-gray-800 mb-4 flex items-center;
+}
+
+.section-title::before {
+  content: '';
+  @apply w-1 h-6 bg-primary rounded-full mr-2;
+}
+
+.submit-button {
+  @apply w-full bg-primary text-white py-3 px-6 rounded-lg font-medium 
+         hover:bg-primary-dark transition-colors duration-200
+         focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+}
+
+@media (max-width: 640px) {
+  .form-card {
+    border-radius: 0;
+    box-shadow: none;
+  }
+  
+  .input-field {
+    @apply text-base py-3;
+  }
+  
+  .section-title {
+    @apply text-lg;
+  }
+} 
