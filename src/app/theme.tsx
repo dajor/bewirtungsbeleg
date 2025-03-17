@@ -6,20 +6,20 @@ export const theme = createTheme({
   defaultRadius: 'md',
   components: {
     Input: {
-      styles: {
+      styles: (theme) => ({
         input: {
           '&:focus': {
-            borderColor: 'var(--mantine-color-blue-6)',
+            borderColor: theme.colors.blue[6],
           },
         },
-      },
+      }),
     },
     Button: {
-      styles: {
+      styles: (theme) => ({
         root: {
           fontWeight: 500,
         },
-      },
+      }),
     },
   },
 }); 
