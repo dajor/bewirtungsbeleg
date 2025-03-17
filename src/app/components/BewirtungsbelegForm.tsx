@@ -112,13 +112,10 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    form.onSubmit((values) => {
-      console.log('Form submitted with values:', values);
-      setShowConfirm(true);
-    })(event);
-  };
+  const handleSubmit = form.onSubmit((values) => {
+    console.log('Form submitted with values:', values);
+    setShowConfirm(true);
+  });
 
   const handleConfirm = async () => {
     console.log('Starting PDF generation...');
