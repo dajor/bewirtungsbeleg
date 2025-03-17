@@ -1,3 +1,5 @@
+'use client';
+
 import { createTheme } from '@mantine/core';
 
 export const theme = createTheme({
@@ -6,20 +8,20 @@ export const theme = createTheme({
   defaultRadius: 'md',
   components: {
     Input: {
-      styles: (theme) => ({
+      styles: {
         input: {
           '&:focus': {
-            borderColor: theme.colors.blue[6],
+            borderColor: 'var(--mantine-color-blue-6)',
           },
         },
-      }),
+      },
     },
     Button: {
-      styles: (theme) => ({
+      styles: {
         root: {
           fontWeight: 500,
         },
-      }),
+      },
     },
   },
 }); 
