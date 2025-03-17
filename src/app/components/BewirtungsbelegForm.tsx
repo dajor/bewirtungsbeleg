@@ -21,6 +21,7 @@ import {
   rem,
   Notification,
   Radio,
+  Select,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
@@ -111,9 +112,12 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  const handleSubmit = (values: typeof form.values) => {
-    console.log('Form submitted with values:', values);
-    setShowConfirm(true);
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    form.onSubmit((values) => {
+      console.log('Form submitted with values:', values);
+      setShowConfirm(true);
+    })(event);
   };
 
   const handleConfirm = async () => {
@@ -170,7 +174,7 @@ export default function BewirtungsbelegForm() {
   };
 
   return (
-    <Container size="md" py="xl">
+    <Container size="xs" py="md">
       {error && (
         <Notification
           color="red"
@@ -203,115 +207,82 @@ export default function BewirtungsbelegForm() {
         </Notification>
       )}
 
-      <Paper shadow="sm" p="xl" radius="md" withBorder>
+      <Paper shadow="sm" p="md">
         <form onSubmit={handleSubmit}>
-          <Stack gap={rem(24)}>
-            <Title order={1} ta="center" c="blue">
-              Bewirtungsbeleg
-            </Title>
-
+          <Stack gap="lg">
+            <Title order={1} ta="center">Bewirtungsbeleg</Title>
+            
             <Box>
-              <Title order={2} size="h4" mb="md">
-                Allgemeine Angaben
-              </Title>
-              <Stack gap={rem(12)}>
+              <Title order={2} size="h4">Allgemeine Angaben</Title>
+              <Stack gap="sm">
                 <FileInput
                   label="Foto/Scan der Rechnung"
                   description="Laden Sie ein Foto oder einen Scan hoch - die Daten werden automatisch extrahiert"
-                  placeholder="Wählen Sie eine Datei"
                   accept="image/*"
-                  value={selectedImage}
                   onChange={handleImageChange}
-                  disabled={isProcessing}
+                  value={selectedImage}
                 />
                 <DateInput
                   label="Datum der Bewirtung"
                   placeholder="Wählen Sie ein Datum"
+                  required
                   valueFormat="DD.MM.YYYY"
                   {...form.getInputProps('datum')}
-                  required
                 />
                 <TextInput
-                  label="Name des Restaurants"
-                  placeholder="z.B. Restaurant Zur Post"
+                  label="Restaurant"
+                  placeholder="Name des Restaurants"
+                  required
                   {...form.getInputProps('restaurantName')}
-                  required
                 />
-                <Textarea
-                  label="Anschrift des Restaurants"
-                  placeholder="Straße, Hausnummer, PLZ, Ort"
+                <TextInput
+                  label="Anschrift"
+                  placeholder="Anschrift des Restaurants"
                   {...form.getInputProps('restaurantAnschrift')}
-                  minRows={2}
                 />
               </Stack>
             </Box>
 
-            <Divider />
-
             <Box>
-              <Title order={2} size="h4" mb="md">
-                Finanzielle Details
-              </Title>
-              <Stack gap={rem(12)}>
-                <Grid align="flex-end">
-                  <Grid.Col span={{ base: 12, sm: 6 }}>
-                    <NumberInput
-                      label="Gesamtbetrag (€)"
-                      description="Rechnungsbetrag inkl. Trinkgeld"
-                      placeholder="0,00"
-                      {...form.getInputProps('gesamtbetrag')}
-                      required
-                      decimalSeparator=","
-                      thousandSeparator="."
-                      fixedDecimalScale
-                      decimalScale={2}
-                      min={0}
-                    />
-                  </Grid.Col>
-                  <Grid.Col span={{ base: 12, sm: 6 }}>
-                    <NumberInput
-                      label="Trinkgeld (€)"
-                      description=" "
-                      placeholder="0,00"
-                      {...form.getInputProps('trinkgeld')}
-                      required
-                      decimalSeparator=","
-                      thousandSeparator="."
-                      fixedDecimalScale
-                      decimalScale={2}
-                      min={0}
-                    />
-                  </Grid.Col>
-                </Grid>
-
-                <Radio.Group
-                  label="Zahlungsart"
-                  description="Wie wurde der Betrag bezahlt?"
-                  {...form.getInputProps('zahlungsart')}
+              <Title order={2} size="h4">Finanzielle Details</Title>
+              <Stack gap="sm">
+                <NumberInput
+                  label="Gesamtbetrag"
+                  placeholder="Gesamtbetrag in Euro"
                   required
-                >
-                  <Stack gap={rem(8)} mt="xs">
-                    <Radio value="firma" label="Firmenkreditkarte" />
-                    <Radio value="privat" label="Private Kreditkarte" />
-                    <Radio value="bar" label="Bar" />
-                  </Stack>
-                </Radio.Group>
+                  min={0}
+                  step={0.01}
+                  {...form.getInputProps('gesamtbetrag')}
+                />
+                <NumberInput
+                  label="Trinkgeld"
+                  placeholder="Trinkgeld in Euro"
+                  min={0}
+                  step={0.01}
+                  {...form.getInputProps('trinkgeld')}
+                />
+                <Select
+                  label="Zahlungsart"
+                  placeholder="Wählen Sie die Zahlungsart"
+                  required
+                  data={[
+                    { value: 'firma', label: 'Firmenkreditkarte' },
+                    { value: 'privat', label: 'Private Kreditkarte' },
+                    { value: 'bar', label: 'Bar' },
+                  ]}
+                  {...form.getInputProps('zahlungsart')}
+                />
               </Stack>
             </Box>
 
-            <Divider />
-
             <Box>
-              <Title order={2} size="h4" mb="md">
-                Geschäftlicher Anlass
-              </Title>
-              <Stack gap={rem(12)}>
-                <Textarea
-                  label="Anlass der Bewirtung"
-                  placeholder="Beschreiben Sie den geschäftlichen Anlass"
-                  {...form.getInputProps('anlass')}
+              <Title order={2} size="h4">Geschäftlicher Anlass</Title>
+              <Stack gap="sm">
+                <TextInput
+                  label="Geschäftlicher Anlass"
+                  placeholder="Grund der Bewirtung"
                   required
-                  minRows={3}
+                  {...form.getInputProps('geschaeftlicherAnlass')}
                 />
                 <Textarea
                   label="Namen der Teilnehmer"
