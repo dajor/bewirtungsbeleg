@@ -63,11 +63,9 @@ export default function BewirtungsbelegForm() {
     validate: {
       datum: (value) => (value ? null : 'Datum ist erforderlich'),
       restaurantName: (value) => (value ? null : 'Name des Restaurants ist erforderlich'),
-      restaurantAnschrift: (value) => (value ? null : 'Anschrift ist erforderlich'),
       teilnehmer: (value) => (value ? null : 'Teilnehmer sind erforderlich'),
       anlass: (value) => (value ? null : 'Anlass ist erforderlich'),
       gesamtbetrag: (value) => (value ? null : 'Gesamtbetrag ist erforderlich'),
-      trinkgeld: (value) => (value ? null : 'Trinkgeld ist erforderlich'),
       zahlungsart: (value) => (value ? null : 'Zahlungsart ist erforderlich'),
     },
   });
@@ -113,122 +111,62 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  const generatePDF = async (data: BewirtungsbelegFormData) => {
+  const handleSubmit = (values: typeof form.values) => {
+    console.log('Form submitted with values:', values);
+    setShowConfirm(true);
+  };
+
+  const handleConfirm = async () => {
+    console.log('Starting PDF generation...');
     try {
-      const doc = new jsPDF();
-      
-      // Logo hinzufügen
-      const logo = new Image();
-      logo.src = '/docbits.svg';
-      await new Promise((resolve) => {
-        logo.onload = () => {
-          const aspectRatio = logo.height / logo.width;
-          const logoWidth = 150;
-          const logoHeight = logoWidth * aspectRatio;
-          doc.addImage(logo, 'SVG', 20, 10, logoWidth, logoHeight);
-          resolve(null);
-        };
-      });
-      
-      // Titel mit Linie
-      doc.setFontSize(16);
-      doc.text('Bewirtungsbeleg', 105, 35, { align: 'center' });
-      doc.setLineWidth(0.5);
-      doc.line(20, 40, 190, 40);
-      
-      // Allgemeine Angaben
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text('Allgemeine Angaben:', 20, 55);
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(10);
-      doc.text(`Datum: ${data.datum?.toLocaleDateString('de-DE')}`, 20, 65);
-      doc.text(`Restaurant: ${data.restaurantName}`, 20, 75);
-      doc.text(`Anschrift: ${data.restaurantAnschrift}`, 20, 85);
-      
-      // Finanzielle Details
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text('Finanzielle Details:', 20, 105);
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(10);
-      doc.text(`Gesamtbetrag: ${data.gesamtbetrag}€`, 20, 115);
-      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, 125);
-      doc.text(`Rechnungsbetrag ohne Trinkgeld: ${Number(data.gesamtbetrag) - Number(data.trinkgeld)}€`, 20, 135);
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, 145);
-
-      // Geschäftlicher Anlass
-      doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
-      doc.text('Geschäftlicher Anlass:', 20, 165);
-      doc.setFont(undefined, 'normal');
-      doc.setFontSize(10);
-      doc.text(`Anlass: ${data.geschaeftlicherAnlass}`, 20, 175);
-      doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, 185);
-      doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, 195);
-      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, 205);
-
-      // Footer auf jeder Seite
-      const pageCount = (doc as any).internal.getNumberOfPages();
-      for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        // Footer Linie
-        doc.setLineWidth(0.5);
-        doc.line(20, 280, 190, 280);
-        // Footer Text
-        doc.setFontSize(8);
-        doc.text('DocBits Bewirtungsbeleg', 105, 285, { align: 'center' });
-        doc.text('https://bewirtungsbeleg.docbits.com/', 105, 290, { align: 'center' });
-      }
-
-      // Beleg als Bild auf der zweiten Seite
-      if (selectedImage) {
-        doc.addPage();
-        const img = new Image();
-        img.src = URL.createObjectURL(selectedImage);
-        await new Promise((resolve) => {
-          img.onload = () => {
-            // Berechne die maximale Größe für das Bild
-            const maxWidth = 170;
-            const maxHeight = 200;
-            const aspectRatio = img.width / img.height;
-            
-            let imgWidth = maxWidth;
-            let imgHeight = imgWidth / aspectRatio;
-            
-            if (imgHeight > maxHeight) {
-              imgHeight = maxHeight;
-              imgWidth = imgHeight * aspectRatio;
-            }
-            
-            // Zentriere das Bild
-            const xOffset = (210 - imgWidth) / 2;
-            const yOffset = (297 - imgHeight) / 2;
-            
-            doc.addImage(img, 'JPEG', xOffset, yOffset, imgWidth, imgHeight);
-            resolve(null);
-          };
-        });
-      }
-
-      // PDF speichern
-      doc.save('bewirtungsbeleg.pdf');
-      setSuccess(true);
+      console.log('Form values before PDF generation:', form.values);
+      const pdf = await generatePDF(form.values);
+      console.log('PDF generated successfully');
       setShowConfirm(false);
-    } catch (err) {
+      setSuccess(true);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      setShowConfirm(false);
       setError('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
-      console.error('PDF Fehler:', err);
     }
   };
 
-  const handleSubmit = form.onSubmit(() => {
-    setError(null);
-    setSuccess(false);
-    setShowConfirm(true);
-  });
+  const generatePDF = async (data: typeof form.values) => {
+    console.log('generatePDF function called with data:', data);
+    try {
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      console.log('API response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('API error response:', errorData);
+        throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
+      }
 
-  const handleConfirm = () => {
-    generatePDF(form.values);
+      const blob = await response.blob();
+      console.log('PDF blob received, size:', blob.size);
+      
+      const url = window.URL.createObjectURL(blob);
+      console.log('Created object URL:', url);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bewirtungsbeleg-${data.datum?.toISOString().split('T')[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      console.log('PDF download initiated');
+    } catch (error) {
+      console.error('Error in generatePDF:', error);
+      throw error;
+    }
   };
 
   return (
@@ -303,7 +241,6 @@ export default function BewirtungsbelegForm() {
                   label="Anschrift des Restaurants"
                   placeholder="Straße, Hausnummer, PLZ, Ort"
                   {...form.getInputProps('restaurantAnschrift')}
-                  required
                   minRows={2}
                 />
               </Stack>
