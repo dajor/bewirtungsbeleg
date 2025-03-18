@@ -112,16 +112,35 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  const handleSubmit = form.onSubmit((values) => {
-    console.log('Form submitted with values:', values);
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    console.log('Form submitted with values:', form.values);
     setShowConfirm(true);
-  });
+  };
 
   const handleConfirm = async () => {
     console.log('Starting PDF generation...');
     try {
       console.log('Form values before PDF generation:', form.values);
-      const pdf = await generatePDF(form.values);
+      
+      // Konvertiere das Bild in Base64, wenn es vorhanden ist
+      let imageData = null;
+      if (selectedImage) {
+        const reader = new FileReader();
+        imageData = await new Promise((resolve, reject) => {
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedImage);
+        });
+      }
+
+      // Füge das Bild zu den Formulardaten hinzu
+      const formData = {
+        ...form.values,
+        image: imageData
+      };
+
+      await generatePDF(formData);
       console.log('PDF generated successfully');
       setShowConfirm(false);
       setSuccess(true);
@@ -133,8 +152,9 @@ export default function BewirtungsbelegForm() {
   };
 
   const generatePDF = async (data: typeof form.values) => {
-    console.log('generatePDF function called with data:', data);
+    console.log('generatePDF function called with data:', JSON.stringify(data, null, 2));
     try {
+      console.log('Sending request to /api/generate-pdf...');
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
         headers: {
@@ -150,16 +170,24 @@ export default function BewirtungsbelegForm() {
         throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
       }
 
+      console.log('Response is ok, getting blob...');
       const blob = await response.blob();
       console.log('PDF blob received, size:', blob.size);
       
+      if (blob.size === 0) {
+        throw new Error('PDF ist leer');
+      }
+      
+      console.log('Creating object URL...');
       const url = window.URL.createObjectURL(blob);
       console.log('Created object URL:', url);
       
+      console.log('Creating download link...');
       const a = document.createElement('a');
       a.href = url;
       a.download = `bewirtungsbeleg-${data.datum?.toISOString().split('T')[0]}.pdf`;
       document.body.appendChild(a);
+      console.log('Triggering download...');
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
@@ -171,13 +199,13 @@ export default function BewirtungsbelegForm() {
   };
 
   return (
-    <Container size="xs" py="md">
+    <Container size="xs" py="xs">
       {error && (
         <Notification
           color="red"
           title="Fehler"
           onClose={() => setError(null)}
-          mb="md"
+          mb="xs"
         >
           {error}
         </Notification>
@@ -188,7 +216,7 @@ export default function BewirtungsbelegForm() {
           color="green"
           title="Erfolg"
           onClose={() => setSuccess(false)}
-          mb="md"
+          mb="xs"
         >
           Bewirtungsbeleg wurde erfolgreich als PDF erstellt!
         </Notification>
@@ -198,57 +226,66 @@ export default function BewirtungsbelegForm() {
         <Notification
           loading
           title="Verarbeitung läuft"
-          mb="md"
+          mb="xs"
         >
           Der Beleg wird analysiert...
         </Notification>
       )}
 
-      <Paper shadow="sm" p="md">
+      <Paper shadow="sm" p="xs">
         <form onSubmit={handleSubmit}>
-          <Stack gap="lg">
-            <Title order={1} ta="center">Bewirtungsbeleg</Title>
+          <Stack gap="xs">
+            <Title order={1} ta="center" size="h6">
+              Bewirtungsbeleg
+            </Title>
             
             <Box>
-              <Title order={2} size="h4">Allgemeine Angaben</Title>
-              <Stack gap="sm">
+              <Title order={2} size="h6">Allgemeine Angaben</Title>
+              <Stack gap="xs">
                 <FileInput
                   label="Foto/Scan der Rechnung"
                   description="Laden Sie ein Foto oder einen Scan hoch - die Daten werden automatisch extrahiert"
                   accept="image/*"
                   onChange={handleImageChange}
                   value={selectedImage}
+                  size="sm"
                 />
                 <DateInput
                   label="Datum der Bewirtung"
                   placeholder="Wählen Sie ein Datum"
                   required
                   valueFormat="DD.MM.YYYY"
+                  size="sm"
                   {...form.getInputProps('datum')}
                 />
                 <TextInput
                   label="Restaurant"
                   placeholder="Name des Restaurants"
                   required
+                  size="sm"
                   {...form.getInputProps('restaurantName')}
                 />
                 <TextInput
                   label="Anschrift"
                   placeholder="Anschrift des Restaurants"
+                  size="sm"
                   {...form.getInputProps('restaurantAnschrift')}
                 />
               </Stack>
             </Box>
 
             <Box>
-              <Title order={2} size="h4">Finanzielle Details</Title>
-              <Stack gap="sm">
+              <Title order={2} size="h6">Finanzielle Details</Title>
+              <Stack gap="xs">
                 <NumberInput
                   label="Gesamtbetrag"
                   placeholder="Gesamtbetrag in Euro"
                   required
                   min={0}
                   step={0.01}
+                  size="sm"
+                  decimalScale={2}
+                  fixedDecimalScale
                   {...form.getInputProps('gesamtbetrag')}
                 />
                 <NumberInput
@@ -256,12 +293,16 @@ export default function BewirtungsbelegForm() {
                   placeholder="Trinkgeld in Euro"
                   min={0}
                   step={0.01}
+                  size="sm"
+                  decimalScale={2}
+                  fixedDecimalScale
                   {...form.getInputProps('trinkgeld')}
                 />
                 <Select
                   label="Zahlungsart"
                   placeholder="Wählen Sie die Zahlungsart"
                   required
+                  size="sm"
                   data={[
                     { value: 'firma', label: 'Firmenkreditkarte' },
                     { value: 'privat', label: 'Private Kreditkarte' },
@@ -273,37 +314,45 @@ export default function BewirtungsbelegForm() {
             </Box>
 
             <Box>
-              <Title order={2} size="h4">Geschäftlicher Anlass</Title>
-              <Stack gap="sm">
+              <Title order={2} size="h6">Geschäftlicher Anlass</Title>
+              <Stack gap="xs">
                 <TextInput
                   label="Geschäftlicher Anlass"
                   placeholder="Grund der Bewirtung"
                   required
+                  size="sm"
                   {...form.getInputProps('geschaeftlicherAnlass')}
                 />
                 <Textarea
                   label="Namen der Teilnehmer"
                   placeholder="Ein Teilnehmer pro Zeile"
-                  {...form.getInputProps('teilnehmer')}
                   required
                   minRows={3}
+                  size="sm"
+                  {...form.getInputProps('teilnehmer')}
                 />
                 <TextInput
                   label="Namen der Geschäftspartner"
                   placeholder="Namen der Geschäftspartner"
-                  {...form.getInputProps('geschaeftspartnerNamen')}
                   required
+                  size="sm"
+                  {...form.getInputProps('geschaeftspartnerNamen')}
                 />
                 <TextInput
                   label="Firma der Geschäftspartner"
                   placeholder="Name der Firma"
-                  {...form.getInputProps('geschaeftspartnerFirma')}
                   required
+                  size="sm"
+                  {...form.getInputProps('geschaeftspartnerFirma')}
                 />
               </Stack>
             </Box>
 
-            <Button type="submit" size="md" fullWidth>
+            <Button 
+              type="submit" 
+              size="sm"
+              fullWidth
+            >
               Bewirtungsbeleg erstellen
             </Button>
           </Stack>
@@ -315,11 +364,14 @@ export default function BewirtungsbelegForm() {
         onClose={() => setShowConfirm(false)}
         title="Bestätigung"
         centered
+        size="sm"
       >
-        <Stack gap={rem(12)}>
-          <Text>Möchten Sie den Bewirtungsbeleg mit folgenden Details erstellen?</Text>
+        <Stack gap="sm">
+          <Text size="sm">
+            Möchten Sie den Bewirtungsbeleg mit folgenden Details erstellen?
+          </Text>
           
-          <Stack gap={rem(8)}>
+          <Stack gap="sm">
             <Text size="sm">
               <strong>Restaurant:</strong> {form.values.restaurantName}
             </Text>
@@ -335,10 +387,17 @@ export default function BewirtungsbelegForm() {
           </Stack>
 
           <Group justify="space-between" mt="md">
-            <Button variant="light" onClick={() => setShowConfirm(false)}>
+            <Button 
+              variant="light" 
+              onClick={() => setShowConfirm(false)}
+              size="sm"
+            >
               Abbrechen
             </Button>
-            <Button onClick={handleConfirm}>
+            <Button 
+              onClick={handleConfirm}
+              size="sm"
+            >
               PDF erstellen
             </Button>
           </Group>
