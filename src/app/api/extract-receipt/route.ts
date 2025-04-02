@@ -33,6 +33,32 @@ function convertToGermanNumber(value: string | number): string {
   });
 }
 
+const prompt = `Analysiere den Rechnungsbeleg und extrahiere die folgenden Informationen:
+- Name des Restaurants
+- Anschrift des Restaurants
+- Datum der Rechnung (im Format DD.MM.YYYY)
+- Gesamtbetrag (Brutto)
+- MwSt. Betrag
+- Netto Betrag
+
+Antworte im folgenden JSON-Format:
+{
+  "restaurantName": "Name des Restaurants",
+  "restaurantAnschrift": "Vollständige Anschrift",
+  "gesamtbetrag": "Gesamtbetrag mit Komma als Dezimaltrennzeichen",
+  "mwst": "MwSt. Betrag mit Komma als Dezimaltrennzeichen",
+  "netto": "Netto Betrag mit Komma als Dezimaltrennzeichen",
+  "datum": "Datum im Format DD.MM.YYYY"
+}
+
+Wichtige Hinweise:
+- Suche nach Begriffen wie "Gesamtbetrag", "Brutto", "MwSt.", "Netto"
+- Achte auf verschiedene Schreibweisen (z.B. "MwSt.", "MwSt", "USt.")
+- Wenn MwSt. oder Netto nicht gefunden werden, lass diese Felder leer
+- Verwende Komma als Dezimaltrennzeichen (z.B. "51,90" statt "51.90")
+- Wenn nur zwei der drei Beträge (Brutto, MwSt., Netto) gefunden werden, lass das dritte Feld leer
+- Formatiere alle Beträge mit zwei Dezimalstellen`;
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -61,14 +87,14 @@ export async function POST(request: Request) {
       messages: [
         {
           role: "system",
-          content: "Du gibst ausschließlich valides JSON zurück, ohne Markdown-Formatierung oder zusätzlichen Text. Zahlen sollten als Strings im Format '00,00' zurückgegeben werden."
+          content: prompt
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Extrahiere diese Informationen aus der Rechnung: restaurantName, restaurantAnschrift, gesamtbetrag, datum (Format: DD.MM.YYYY). Gib die Beträge im deutschen Format mit Komma zurück (z.B. '38,60'). Antworte NUR mit einem JSON-Objekt."
+              text: "Extrahiere diese Informationen aus der Rechnung: restaurantName, restaurantAnschrift, gesamtbetrag, mwst, netto, datum (Format: DD.MM.YYYY) und optional trinkgeld. Gib die Beträge im deutschen Format mit Komma zurück (z.B. '38,60'). Antworte NUR mit einem JSON-Objekt."
             },
             {
               type: "image_url",

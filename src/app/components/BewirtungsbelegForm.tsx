@@ -22,6 +22,13 @@ import {
   Notification,
   Radio,
   Select,
+  Table,
+  TableThead,
+  TableTbody,
+  TableTd,
+  TableTh,
+  TableTr,
+  Checkbox,
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
@@ -33,13 +40,17 @@ interface BewirtungsbelegFormData {
   teilnehmer: string;
   anlass: string;
   gesamtbetrag: string;
+  gesamtbetragMwst: string;
+  gesamtbetragNetto: string;
   trinkgeld: string;
+  trinkgeldMwst: string;
   kreditkartenBetrag: string;
   zahlungsart: 'firma' | 'privat' | 'bar';
   bewirtungsart: 'kunden' | 'mitarbeiter';
   geschaeftlicherAnlass: string;
   geschaeftspartnerNamen: string;
   geschaeftspartnerFirma: string;
+  istAuslaendischeRechnung: boolean;
 }
 
 export default function BewirtungsbelegForm() {
@@ -48,6 +59,7 @@ export default function BewirtungsbelegForm() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<BewirtungsbelegFormData>({
     initialValues: {
@@ -57,13 +69,17 @@ export default function BewirtungsbelegForm() {
       teilnehmer: '',
       anlass: '',
       gesamtbetrag: '',
+      gesamtbetragMwst: '',
+      gesamtbetragNetto: '',
       trinkgeld: '',
+      trinkgeldMwst: '',
       kreditkartenBetrag: '',
       zahlungsart: 'firma',
       bewirtungsart: 'kunden',
       geschaeftlicherAnlass: '',
       geschaeftspartnerNamen: '',
       geschaeftspartnerFirma: '',
+      istAuslaendischeRechnung: false,
     },
     validate: {
       datum: (value) => (value ? null : 'Datum ist erforderlich'),
@@ -97,6 +113,25 @@ export default function BewirtungsbelegForm() {
         }
         return null;
       },
+      gesamtbetragMwst: (value) => {
+        if (value && isNaN(Number(value.replace(',', '.')))) {
+          return 'Ungültiger Betrag';
+        }
+        return null;
+      },
+      gesamtbetragNetto: (value) => {
+        if (value && isNaN(Number(value.replace(',', '.')))) {
+          return 'Ungültiger Betrag';
+        }
+        return null;
+      },
+      trinkgeldMwst: (value) => {
+        if (value && isNaN(Number(value.replace(',', '.')))) {
+          return 'Ungültiger Betrag';
+        }
+        return null;
+      },
+      istAuslaendischeRechnung: (value) => null,
     },
   });
 
@@ -119,14 +154,31 @@ export default function BewirtungsbelegForm() {
 
       const data = await response.json();
       
-      // Konvertiere den Betrag von "51,90" zu "51.90"
+      // Konvertiere die Beträge von "51,90" zu "51.90"
       const gesamtbetrag = data.gesamtbetrag ? data.gesamtbetrag.replace(',', '.') : '';
+      const mwst = data.mwst ? data.mwst.replace(',', '.') : '';
+      const netto = data.netto ? data.netto.replace(',', '.') : '';
+
+      // Berechne fehlende Werte basierend auf den vorhandenen
+      let finalGesamtbetrag = gesamtbetrag;
+      let finalMwst = mwst;
+      let finalNetto = netto;
+
+      if (gesamtbetrag && mwst && !netto) {
+        finalNetto = (Number(gesamtbetrag) - Number(mwst)).toFixed(2);
+      } else if (gesamtbetrag && netto && !mwst) {
+        finalMwst = (Number(gesamtbetrag) - Number(netto)).toFixed(2);
+      } else if (mwst && netto && !gesamtbetrag) {
+        finalGesamtbetrag = (Number(mwst) + Number(netto)).toFixed(2);
+      }
       
       form.setValues({
         ...form.values,
         restaurantName: data.restaurantName || form.values.restaurantName,
         restaurantAnschrift: data.restaurantAnschrift || form.values.restaurantAnschrift,
-        gesamtbetrag: gesamtbetrag || form.values.gesamtbetrag,
+        gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag,
+        gesamtbetragMwst: finalMwst || form.values.gesamtbetragMwst,
+        gesamtbetragNetto: finalNetto || form.values.gesamtbetragNetto,
         datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
       });
     } catch (err) {
@@ -152,6 +204,9 @@ export default function BewirtungsbelegForm() {
 
   const handleConfirm = async () => {
     console.log('Starting PDF generation...');
+    setIsSubmitting(true);
+    setError(null);
+
     try {
       console.log('Form values before PDF generation:', form.values);
       
@@ -166,67 +221,49 @@ export default function BewirtungsbelegForm() {
         });
       }
 
-      // Füge das Bild zu den Formulardaten hinzu
-      const formData = {
+      // Formatiere das Datum
+      const formattedDate = form.values.datum.toISOString().split('T')[0];
+
+      // Erstelle die Daten für die API
+      const apiData = {
         ...form.values,
+        datum: formattedDate,
+        anlass: form.values.anlass, // Stelle sicher, dass der Anlass explizit übergeben wird
         image: imageData
       };
 
-      await generatePDF(formData);
-      console.log('PDF generated successfully');
+      console.log('Sende Daten an API:', apiData);
+
+      const response = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Fehler bei der PDF-Generierung');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bewirtungsbeleg-${formattedDate}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+
       setShowConfirm(false);
       setSuccess(true);
     } catch (error) {
       console.error('Error generating PDF:', error);
       setShowConfirm(false);
       setError('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
-    }
-  };
-
-  const generatePDF = async (data: typeof form.values) => {
-    console.log('generatePDF function called with data:', JSON.stringify(data, null, 2));
-    try {
-      console.log('Sending request to /api/generate-pdf...');
-      const response = await fetch('/api/generate-pdf', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-      console.log('API response status:', response.status);
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('API error response:', errorData);
-        throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
-      }
-
-      console.log('Response is ok, getting blob...');
-      const blob = await response.blob();
-      console.log('PDF blob received, size:', blob.size);
-      
-      if (blob.size === 0) {
-        throw new Error('PDF ist leer');
-      }
-      
-      console.log('Creating object URL...');
-      const url = window.URL.createObjectURL(blob);
-      console.log('Created object URL:', url);
-      
-      console.log('Creating download link...');
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `bewirtungsbeleg-${data.datum?.toISOString().split('T')[0]}.pdf`;
-      document.body.appendChild(a);
-      console.log('Triggering download...');
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      console.log('PDF download initiated');
-    } catch (error) {
-      console.error('Error in generatePDF:', error);
-      throw error;
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -245,15 +282,54 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  const calculateMwst = (brutto: number) => {
+    const mwst = brutto * 0.19; // 19% MwSt
+    const netto = brutto - mwst;
+    return {
+      mwst: mwst.toFixed(2),
+      netto: netto.toFixed(2)
+    };
+  };
+
+  const handleGesamtbetragChange = (value: string | number) => {
+    const brutto = String(value).replace(',', '.');
+    form.setFieldValue('gesamtbetrag', brutto);
+
+    if (brutto) {
+      const bruttoNum = Number(brutto);
+      const { mwst, netto } = calculateMwst(bruttoNum);
+      form.setFieldValue('gesamtbetragMwst', mwst);
+      form.setFieldValue('gesamtbetragNetto', netto);
+    }
+  };
+
   const handleTrinkgeldChange = (value: string | number) => {
     const trinkgeld = String(value).replace(',', '.');
     form.setFieldValue('trinkgeld', trinkgeld);
+
+    if (trinkgeld) {
+      const trinkgeldNum = Number(trinkgeld);
+      const { mwst } = calculateMwst(trinkgeldNum);
+      form.setFieldValue('trinkgeldMwst', mwst);
+    }
 
     if (trinkgeld && form.values.gesamtbetrag) {
       const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
       const trinkgeldNum = Number(trinkgeld);
       const kkBetrag = (gesamtbetrag + trinkgeldNum).toFixed(2);
       form.setFieldValue('kreditkartenBetrag', kkBetrag);
+    }
+  };
+
+  const handleAuslaendischeRechnungChange = (checked: boolean) => {
+    form.setFieldValue('istAuslaendischeRechnung', checked);
+    if (checked) {
+      // Wenn es eine ausländische Rechnung ist, setze Brutto = Netto
+      const brutto = form.values.gesamtbetrag;
+      if (brutto) {
+        form.setFieldValue('gesamtbetragNetto', brutto);
+        form.setFieldValue('gesamtbetragMwst', '0.00');
+      }
     }
   };
 
@@ -334,11 +410,20 @@ export default function BewirtungsbelegForm() {
                   label="Art der Bewirtung"
                   required
                   size="sm"
+                  description="Wählen Sie die Art der Bewirtung - dies beeinflusst die steuerliche Abzugsfähigkeit"
                   {...form.getInputProps('bewirtungsart')}
                 >
                   <Stack gap="xs" mt="xs">
-                    <Radio value="kunden" label="Kundenbewirtung (70% abzugsfähig)" />
-                    <Radio value="mitarbeiter" label="Mitarbeiterbewirtung (100% abzugsfähig)" />
+                    <Radio 
+                      value="kunden" 
+                      label="Kundenbewirtung (70% abzugsfähig)"
+                      description="Für Geschäftsfreunde (Kunden, Geschäftspartner). 70% der Kosten sind als Betriebsausgabe abziehbar."
+                    />
+                    <Radio 
+                      value="mitarbeiter" 
+                      label="Mitarbeiterbewirtung (100% abzugsfähig)"
+                      description="Für betriebliche Veranstaltungen (Teamessen, Arbeitsessen). 100% der Kosten sind als Betriebsausgabe abziehbar."
+                    />
                   </Stack>
                 </Radio.Group>
               </Stack>
@@ -347,8 +432,14 @@ export default function BewirtungsbelegForm() {
             <Box>
               <Title order={2} size="h6">Finanzielle Details</Title>
               <Stack gap="xs">
+                <Checkbox
+                  label="Ausländische Rechnung (keine MwSt.)"
+                  description="Aktivieren Sie diese Option, wenn die Rechnung aus dem Ausland stammt. In diesem Fall wird der Gesamtbetrag als Netto behandelt."
+                  checked={form.values.istAuslaendischeRechnung}
+                  onChange={(event) => handleAuslaendischeRechnungChange(event.currentTarget.checked)}
+                />
                 <NumberInput
-                  label="Gesamtbetrag"
+                  label="Gesamtbetrag (Brutto)"
                   placeholder="Gesamtbetrag in Euro"
                   required
                   min={0}
@@ -356,16 +447,45 @@ export default function BewirtungsbelegForm() {
                   size="sm"
                   decimalScale={2}
                   fixedDecimalScale
+                  description="Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)"
                   value={form.values.gesamtbetrag}
-                  onChange={(value) => form.setFieldValue('gesamtbetrag', String(value))}
+                  onChange={handleGesamtbetragChange}
                   onBlur={(event) => {
                     const value = event.currentTarget.value;
                     if (value) {
                       const numericValue = value.replace(',', '.');
-                      form.setFieldValue('gesamtbetrag', numericValue);
+                      handleGesamtbetragChange(numericValue);
                     }
                   }}
                 />
+                {!form.values.istAuslaendischeRechnung && (
+                  <>
+                    <NumberInput
+                      label="MwSt. Gesamtbetrag"
+                      placeholder="MwSt. in Euro"
+                      min={0}
+                      step={0.01}
+                      size="sm"
+                      decimalScale={2}
+                      fixedDecimalScale
+                      description="MwSt. (19%) wird automatisch berechnet"
+                      value={form.values.gesamtbetragMwst}
+                      readOnly
+                    />
+                    <NumberInput
+                      label="Netto Gesamtbetrag"
+                      placeholder="Netto in Euro"
+                      min={0}
+                      step={0.01}
+                      size="sm"
+                      decimalScale={2}
+                      fixedDecimalScale
+                      description="Netto wird automatisch berechnet"
+                      value={form.values.gesamtbetragNetto}
+                      readOnly
+                    />
+                  </>
+                )}
                 <NumberInput
                   label="Betrag auf Kreditkarte"
                   placeholder="Betrag auf Kreditkarte in Euro"
@@ -374,6 +494,7 @@ export default function BewirtungsbelegForm() {
                   size="sm"
                   decimalScale={2}
                   fixedDecimalScale
+                  description="Geben Sie den Betrag ein, der auf der Kreditkarte belastet wurde (inkl. Trinkgeld)"
                   value={form.values.kreditkartenBetrag}
                   onChange={handleKreditkartenBetragChange}
                   onBlur={(event) => {
@@ -392,6 +513,7 @@ export default function BewirtungsbelegForm() {
                   size="sm"
                   decimalScale={2}
                   fixedDecimalScale
+                  description="Geben Sie das Trinkgeld ein. Dies wird automatisch berechnet, wenn Sie den Betrag auf der Kreditkarte eingeben"
                   value={form.values.trinkgeld}
                   onChange={handleTrinkgeldChange}
                   onBlur={(event) => {
@@ -402,11 +524,24 @@ export default function BewirtungsbelegForm() {
                     }
                   }}
                 />
+                <NumberInput
+                  label="MwSt. Trinkgeld"
+                  placeholder="MwSt. in Euro"
+                  min={0}
+                  step={0.01}
+                  size="sm"
+                  decimalScale={2}
+                  fixedDecimalScale
+                  description="MwSt. (19%) wird automatisch berechnet"
+                  value={form.values.trinkgeldMwst}
+                  readOnly
+                />
                 <Select
                   label="Zahlungsart"
                   placeholder="Wählen Sie die Zahlungsart"
                   required
                   size="sm"
+                  description="Wählen Sie die Art der Zahlung. Die Rechnung muss auf die Firma ausgestellt sein."
                   data={[
                     { value: 'firma', label: 'Firmenkreditkarte' },
                     { value: 'privat', label: 'Private Kreditkarte' },
@@ -427,6 +562,9 @@ export default function BewirtungsbelegForm() {
                     : "z.B. Projektabschluss Team Meeting"}
                   required
                   size="sm"
+                  description={form.values.bewirtungsart === 'kunden'
+                    ? "Geben Sie den konkreten Anlass an (z.B. 'Kundengespräch', 'Projektbesprechung')"
+                    : "Geben Sie den Anlass an (z.B. 'Teamevent', 'Projektabschluss')"}
                   {...form.getInputProps('geschaeftlicherAnlass')}
                 />
                 <Textarea
@@ -439,6 +577,9 @@ export default function BewirtungsbelegForm() {
                   required
                   minRows={3}
                   size="sm"
+                  description={form.values.bewirtungsart === 'kunden'
+                    ? "Geben Sie die Namen aller Teilnehmer ein (auch Ihren eigenen Namen)"
+                    : "Geben Sie den Teilnehmerkreis an (z.B. 'Team Marketing', 'Abteilung Vertrieb')"}
                   {...form.getInputProps('teilnehmer')}
                 />
                 {form.values.bewirtungsart === 'kunden' && (
@@ -448,6 +589,7 @@ export default function BewirtungsbelegForm() {
                       placeholder="Namen der Geschäftspartner"
                       required
                       size="sm"
+                      description="Geben Sie die Namen der Geschäftspartner ein"
                       {...form.getInputProps('geschaeftspartnerNamen')}
                     />
                     <TextInput
@@ -455,6 +597,7 @@ export default function BewirtungsbelegForm() {
                       placeholder="Name der Firma"
                       required
                       size="sm"
+                      description="Geben Sie die Firma der Geschäftspartner ein"
                       {...form.getInputProps('geschaeftspartnerFirma')}
                     />
                   </>
@@ -466,6 +609,7 @@ export default function BewirtungsbelegForm() {
               type="submit" 
               size="sm"
               fullWidth
+              loading={isSubmitting}
             >
               Bewirtungsbeleg erstellen
             </Button>
@@ -496,13 +640,31 @@ export default function BewirtungsbelegForm() {
               <strong>Art der Bewirtung:</strong> {form.values.bewirtungsart === 'kunden' ? 'Kundenbewirtung (70% abzugsfähig)' : 'Mitarbeiterbewirtung (100% abzugsfähig)'}
             </Text>
             <Text size="sm">
-              <strong>Gesamtbetrag:</strong> {form.values.gesamtbetrag}€
+              <strong>Ausländische Rechnung:</strong> {form.values.istAuslaendischeRechnung ? 'Ja' : 'Nein'}
+            </Text>
+            <Text size="sm">
+              <strong>Anlass:</strong> {form.values.anlass || '-'}
+            </Text>
+            <Text size="sm">
+              <strong>Teilnehmer:</strong> {form.values.teilnehmer}
+            </Text>
+            <Text size="sm">
+              <strong>Gesamtbetrag (Brutto):</strong> {form.values.gesamtbetrag}€
+            </Text>
+            <Text size="sm">
+              <strong>MwSt. Gesamtbetrag:</strong> {form.values.gesamtbetragMwst}€
+            </Text>
+            <Text size="sm">
+              <strong>Netto Gesamtbetrag:</strong> {form.values.gesamtbetragNetto}€
             </Text>
             <Text size="sm">
               <strong>Betrag auf Kreditkarte:</strong> {form.values.kreditkartenBetrag}€
             </Text>
             <Text size="sm">
               <strong>Trinkgeld:</strong> {form.values.trinkgeld}€
+            </Text>
+            <Text size="sm">
+              <strong>MwSt. Trinkgeld:</strong> {form.values.trinkgeldMwst}€
             </Text>
             <Text size="sm">
               <strong>Zahlungsart:</strong> {form.values.zahlungsart === 'firma' ? 'Firmenkreditkarte' : form.values.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}

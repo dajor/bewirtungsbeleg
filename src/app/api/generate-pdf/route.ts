@@ -31,7 +31,16 @@ export async function POST(request: Request) {
     
     // Titel mit Linie
     doc.setFontSize(16);
-    doc.text('Bewirtungsbeleg', 105, yPosition, { align: 'center' });
+    doc.text('Bewirtungsbeleg', 105, 20, { align: 'center' });
+
+    // Füge die Art der Bewirtung hinzu
+    doc.setFontSize(12);
+    const bewirtungsart = data.bewirtungsart === 'kunden' 
+      ? 'Kundenbewirtung (70% abzugsfähig)' 
+      : 'Mitarbeiterbewirtung (100% abzugsfähig)';
+    doc.text(bewirtungsart, 105, 30, { align: 'center' });
+    
+    // Titel mit Linie
     doc.setLineWidth(0.5);
     yPosition += 5;
     doc.line(20, yPosition, 190, yPosition);
@@ -56,49 +65,87 @@ export async function POST(request: Request) {
     }
     console.log('Added general information');
     
-    // Finanzielle Details
-    yPosition += 20;
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.text('Finanzielle Details:', 20, yPosition);
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(10);
-    
-    yPosition += 10;
-    doc.text(`Gesamtbetrag: ${data.gesamtbetrag}€`, 20, yPosition);
-    
-    if (data.trinkgeld && Number(data.trinkgeld) > 0) {
-      yPosition += 10;
-      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, yPosition);
-      yPosition += 10;
-      const gesamtbetrag = typeof data.gesamtbetrag === 'string' ? parseFloat(data.gesamtbetrag.replace(',', '.')) : Number(data.gesamtbetrag);
-      const trinkgeld = typeof data.trinkgeld === 'string' ? parseFloat(data.trinkgeld.replace(',', '.')) : Number(data.trinkgeld);
-      doc.text(`Rechnungsbetrag ohne Trinkgeld: ${(gesamtbetrag - trinkgeld).toFixed(2).replace('.', ',')}€`, 20, yPosition);
-      yPosition += 10;
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
-    } else {
-      yPosition += 10;
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
-    }
-    console.log('Added financial details');
-
     // Geschäftlicher Anlass
     yPosition += 20;
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
-    doc.text('Geschäftlicher Anlass:', 20, yPosition);
+    doc.text(`${data.bewirtungsart === 'kunden' ? 'Geschäftlicher Anlass:' : 'Anlass:'}`, 20, yPosition);
     doc.setFont(undefined, 'normal');
     doc.setFontSize(10);
     
-    yPosition += 10;
-    doc.text(`Anlass: ${data.geschaeftlicherAnlass}`, 20, yPosition);
-    yPosition += 10;
+    yPosition += 15;
     doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, yPosition);
+    yPosition += 15;
+    doc.text(`Anlass: ${data.anlass || 'Projektbesprechung'}`, 20, yPosition);
+
+    // Finanzielle Details
+    yPosition += 20;
+    doc.setFontSize(10);
+    doc.text('Finanzielle Details:', 20, yPosition);
+    yPosition += 15;
+
+    // Box für finanzielle Details
+    const boxY = yPosition;
+    doc.setFillColor(245, 245, 245);
+    doc.rect(20, yPosition, 170, 45, 'F');
+    yPosition += 12;
+
+    doc.setFontSize(9);
+    doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`MwSt. Gesamtbetrag: ${data.gesamtbetragMwst}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`Netto Gesamtbetrag: ${data.gesamtbetragNetto}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`Trinkgeld: ${data.trinkgeld}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`MwSt. Trinkgeld: ${data.trinkgeldMwst}€`, 25, yPosition);
+    yPosition += 8;
+    doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 25, yPosition);
+    yPosition = boxY + 50;
+
+    // Geschäftspartner (nur bei Kundenbewirtung)
+    if (data.bewirtungsart === 'kunden') {
+      doc.setFontSize(10);
+      doc.text('Geschäftspartner:', 20, yPosition);
+      yPosition += 10;
+
+      doc.setFontSize(9);
+      doc.text(`Namen: ${data.geschaeftspartnerNamen}`, 25, yPosition);
+      yPosition += 7;
+      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 25, yPosition);
+      yPosition += 10;
+    }
+
+    // Mehr Abstand vor der Unterschrift
+    yPosition += 20;
+
+    // Unterschrift
+    doc.setFontSize(10);
+    doc.text('Unterschrift:', 20, yPosition);
     yPosition += 10;
-    doc.text(`Geschäftspartner: ${data.geschaeftspartnerNamen}`, 20, yPosition);
+
+    // Linie für Unterschrift mit Platz für die Unterschrift
+    doc.line(20, yPosition, 190, yPosition);
+    yPosition += 5;
+    doc.setFontSize(8);
+    doc.text('_____________________________', 20, yPosition);
+    yPosition += 5;
+
+    // Wichtiger Hinweis zur Unterschrift
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'bold');
+    doc.text('Wichtig: Ohne Unterschrift ist der Beleg nicht als Betriebsausgabe anerkannt!', 20, yPosition);
     yPosition += 10;
-    doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, yPosition);
-    console.log('Added business occasion details');
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'normal');
+    doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
+    yPosition += 5;
+    doc.text('Bitte bewahren Sie den unterschriebenen Beleg für mindestens 10 Jahre auf.', 20, yPosition);
 
     // Footer auf jeder Seite
     const pageCount = (doc as any).internal.getNumberOfPages();
