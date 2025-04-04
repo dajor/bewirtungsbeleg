@@ -51,6 +51,7 @@ interface BewirtungsbelegFormData {
   geschaeftspartnerNamen: string;
   geschaeftspartnerFirma: string;
   istAuslaendischeRechnung: boolean;
+  auslaendischeWaehrung: string;
 }
 
 export default function BewirtungsbelegForm() {
@@ -80,6 +81,7 @@ export default function BewirtungsbelegForm() {
       geschaeftspartnerNamen: '',
       geschaeftspartnerFirma: '',
       istAuslaendischeRechnung: false,
+      auslaendischeWaehrung: '',
     },
     validate: {
       datum: (value) => (value ? null : 'Datum ist erforderlich'),
@@ -132,6 +134,7 @@ export default function BewirtungsbelegForm() {
         return null;
       },
       istAuslaendischeRechnung: (value) => null,
+      auslaendischeWaehrung: (value) => null,
     },
   });
 
@@ -438,16 +441,47 @@ export default function BewirtungsbelegForm() {
                   checked={form.values.istAuslaendischeRechnung}
                   onChange={(event) => handleAuslaendischeRechnungChange(event.currentTarget.checked)}
                 />
+                {form.values.istAuslaendischeRechnung && (
+                  <Select
+                    label="Währung"
+                    placeholder="Wählen Sie die Währung"
+                    data={[
+                      { value: 'USD', label: 'USD ($)' },
+                      { value: 'GBP', label: 'GBP (£)' },
+                      { value: 'CHF', label: 'CHF (Fr.)' },
+                      { value: 'JPY', label: 'JPY (¥)' },
+                      { value: 'EUR', label: 'EUR (€)' },
+                      { value: 'other', label: 'Andere Währung' },
+                    ]}
+                    value={form.values.auslaendischeWaehrung}
+                    onChange={(value) => {
+                      form.setFieldValue('auslaendischeWaehrung', value || '');
+                      if (value === 'other') {
+                        form.setFieldValue('auslaendischeWaehrung', '');
+                      }
+                    }}
+                  />
+                )}
+                {form.values.istAuslaendischeRechnung && form.values.auslaendischeWaehrung === 'other' && (
+                  <TextInput
+                    label="Andere Währung"
+                    placeholder="z.B. CAD, AUD, NZD"
+                    value={form.values.auslaendischeWaehrung}
+                    onChange={(event) => form.setFieldValue('auslaendischeWaehrung', event.currentTarget.value)}
+                  />
+                )}
                 <NumberInput
                   label="Gesamtbetrag (Brutto)"
-                  placeholder="Gesamtbetrag in Euro"
+                  placeholder={`Gesamtbetrag in ${form.values.istAuslaendischeRechnung ? (form.values.auslaendischeWaehrung || 'ausländischer Währung') : 'Euro'}`}
                   required
                   min={0}
                   step={0.01}
                   size="sm"
                   decimalScale={2}
                   fixedDecimalScale
-                  description="Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)"
+                  description={form.values.istAuslaendischeRechnung 
+                    ? `Geben Sie den Gesamtbetrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'} ein` 
+                    : "Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)"}
                   value={form.values.gesamtbetrag}
                   onChange={handleGesamtbetragChange}
                   onBlur={(event) => {
@@ -524,18 +558,20 @@ export default function BewirtungsbelegForm() {
                     }
                   }}
                 />
-                <NumberInput
-                  label="MwSt. Trinkgeld"
-                  placeholder="MwSt. in Euro"
-                  min={0}
-                  step={0.01}
-                  size="sm"
-                  decimalScale={2}
-                  fixedDecimalScale
-                  description="MwSt. (19%) wird automatisch berechnet"
-                  value={form.values.trinkgeldMwst}
-                  readOnly
-                />
+                {!form.values.istAuslaendischeRechnung && (
+                  <NumberInput
+                    label="MwSt. Trinkgeld"
+                    placeholder="MwSt. in Euro"
+                    min={0}
+                    step={0.01}
+                    size="sm"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    description="MwSt. (19%) wird automatisch berechnet"
+                    value={form.values.trinkgeldMwst}
+                    readOnly
+                  />
+                )}
                 <Select
                   label="Zahlungsart"
                   placeholder="Wählen Sie die Zahlungsart"

@@ -84,43 +84,53 @@ export async function POST(request: Request) {
     doc.text('Finanzielle Details:', 20, yPosition);
     yPosition += 15;
 
-    // Box für finanzielle Details
-    const boxY = yPosition;
-    doc.setFillColor(245, 245, 245);
-    doc.rect(20, yPosition, 170, 45, 'F');
-    yPosition += 12;
-
     doc.setFontSize(9);
-    doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`MwSt. Gesamtbetrag: ${data.gesamtbetragMwst}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`Netto Gesamtbetrag: ${data.gesamtbetragNetto}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`Trinkgeld: ${data.trinkgeld}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`MwSt. Trinkgeld: ${data.trinkgeldMwst}€`, 25, yPosition);
-    yPosition += 8;
-    doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 25, yPosition);
-    yPosition = boxY + 50;
+    if (data.istAuslaendischeRechnung) {
+      doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}${data.auslaendischeWaehrung || '$'}`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Trinkgeld: ${data.trinkgeld}${data.auslaendischeWaehrung || '$'}`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
+      yPosition += 8;
+      if (data.auslaendischeWaehrung) {
+        doc.text(`Währung: ${data.auslaendischeWaehrung}`, 20, yPosition);
+      }
+      yPosition += 10;
+    } else {
+      doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`MwSt. Gesamtbetrag: ${data.gesamtbetragMwst}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Netto Gesamtbetrag: ${data.gesamtbetragNetto}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`MwSt. Trinkgeld: ${data.trinkgeldMwst}€`, 20, yPosition);
+      yPosition += 8;
+      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
+      yPosition += 10;
+    }
 
     // Geschäftspartner (nur bei Kundenbewirtung)
     if (data.bewirtungsart === 'kunden') {
+      yPosition += 20; // Mehr Abstand vor dem Abschnitt
       doc.setFontSize(10);
       doc.text('Geschäftspartner:', 20, yPosition);
       yPosition += 10;
 
       doc.setFontSize(9);
-      doc.text(`Namen: ${data.geschaeftspartnerNamen}`, 25, yPosition);
+      doc.text(`Namen: ${data.geschaeftspartnerNamen}`, 20, yPosition);
       yPosition += 7;
-      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 25, yPosition);
+      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, yPosition);
       yPosition += 10;
     }
 
-    // Mehr Abstand vor der Unterschrift
-    yPosition += 20;
+    // Weniger Abstand vor der Unterschrift
+    yPosition += 10;
 
     // Unterschrift
     doc.setFontSize(10);
@@ -132,12 +142,6 @@ export async function POST(request: Request) {
     yPosition += 5;
     doc.setFontSize(8);
     doc.text('_____________________________', 20, yPosition);
-    yPosition += 5;
-
-    // Wichtiger Hinweis zur Unterschrift
-    doc.setFontSize(8);
-    doc.setFont(undefined, 'bold');
-    doc.text('Wichtig: Ohne Unterschrift ist der Beleg nicht als Betriebsausgabe anerkannt!', 20, yPosition);
     yPosition += 10;
 
     // Footer
@@ -145,7 +149,6 @@ export async function POST(request: Request) {
     doc.setFont(undefined, 'normal');
     doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
     yPosition += 5;
-    doc.text('Bitte bewahren Sie den unterschriebenen Beleg für mindestens 10 Jahre auf.', 20, yPosition);
 
     // Footer auf jeder Seite
     const pageCount = (doc as any).internal.getNumberOfPages();
