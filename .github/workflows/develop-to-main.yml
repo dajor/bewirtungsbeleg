@@ -1,0 +1,77 @@
+name: Develop to Main Merge
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Get next version
+        id: version
+        uses: TriPSs/conventional-changelog-action@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          preset: 'angular'
+          tag-prefix: 'v'
+          skip-version-file: true
+          git-message: 'chore(release): {version}'
+          release-count: 0
+          output-file: 'false'
+
+      - name: Create release notes
+        run: |
+          git log --pretty=format:"%h - %s (%an)" $(git describe --tags --abbrev=0)..HEAD > release-notes.md
+          cp release-notes.html release-notes.html.tmp
+          echo "<div class='release-item'>" > release-notes.html
+          echo "<div class='version'>Version ${{ steps.version.outputs.version }}</div>" >> release-notes.html
+          echo "<div class='date'>$(date +'%d.%m.%Y')</div>" >> release-notes.html
+          echo "<div class='changes'>" >> release-notes.html
+          while IFS= read -r line; do
+            echo "<div class='change-item'>$line</div>" >> release-notes.html
+          done < release-notes.md
+          echo "</div></div>" >> release-notes.html
+          cat release-notes.html.tmp >> release-notes.html
+          rm release-notes.html.tmp
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ steps.version.outputs.version }}
+          body_path: release-notes.md
+          tag_name: v${{ steps.version.outputs.version }}
+          target_commitish: main
+
+      - name: Merge develop into main
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git checkout main
+          git merge develop
+          git push origin main
+
+      - name: Deploy release page
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          commit_message: "Update release notes" 
