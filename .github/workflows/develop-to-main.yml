@@ -55,14 +55,20 @@ jobs:
           rm release-notes.html.tmp
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+        uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.TOKEN }}
           commit-message: "Update release notes for version ${{ steps.version.outputs.version }}"
           title: "Release v${{ steps.version.outputs.version }}"
           body: "Automatisches Update der Release Notes für Version ${{ steps.version.outputs.version }}"
           branch: "release/v${{ steps.version.outputs.version }}"
           base: main
-          delete-branch: true
           labels: release
-          draft: false 
+          draft: false
+
+      - name: Push to develop
+        run: |
+          git config --global user.name 'dajor'
+          git config --global user.email 'daniel.jordan@fellowpro.com'
+          git add release-notes.html
+          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
+          git push origin develop 
