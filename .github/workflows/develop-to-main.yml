@@ -62,6 +62,7 @@ jobs:
           git add release-notes.html
           git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
           git pull origin develop
+          git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git push origin develop
 
       - name: Create Pull Request
