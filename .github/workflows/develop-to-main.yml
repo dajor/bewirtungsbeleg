@@ -1,0 +1,74 @@
+name: Develop to Main Merge
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  test-and-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm install
+          npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Get next version
+        id: version
+        uses: TriPSs/conventional-changelog-action@v4
+        with:
+          github-token: ${{ secrets.TOKEN }}
+          preset: 'angular'
+          tag-prefix: 'v'
+          skip-version-file: true
+          git-message: 'chore(release): {version}'
+          release-count: 0
+          output-file: 'false'
+
+      - name: Create release notes
+        run: |
+          git log --pretty=format:"%h - %s (%an)" $(git describe --tags --abbrev=0)..HEAD > release-notes.md
+          cp release-notes.html release-notes.html.tmp
+          echo "<div class='release-item'>" > release-notes.html
+          echo "<div class='version'>Version ${{ steps.version.outputs.version }}</div>" >> release-notes.html
+          echo "<div class='date'>$(date +'%d.%m.%Y')</div>" >> release-notes.html
+          echo "<div class='changes'>" >> release-notes.html
+          while IFS= read -r line; do
+            echo "<div class='change-item'>$line</div>" >> release-notes.html
+          done < release-notes.md
+          echo "</div></div>" >> release-notes.html
+          cat release-notes.html.tmp >> release-notes.html
+          rm release-notes.html.tmp
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          commit-message: "Update release notes for version ${{ steps.version.outputs.version }}"
+          title: "Release v${{ steps.version.outputs.version }}"
+          body: "Automatisches Update der Release Notes für Version ${{ steps.version.outputs.version }}"
+          branch: "release/v${{ steps.version.outputs.version }}"
+          base: main
+          labels: release
+          draft: false
+
+      - name: Push to develop
+        run: |
+          git config --global user.name 'dajor'
+          git config --global user.email 'daniel.jordan@fellowpro.com'
+          git add release-notes.html
+          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
+          git push origin develop 
