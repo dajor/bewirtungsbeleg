@@ -12,7 +12,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -61,6 +60,7 @@ jobs:
           git config --global user.email 'action@github.com'
           git add release-notes.html
           git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
+          git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git push origin develop
 
       - name: Merge develop into main
