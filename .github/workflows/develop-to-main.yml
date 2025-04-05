@@ -58,10 +58,10 @@ jobs:
         run: |
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
+          git checkout develop
           git add release-notes.html
           git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
-          git fetch origin develop
-          git rebase origin/develop
+          git pull origin develop
           git push origin develop
 
       - name: Create Pull Request
