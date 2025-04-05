@@ -54,26 +54,16 @@ jobs:
           cat release-notes.html.tmp >> release-notes.html
           rm release-notes.html.tmp
 
-      - name: Create release
-        uses: softprops/action-gh-release@v1
-        with:
-          name: Release ${{ steps.version.outputs.version }}
-          body_path: release-notes.md
-          tag_name: v${{ steps.version.outputs.version }}
-          target_commitish: main
-
-      - name: Merge develop into main
+      - name: Commit and push changes
         run: |
           git config --global user.name 'GitHub Action'
           git config --global user.email 'action@github.com'
+          git add release-notes.html
+          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
+          git push origin develop
+
+      - name: Merge develop into main
+        run: |
           git checkout main
           git merge develop
-          git push origin main
-
-      - name: Deploy release page
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .
-          publish_branch: gh-pages
-          commit_message: "Update release notes" 
+          git push origin main 
