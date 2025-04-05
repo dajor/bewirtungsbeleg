@@ -64,6 +64,7 @@ jobs:
           base: main
           labels: release
           draft: false
+          delete-branch: true
 
       - name: Push to develop
         run: |
@@ -71,4 +72,5 @@ jobs:
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git add release-notes.html
           git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
+          git pull --rebase origin develop
           git push origin develop 
