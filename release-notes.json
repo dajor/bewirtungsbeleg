@@ -1,58 +1,71 @@
 {
   "versions": [
     {
-      "version": "0.1.9",
+      "version": "0.2.0",
       "date": "06.04.2025",
       "changes": [
+        "CI-Workflow aktualisiert: Token für Push-Zugriff auf private Repos hinzugefügt, um die Bereitstellung zu erleichtern. Die Verwendung des Tokens wurde kommentiert.",
+        "CI-Workflow aktualisiert: Ersetzte Installation des OpenAI-Pakets durch Installation aller Abhängigkeiten aus der requirements.txt, um die Verwaltung der Python-Abhängigkeiten zu verbessern.",
+        "Eine Methode zur Auslesung der aktuellen Version aus der Datei version.txt wurde hinzugefügt. Analyse-Logik der Commits aktualisiert, um die aktuelle Version anzuzeigen. Die Antwort wird nun im JSON-Format strukturiert. Fehlerbehandlung beim Parsen der OpenAI-Antwort verbessert.",
+        "CI-Workflow aktualisiert: Schritte zur Python-Umgebungseinrichtung und Installation von Abhängigkeiten hinzugefügt. Logik zur Versionsinkrementierung durch ein Skript zur Erstellung von Release-Notizen basierend auf den letzten Commits ersetzt. Commit-Befehl zur Versionsaktualisierung optimiert.",
+        "Verarbeitung von Änderungen in den Release-Notizen verbessert: Trim-Logik hinzugefügt, um führende und nachfolgende Leerzeichen zu entfernen, was die Genauigkeit und Sauberkeit der generierten Notizen erhöht.",
+        "Generierung der JSON-Version der Release-Notizen optimiert: Logik zur Handhabung von Versionsinformationen und Änderungen aktualisiert, um die Ausgabe zu vereinheitlichen. CI-Workflow aktualisiert, um Stash-Befehle vor dem Wechsel zum Hauptbranch hinzuzufügen und die Push-Optionen zu erweitern.",
+        "Release-Notizen-Komponente aktualisiert, um die Daten aus einer JSON-Datei zu laden. Alte Logik zur Verarbeitung von Textdateien entfernt und Fehlerbehandlung für ungültige Formate der Release Notes verbessert.",
+        "CI-Workflow zur Erstellung von Release-Notizen erweitert: Generierung einer JSON-Version der Release-Notizen hinzugefügt, um die Struktur und Lesbarkeit zu verbessern. Release-Notizen-Komponente aktualisiert, um die neuen Daten anzuzeigen und die Benutzeroberfläche mit einer Timeline-Darstellung zu optimieren.",
+        "Link um das DocBits-Logo hinzugefügt und Darstellung der Release-Notizen verbessert: Struktur zur Anzeige von Versionsinformationen, einschließlich Änderungen, Build- und Commit-Details aktualisiert, um die Benutzeroberfläche und Lesbarkeit der Release-Notizen zu verbessern.",
+        "CI-Workflow für die Veröffentlichung aktualisiert: Schritt zur Erstellung von Pull-Requests entfernt und Schritt hinzugefügt, um Änderungen direkt in den Hauptbranch zu mergen und zu pushen, was den Veröffentlichungsprozess verbessert und die Integration von Änderungen aus dem Develop-Branch vereinfacht.",
+        "API zur Rechnungsbeleg-Analyse aktualisiert, um die Unterstützung für neue Felder zu erweitern, Validierungen für die neuen Eingabefelder hinzugefügt und die PDF-Generierung verbessert, um die aktualisierten finanziellen Details korrekt anzuzeigen.",
+        "Next.js- und Jest-Konfigurationen aktualisiert: Jest-Konfigurationsdatei entfernt, Jest-Setup-Datei auf ES6-Importsyntax aktualisiert, Next.js-Konfigurationsdatei gelöscht, Abhängigkeiten in package-lock.json sowie package.json aktualisiert und Testdatei für das Bewirtungsbeleg-Formular entfernt."
       ],
+      "build": "14290930320",
+      "commit": "4b45d3c311f60a0cb05c6b54a93a232209e73e9d"
+    },
+    {
+      "version": "0.1.9",
+      "date": "06.04.2025",
+      "changes": [],
       "build": "14290817185",
       "commit": "558875e0df28f53721226037d2c79db1b14ff973"
     },
     {
       "version": "0.1.8",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290798264",
       "commit": "d5d49bdbc81855344b3f8cccd515ffc70ccd86f7"
     },
     {
       "version": "0.1.7",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290771469",
       "commit": "18da220bd166e35603c61db45bb998f744c71904"
     },
     {
       "version": "0.1.6",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290680510",
       "commit": "9c4d14a5e75924fa19d7a866693a58103bdc7102"
     },
     {
       "version": "0.1.5",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290661576",
       "commit": "c503b739afbdd52a42e809dd1cdccc5db2a8014f"
     },
     {
       "version": "0.1.4",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290628051",
       "commit": "aae7cea8cde85aa2d00f3dbf8bfeef83a42533a1"
     },
     {
       "version": "0.1.3",
       "date": "06.04.2025",
-      "changes": [
-      ],
+      "changes": [],
       "build": "14290613804",
       "commit": "6e8db2c5062acef1c6f096db60776f75335a8a1c"
     }

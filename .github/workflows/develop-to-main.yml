@@ -13,8 +13,19 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # Verwende dajor's PAT für Berechtigungen auf private Repos und Push-Zugriff
+          # Verwende dajor's PAT für Push-Zugriff auf private Repos
+          # Nicht ändern !!!! 
           token: ${{ secrets.TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -30,122 +41,15 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Get current version
-        id: version
+      - name: Get recent commits
         run: |
-          CURRENT_VERSION=$(cat version.txt)
-          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          git log --since="1 day ago" --pretty=format:"%s (%an)" > recent_commits.txt
 
-      - name: Increment version
-        id: increment
+      - name: Create Release
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          CURRENT_VERSION=$(cat version.txt)
-          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
-          NEW_PATCH=$((patch + 1))
-          NEW_VERSION="$major.$minor.$NEW_PATCH"
-          echo "$NEW_VERSION" > version.txt
-          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Create release notes
-        run: |
-          # Erstelle temporäre Datei mit neuer Version
-          echo "# Version ${{ steps.increment.outputs.new_version }}" > release-notes.tmp
-          echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.tmp
-          echo "" >> release-notes.tmp
-          echo "## Änderungen" >> release-notes.tmp
-          # Hole alle Commits seit dem letzten Tag
-          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> release-notes.tmp
-          echo "" >> release-notes.tmp
-          echo "## Technische Details" >> release-notes.tmp
-          echo "- Build: ${{ github.run_id }}" >> release-notes.tmp
-          echo "- Commit: ${{ github.sha }}" >> release-notes.tmp
-          echo "" >> release-notes.tmp
-          echo "---" >> release-notes.tmp
-          echo "" >> release-notes.tmp
-          
-          # Füge bestehende Release Notes hinzu, falls vorhanden
-          if [ -f release-notes.txt ]; then
-            cat release-notes.txt >> release-notes.tmp
-          fi
-          
-          # Ersetze die alte Datei mit der neuen
-          mv release-notes.tmp release-notes.txt
-
-          # Erstelle JSON Version der Release Notes
-          echo '{' > release-notes.json
-          echo '  "versions": [' >> release-notes.json
-
-          FIRST=true
-          VERSION=""
-          DATE=""
-          CHANGES=()
-          BUILD=""
-          COMMIT=""
-
-          while IFS= read -r line; do
-            if [[ $line =~ ^#\ Version\ (.+)$ ]]; then
-              if [ ! -z "$VERSION" ]; then
-                if [ "$FIRST" = true ]; then
-                  FIRST=false
-                else
-                  echo "    }," >> release-notes.json
-                fi
-                echo "    {" >> release-notes.json
-                echo "      \"version\": \"$VERSION\"," >> release-notes.json
-                echo "      \"date\": \"$DATE\"," >> release-notes.json
-                echo "      \"changes\": [" >> release-notes.json
-                for i in "${!CHANGES[@]}"; do
-                  SEP=","
-                  [ $i -eq $((${#CHANGES[@]} - 1)) ] && SEP=""
-                  echo "        \"${CHANGES[$i]}\"$SEP" >> release-notes.json
-                done
-                echo "      ]," >> release-notes.json
-                echo "      \"build\": \"$BUILD\"," >> release-notes.json
-                echo "      \"commit\": \"$COMMIT\"" >> release-notes.json
-              fi
-              VERSION="${BASH_REMATCH[1]}"
-              CHANGES=()
-              DATE=""
-              BUILD=""
-              COMMIT=""
-            elif [[ $line =~ ^Datum:\ (.+)$ ]]; then
-              DATE="${BASH_REMATCH[1]}"
-            elif [[ $line =~ ^-\ Build:\ (.+)$ ]]; then
-              BUILD="${BASH_REMATCH[1]}"
-            elif [[ $line =~ ^-\ Commit:\ (.+)$ ]]; then
-              COMMIT="${BASH_REMATCH[1]}"
-            elif [[ $line =~ ^-\ (.+)$ ]] && [[ ! $line =~ "Build:" ]] && [[ ! $line =~ "Commit:" ]] && [[ ! $line =~ "Technische Details" ]]; then
-              TRIMMED_CHANGE="$(echo "${BASH_REMATCH[1]}" | xargs)"
-              if [ -n "$TRIMMED_CHANGE" ]; then
-                CHANGES+=("$TRIMMED_CHANGE")
-              fi
-            fi
-          done < release-notes.txt
-
-          # Letzte Version schreiben
-          if [ ! -z "$VERSION" ]; then
-            if [ "$FIRST" = true ]; then
-              echo "    {" >> release-notes.json
-            else
-              echo "    }," >> release-notes.json
-              echo "    {" >> release-notes.json
-            fi
-            echo "      \"version\": \"$VERSION\"," >> release-notes.json
-            echo "      \"date\": \"$DATE\"," >> release-notes.json
-            echo "      \"changes\": [" >> release-notes.json
-            for i in "${!CHANGES[@]}"; do
-              SEP=","
-              [ $i -eq $((${#CHANGES[@]} - 1)) ] && SEP=""
-              echo "        \"${CHANGES[$i]}\"$SEP" >> release-notes.json
-            done
-            echo "      ]," >> release-notes.json
-            echo "      \"build\": \"$BUILD\"," >> release-notes.json
-            echo "      \"commit\": \"$COMMIT\"" >> release-notes.json
-            echo "    }" >> release-notes.json
-          fi
-
-          echo "  ]" >> release-notes.json
-          echo "}" >> release-notes.json
+          python .github/release_manager.py recent_commits.txt ${{ github.run_id }} ${{ github.sha }}
 
       - name: Push changes
         run: |
@@ -153,7 +57,8 @@ jobs:
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
           git add version.txt release-notes.txt release-notes.json
-          git commit -m "Bump version to ${{ steps.increment.outputs.new_version }} #auto-release"
+          VERSION=$(cat version.txt)
+          git commit -m "Bump version to $VERSION #auto-release"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
           git push origin develop
@@ -164,6 +69,6 @@ jobs:
           git stash push -m "Stash before switching to main" || true
           git checkout main
           git stash pop || true
-          git merge develop --no-ff -m "Release v${{ steps.increment.outputs.new_version }}"
+          git merge develop --no-ff -m "Release v$(cat version.txt)"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git push origin main --force --no-verify
