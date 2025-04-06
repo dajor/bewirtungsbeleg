@@ -60,9 +60,9 @@ jobs:
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
           git add release-notes.html
-          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}"
-          git pull origin develop
+          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}" || echo "Nothing to commit"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
+          git pull origin develop
           git push origin develop
 
       - name: Create Pull Request
