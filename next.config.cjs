@@ -7,6 +7,10 @@ const nextConfig = {
         source: '/release-notes.txt',
         destination: '/release-notes.txt',
       },
+      {
+        source: '/release-notes.json',
+        destination: '/release-notes.json',
+      },
     ];
   },
 };
