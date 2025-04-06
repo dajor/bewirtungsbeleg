@@ -22,47 +22,16 @@ export default function ReleaseNotes() {
     const loadReleaseNotes = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/release-notes.txt');
+        const response = await fetch('/release-notes.json');
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        const text = await response.text();
-        if (!text.trim()) {
-          throw new Error('Release Notes sind leer');
+        const data = await response.json();
+        if (!data.versions || !Array.isArray(data.versions)) {
+          throw new Error('Ungültiges Format der Release Notes');
         }
 
-        // Parse die Release Notes
-        const notes: ReleaseNote[] = [];
-        const versions = text.split('# Version ').filter(Boolean);
-        
-        versions.forEach(version => {
-          const lines = version.split('\n').filter(Boolean);
-          const versionNumber = lines[0].trim();
-          const dateMatch = lines.find(line => line.startsWith('Datum:'))?.match(/Datum: (.*)/);
-          const buildMatch = lines.find(line => line.includes('Build:'))?.match(/- Build: (.*)/);
-          const commitMatch = lines.find(line => line.includes('Commit:'))?.match(/- Commit: (.*)/);
-          
-          const changes = lines
-            .filter(line => 
-              line.startsWith('-') && 
-              !line.includes('Build:') && 
-              !line.includes('Commit:') &&
-              !line.includes('Technische Details')
-            )
-            .map(line => line.substring(2).trim());
-          
-          if (versionNumber && dateMatch) {
-            notes.push({
-              version: versionNumber,
-              date: dateMatch[1],
-              changes,
-              build: buildMatch?.[1] || '',
-              commit: commitMatch?.[1] || ''
-            });
-          }
-        });
-
-        setReleaseNotes(notes);
+        setReleaseNotes(data.versions);
       } catch (error) {
         console.error('Fehler beim Laden der Release Notes:', error);
         setError('Release Notes konnten nicht geladen werden. Bitte versuchen Sie es später erneut.');
@@ -146,4 +115,4 @@ export default function ReleaseNotes() {
       </Stack>
     </Container>
   );
-} 
+}
