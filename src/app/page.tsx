@@ -28,14 +28,26 @@ export default function Home() {
           Erstellen Sie professionelle Bewirtungsbelege in wenigen Minuten. 
           Mit KI-gestützter Texterkennung und automatischer Datenextraktion.
         </Text>
-        <Button 
-          component={Link} 
-          href="/bewirtungsbeleg" 
-          size="lg" 
-          radius="xl"
-        >
-          Jetzt Bewirtungsbeleg erstellen
-        </Button>
+        <Stack gap="md" align="center" ta="center">
+          <Button 
+            component={Link} 
+            href="/bewirtungsbeleg" 
+            size="lg" 
+            radius="xl"
+          >
+            Jetzt Bewirtungsbeleg erstellen
+          </Button>
+          <Button
+            component={Link}
+            href="/release-notes.html"
+            size="lg"
+            radius="xl"
+            variant="light"
+            color="gray"
+          >
+            Release Notes anzeigen
+          </Button>
+        </Stack>
       </Stack>
 
       {/* Features Grid */}

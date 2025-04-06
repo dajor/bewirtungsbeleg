@@ -13,7 +13,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -43,25 +42,18 @@ jobs:
 
       - name: Create release notes
         run: |
-          git log --pretty=format:"%h - %s (%an)" $(git describe --tags --abbrev=0)..HEAD > release-notes.md
-          cp release-notes.html release-notes.html.tmp
-          echo "<div class='release-item'>" > release-notes.html
-          echo "<div class='version'>Version ${{ steps.version.outputs.version }}</div>" >> release-notes.html
-          echo "<div class='date'>$(date +'%d.%m.%Y')</div>" >> release-notes.html
-          echo "<div class='changes'>" >> release-notes.html
-          while IFS= read -r line; do
-            echo "<div class='change-item'>$line</div>" >> release-notes.html
-          done < release-notes.md
-          echo "</div></div>" >> release-notes.html
-          cat release-notes.html.tmp >> release-notes.html
-          rm release-notes.html.tmp
+          echo "Version ${{ steps.version.outputs.version }}" > release-notes.txt
+          echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.txt
+          echo "" >> release-notes.txt
+          echo "Änderungen:" >> release-notes.txt
+          git log --pretty=format:"- %s (%an)" $(git describe --tags --abbrev=0)..HEAD >> release-notes.txt
 
       - name: Push to develop
         run: |
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
-          git add release-notes.html
+          git add release-notes.txt
           git commit -m "Update release notes for version ${{ steps.version.outputs.version }} #auto-release" || echo "Nothing to commit"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
