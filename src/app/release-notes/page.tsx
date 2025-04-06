@@ -1,8 +1,9 @@
 'use client';
 
-import { Container, Title, Text, Paper, Stack, Button, Loader, Center, Image, Group, Avatar, Divider } from '@mantine/core';
+import { Container, Title, Text, Paper, Stack, Button, Loader, Center, Image, Group, Avatar, Timeline } from '@mantine/core';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { IconGitCommit } from '@tabler/icons-react';
 
 interface ReleaseNote {
   version: string;
@@ -32,24 +33,27 @@ export default function ReleaseNotes() {
 
         // Parse die Release Notes
         const notes: ReleaseNote[] = [];
-        const sections = text.split('---\n\n');
+        const versions = text.split('# Version ').filter(Boolean);
         
-        sections.forEach(section => {
-          if (!section.trim()) return;
+        versions.forEach(version => {
+          const lines = version.split('\n').filter(Boolean);
+          const versionNumber = lines[0].trim();
+          const dateMatch = lines.find(line => line.startsWith('Datum:'))?.match(/Datum: (.*)/);
+          const buildMatch = lines.find(line => line.includes('Build:'))?.match(/- Build: (.*)/);
+          const commitMatch = lines.find(line => line.includes('Commit:'))?.match(/- Commit: (.*)/);
           
-          const versionMatch = section.match(/# Version (.*)/);
-          const dateMatch = section.match(/Datum: (.*)/);
-          const buildMatch = section.match(/- Build: (.*)/);
-          const commitMatch = section.match(/- Commit: (.*)/);
+          const changes = lines
+            .filter(line => 
+              line.startsWith('-') && 
+              !line.includes('Build:') && 
+              !line.includes('Commit:') &&
+              !line.includes('Technische Details')
+            )
+            .map(line => line.substring(2).trim());
           
-          if (versionMatch && dateMatch) {
-            const changes = section
-              .split('\n')
-              .filter(line => line.startsWith('- ') && !line.includes('Build:') && !line.includes('Commit:'))
-              .map(line => line.substring(2));
-            
+          if (versionNumber && dateMatch) {
             notes.push({
-              version: versionMatch[1],
+              version: versionNumber,
               date: dateMatch[1],
               changes,
               build: buildMatch?.[1] || '',
@@ -77,8 +81,8 @@ export default function ReleaseNotes() {
           <Image
             src="/docbits.svg"
             alt="DocBits Logo"
-            width={200}
-            height={50}
+            width={100}
+            height={25}
             fit="contain"
           />
           <Title order={1}>Release Notes</Title>
@@ -103,42 +107,41 @@ export default function ReleaseNotes() {
             <Text c="red" ta="center">{error}</Text>
           </Paper>
         ) : (
-          <Stack gap="xl">
+          <Timeline active={-1} bulletSize={32} lineWidth={2}>
             {releaseNotes.map((note, index) => (
-              <Paper key={index} shadow="sm" p="xl" radius="md" withBorder>
-                <Group align="flex-start" mb="md">
+              <Timeline.Item
+                key={index}
+                bullet={
                   <Avatar 
                     src="https://github.com/dajor.png" 
-                    alt="Daniel Jordan" 
-                    size="lg"
+                    alt="Daniel Jordan"
+                    size={32}
                     radius="xl"
                   />
-                  <Stack gap={0}>
-                    <Title order={2} size="h3">Version {note.version}</Title>
-                    <Text c="dimmed" size="sm">{note.date}</Text>
-                  </Stack>
-                </Group>
-                
-                <Stack gap="xs" mb="md">
+                }
+                title={
+                  <Group gap="xs">
+                    <Title order={2} size="h4">Version {note.version}</Title>
+                    <Text size="sm" c="dimmed">({note.date})</Text>
+                  </Group>
+                }
+              >
+                <Stack gap="xs" mt="xs">
                   {note.changes.map((change, i) => (
-                    <Group key={i} gap="xs">
-                      <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#228be6' }} />
-                      <Text>{change}</Text>
+                    <Group key={i} gap="xs" align="flex-start">
+                      <IconGitCommit size={16} style={{ marginTop: 4 }} />
+                      <Text size="sm">{change}</Text>
                     </Group>
                   ))}
+                  
+                  <Group gap="lg" mt="sm">
+                    <Text size="xs" c="dimmed">Build: {note.build}</Text>
+                    <Text size="xs" c="dimmed">Commit: {note.commit}</Text>
+                  </Group>
                 </Stack>
-
-                <Divider my="md" />
-
-                <Group gap="xs">
-                  <Text size="sm" c="dimmed">Build:</Text>
-                  <Text size="sm">{note.build}</Text>
-                  <Text size="sm" c="dimmed">Commit:</Text>
-                  <Text size="sm">{note.commit}</Text>
-                </Group>
-              </Paper>
+              </Timeline.Item>
             ))}
-          </Stack>
+          </Timeline>
         )}
       </Stack>
     </Container>

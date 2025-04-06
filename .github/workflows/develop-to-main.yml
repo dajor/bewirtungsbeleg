@@ -71,12 +71,88 @@ jobs:
           # Ersetze die alte Datei mit der neuen
           mv release-notes.tmp release-notes.txt
 
+          # Erstelle JSON Version der Release Notes
+          echo "{" > release-notes.json
+          echo "  \"versions\": [" >> release-notes.json
+          
+          # Lese die Release Notes und konvertiere sie in JSON
+          FIRST=true
+          VERSION=""
+          DATE=""
+          CHANGES=()
+          BUILD=""
+          COMMIT=""
+          
+          while IFS= read -r line; do
+            if [[ $line =~ ^#\ Version\ (.+)$ ]]; then
+              # Wenn wir bereits eine Version haben, schreibe sie in die JSON-Datei
+              if [ ! -z "$VERSION" ]; then
+                if [ "$FIRST" = true ]; then
+                  FIRST=false
+                else
+                  echo "    }," >> release-notes.json
+                fi
+                echo "    {" >> release-notes.json
+                echo "      \"version\": \"$VERSION\"," >> release-notes.json
+                echo "      \"date\": \"$DATE\"," >> release-notes.json
+                echo "      \"changes\": [" >> release-notes.json
+                for i in "${!CHANGES[@]}"; do
+                  if [ $i -eq 0 ]; then
+                    echo "        \"${CHANGES[$i]}\"" >> release-notes.json
+                  else
+                    echo "        ,\"${CHANGES[$i]}\"" >> release-notes.json
+                  fi
+                done
+                echo "      ]," >> release-notes.json
+                echo "      \"build\": \"$BUILD\"," >> release-notes.json
+                echo "      \"commit\": \"$COMMIT\"" >> release-notes.json
+              fi
+              VERSION="${BASH_REMATCH[1]}"
+              CHANGES=()
+            elif [[ $line =~ ^Datum:\ (.+)$ ]]; then
+              DATE="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^-\ Build:\ (.+)$ ]]; then
+              BUILD="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^-\ Commit:\ (.+)$ ]]; then
+              COMMIT="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^-\ (.+)$ ]] && [[ ! $line =~ "Build:" ]] && [[ ! $line =~ "Commit:" ]] && [[ ! $line =~ "Technische Details" ]]; then
+              CHANGES+=("${BASH_REMATCH[1]}")
+            fi
+          done < release-notes.txt
+          
+          # Schreibe die letzte Version
+          if [ ! -z "$VERSION" ]; then
+            if [ "$FIRST" = true ]; then
+              echo "    {" >> release-notes.json
+            else
+              echo "    }," >> release-notes.json
+              echo "    {" >> release-notes.json
+            fi
+            echo "      \"version\": \"$VERSION\"," >> release-notes.json
+            echo "      \"date\": \"$DATE\"," >> release-notes.json
+            echo "      \"changes\": [" >> release-notes.json
+            for i in "${!CHANGES[@]}"; do
+              if [ $i -eq 0 ]; then
+                echo "        \"${CHANGES[$i]}\"" >> release-notes.json
+              else
+                echo "        ,\"${CHANGES[$i]}\"" >> release-notes.json
+              fi
+            done
+            echo "      ]," >> release-notes.json
+            echo "      \"build\": \"$BUILD\"," >> release-notes.json
+            echo "      \"commit\": \"$COMMIT\"" >> release-notes.json
+            echo "    }" >> release-notes.json
+          fi
+          
+          echo "  ]" >> release-notes.json
+          echo "}" >> release-notes.json
+
       - name: Push changes
         run: |
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
-          git add version.txt release-notes.txt
+          git add version.txt release-notes.txt release-notes.json
           git commit -m "Bump version to ${{ steps.increment.outputs.new_version }} #auto-release"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
