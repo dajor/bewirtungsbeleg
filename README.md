@@ -1,7 +1,7 @@
 # Bewirtungsbeleg-App
 
 [![Tests](https://github.com/dajor/bewirtungsbeleg/actions/workflows/develop-to-main.yml/badge.svg)](https://github.com/dajor/bewirtungsbeleg/actions/workflows/develop-to-main.yml)
-[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/dajor/bewirtungsbeleg/actions/workflows/develop-to-main.yml)
+[![Coverage](https://codecov.io/gh/dajor/bewirtungsbeleg/branch/main/graph/badge.svg)](https://codecov.io/gh/dajor/bewirtungsbeleg)
 
 Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatischer Datenextraktion aus Fotos/Scans.
 
