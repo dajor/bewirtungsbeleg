@@ -9,14 +9,16 @@ export default function Home() {
     <Container size="lg" py="xl">
       {/* Logo */}
       <Stack align="center" mb={rem(48)}>
-        <Image
-          src="/docbits.svg"
-          alt="DocBits Logo"
-          width={200}
-          height={50}
-          fit="contain"
-          style={{ maxWidth: '200px', height: '50px' }}
-        />
+        <Link href="https://www.docbits.com" target="_blank" rel="noopener noreferrer">
+          <Image
+            src="/docbits.svg"
+            alt="DocBits Logo"
+            width={200}
+            height={50}
+            fit="contain"
+            style={{ maxWidth: '200px', height: '50px' }}
+          />
+        </Link>
       </Stack>
 
       {/* Hero Section */}
