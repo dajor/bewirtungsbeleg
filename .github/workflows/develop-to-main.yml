@@ -13,7 +13,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -26,15 +25,8 @@ jobs:
           npm install
           npm ci
 
-      - name: Run tests with coverage
-        run: npm test -- --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage/lcov.info
-          fail_ci_if_error: true
+      - name: Run tests
+        run: npm test
 
       - name: Get next version
         id: version
