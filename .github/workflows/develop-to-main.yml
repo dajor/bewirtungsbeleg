@@ -82,19 +82,10 @@ jobs:
           git pull origin develop
           git push origin develop
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.TOKEN }}
-          commit-message: "Release v${{ steps.increment.outputs.new_version }}"
-          title: "Release v${{ steps.increment.outputs.new_version }}"
-          body: |
-            Automatisches Update für Version ${{ steps.increment.outputs.new_version }}
-            
-            ## Änderungen
-            $(cat release-notes.txt | sed -n '/## Änderungen/,/## Technische Details/p' | sed '$d')
-          branch: "release/v${{ steps.increment.outputs.new_version }}"
-          base: main
-          labels: release
-          draft: false
-          delete-branch: true
+      - name: Push release to main
+        run: |
+          git fetch origin
+          git checkout main
+          git merge develop --no-ff -m "Release v${{ steps.increment.outputs.new_version }}"
+          git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
+          git push origin main
