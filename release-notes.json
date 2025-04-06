@@ -1,10 +1,30 @@
 {
   "versions": [
     {
-      "version": "0.1.9",
+      "version": "0.4.0",
       "date": "06.04.2025",
       "changes": [
+        "Erweiterung des CI-Workflows um die Handhabung von Tokens f\\u00fcr den Push-Zugriff auf private Repos und zur Verbesserung der Authentifizierung im Checkout-Prozess.",
+        "Verbesserung der Verwaltung von Python-Abh\\u00e4ngigkeiten durch die Installation aller Abh\\u00e4ngigkeiten aus der 'requirements.txt'.",
+        "Einf\\u00fchrung einer Methode zur Auslesung der aktuellen Version aus der Datei 'version.txt' und Optimierung der Analyse-Logik der Commits.",
+        "Optimierung des CI-Workflows durch die Einf\\u00fchrung von Schritten zur Python-Umgebungseinrichtung, Verbesserung der Installationslogik f\\u00fcr Abh\\u00e4ngigkeiten und Ersetzung der Versionsinkrementierungslogik durch ein Skript f\\u00fcr Release-Notizen.",
+        "Verbesserung der Genauigkeit und Sauberkeit der generierten Release-Notizen durch Hinzuf\\u00fcgung einer Trim-Logik.",
+        "Vereinheitlichung der Ausgabe der Release-Notizen im JSON-Format und Optimierung der Push-Optionen im CI-Workflow.",
+        "Erweiterung der Release-Notizen-Komponente zur Anzeige von Daten aus einer JSON-Datei und Verbesserung der Fehlerbehandlung.",
+        "Optimierung der Darstellung der Release-Notizen auf der Benutzeroberfl\\u00e4che durch Strukturaktualisierungen und die Einf\\u00fchrung einer Timeline-Darstellung.",
+        "Verbesserung des CI-Workflows f\\u00fcr die Ver\\u00f6ffentlichung durch Direktmerging von \\u00c4nderungen in den Hauptbranch.",
+        "Aktualisierung der Testabdeckungsanzeige und Optimierung der Jest-Konfiguration f\\u00fcr Coverage-Reports.",
+        "Einf\\u00fchrung neuer Schaltfl\\u00e4chen f\\u00fcr die Erstellung von Bewirtungsbelegen und Anzeige von Release-Notizen auf der Hauptseite.",
+        "Aktualisierung der API zur Rechnungsbeleg-Analyse mit Unterst\\u00fctzung f\\u00fcr neue Felder und verbesserte PDF-Generierung.",
+        "Entfernung und Aktualisierung von Konfigurationsdateien zur Optimierung der Codebasis."
       ],
+      "build": "14292262847",
+      "commit": "8d94c1c045ae0614f2716b789a868d448b998d3c"
+    },
+    {
+      "version": "0.1.9",
+      "date": "06.04.2025",
+      "changes": [],
       "build": "14290817185",
       "commit": "558875e0df28f53721226037d2c79db1b14ff973"
     },
