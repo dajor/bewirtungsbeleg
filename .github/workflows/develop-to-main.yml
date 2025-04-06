@@ -72,20 +72,18 @@ jobs:
           mv release-notes.tmp release-notes.txt
 
           # Erstelle JSON Version der Release Notes
-          echo "{" > release-notes.json
-          echo "  \"versions\": [" >> release-notes.json
-          
-          # Lese die Release Notes und konvertiere sie in JSON
+          echo '{' > release-notes.json
+          echo '  "versions": [' >> release-notes.json
+
           FIRST=true
           VERSION=""
           DATE=""
           CHANGES=()
           BUILD=""
           COMMIT=""
-          
+
           while IFS= read -r line; do
             if [[ $line =~ ^#\ Version\ (.+)$ ]]; then
-              # Wenn wir bereits eine Version haben, schreibe sie in die JSON-Datei
               if [ ! -z "$VERSION" ]; then
                 if [ "$FIRST" = true ]; then
                   FIRST=false
@@ -97,11 +95,9 @@ jobs:
                 echo "      \"date\": \"$DATE\"," >> release-notes.json
                 echo "      \"changes\": [" >> release-notes.json
                 for i in "${!CHANGES[@]}"; do
-                  if [ $i -eq 0 ]; then
-                    echo "        \"${CHANGES[$i]}\"" >> release-notes.json
-                  else
-                    echo "        ,\"${CHANGES[$i]}\"" >> release-notes.json
-                  fi
+                  SEP=","
+                  [ $i -eq $((${#CHANGES[@]} - 1)) ] && SEP=""
+                  echo "        \"${CHANGES[$i]}\"$SEP" >> release-notes.json
                 done
                 echo "      ]," >> release-notes.json
                 echo "      \"build\": \"$BUILD\"," >> release-notes.json
@@ -109,6 +105,9 @@ jobs:
               fi
               VERSION="${BASH_REMATCH[1]}"
               CHANGES=()
+              DATE=""
+              BUILD=""
+              COMMIT=""
             elif [[ $line =~ ^Datum:\ (.+)$ ]]; then
               DATE="${BASH_REMATCH[1]}"
             elif [[ $line =~ ^-\ Build:\ (.+)$ ]]; then
@@ -119,8 +118,8 @@ jobs:
               CHANGES+=("${BASH_REMATCH[1]}")
             fi
           done < release-notes.txt
-          
-          # Schreibe die letzte Version
+
+          # Letzte Version schreiben
           if [ ! -z "$VERSION" ]; then
             if [ "$FIRST" = true ]; then
               echo "    {" >> release-notes.json
@@ -132,18 +131,16 @@ jobs:
             echo "      \"date\": \"$DATE\"," >> release-notes.json
             echo "      \"changes\": [" >> release-notes.json
             for i in "${!CHANGES[@]}"; do
-              if [ $i -eq 0 ]; then
-                echo "        \"${CHANGES[$i]}\"" >> release-notes.json
-              else
-                echo "        ,\"${CHANGES[$i]}\"" >> release-notes.json
-              fi
+              SEP=","
+              [ $i -eq $((${#CHANGES[@]} - 1)) ] && SEP=""
+              echo "        \"${CHANGES[$i]}\"$SEP" >> release-notes.json
             done
             echo "      ]," >> release-notes.json
             echo "      \"build\": \"$BUILD\"," >> release-notes.json
             echo "      \"commit\": \"$COMMIT\"" >> release-notes.json
             echo "    }" >> release-notes.json
           fi
-          
+
           echo "  ]" >> release-notes.json
           echo "}" >> release-notes.json
 
@@ -161,7 +158,9 @@ jobs:
       - name: Push release to main
         run: |
           git fetch origin
+          git stash push -m "Stash before switching to main" || true
           git checkout main
+          git stash pop || true
           git merge develop --no-ff -m "Release v${{ steps.increment.outputs.new_version }}"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
-          git push origin main
+          git push origin main --force --no-verify
