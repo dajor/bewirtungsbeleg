@@ -1,3 +1,26 @@
+# Version 0.2.0
+Datum: 06.04.2025
+
+## Änderungen
+- CI-Workflow aktualisiert: Token für Push-Zugriff auf private Repos hinzugefügt, um die Bereitstellung zu erleichtern. Die Verwendung des Tokens wurde kommentiert.
+- CI-Workflow aktualisiert: Ersetzte Installation des OpenAI-Pakets durch Installation aller Abhängigkeiten aus der requirements.txt, um die Verwaltung der Python-Abhängigkeiten zu verbessern.
+- Eine Methode zur Auslesung der aktuellen Version aus der Datei version.txt wurde hinzugefügt. Analyse-Logik der Commits aktualisiert, um die aktuelle Version anzuzeigen. Die Antwort wird nun im JSON-Format strukturiert. Fehlerbehandlung beim Parsen der OpenAI-Antwort verbessert.
+- CI-Workflow aktualisiert: Schritte zur Python-Umgebungseinrichtung und Installation von Abhängigkeiten hinzugefügt. Logik zur Versionsinkrementierung durch ein Skript zur Erstellung von Release-Notizen basierend auf den letzten Commits ersetzt. Commit-Befehl zur Versionsaktualisierung optimiert.
+- Verarbeitung von Änderungen in den Release-Notizen verbessert: Trim-Logik hinzugefügt, um führende und nachfolgende Leerzeichen zu entfernen, was die Genauigkeit und Sauberkeit der generierten Notizen erhöht.
+- Generierung der JSON-Version der Release-Notizen optimiert: Logik zur Handhabung von Versionsinformationen und Änderungen aktualisiert, um die Ausgabe zu vereinheitlichen. CI-Workflow aktualisiert, um Stash-Befehle vor dem Wechsel zum Hauptbranch hinzuzufügen und die Push-Optionen zu erweitern.
+- Release-Notizen-Komponente aktualisiert, um die Daten aus einer JSON-Datei zu laden. Alte Logik zur Verarbeitung von Textdateien entfernt und Fehlerbehandlung für ungültige Formate der Release Notes verbessert.
+- CI-Workflow zur Erstellung von Release-Notizen erweitert: Generierung einer JSON-Version der Release-Notizen hinzugefügt, um die Struktur und Lesbarkeit zu verbessern. Release-Notizen-Komponente aktualisiert, um die neuen Daten anzuzeigen und die Benutzeroberfläche mit einer Timeline-Darstellung zu optimieren.
+- Link um das DocBits-Logo hinzugefügt und Darstellung der Release-Notizen verbessert: Struktur zur Anzeige von Versionsinformationen, einschließlich Änderungen, Build- und Commit-Details aktualisiert, um die Benutzeroberfläche und Lesbarkeit der Release-Notizen zu verbessern.
+- CI-Workflow für die Veröffentlichung aktualisiert: Schritt zur Erstellung von Pull-Requests entfernt und Schritt hinzugefügt, um Änderungen direkt in den Hauptbranch zu mergen und zu pushen, was den Veröffentlichungsprozess verbessert und die Integration von Änderungen aus dem Develop-Branch vereinfacht.
+- API zur Rechnungsbeleg-Analyse aktualisiert, um die Unterstützung für neue Felder zu erweitern, Validierungen für die neuen Eingabefelder hinzugefügt und die PDF-Generierung verbessert, um die aktualisierten finanziellen Details korrekt anzuzeigen.
+- Next.js- und Jest-Konfigurationen aktualisiert: Jest-Konfigurationsdatei entfernt, Jest-Setup-Datei auf ES6-Importsyntax aktualisiert, Next.js-Konfigurationsdatei gelöscht, Abhängigkeiten in package-lock.json sowie package.json aktualisiert und Testdatei für das Bewirtungsbeleg-Formular entfernt.
+
+## Technische Details
+- Build: 14290930320
+- Commit: 4b45d3c311f60a0cb05c6b54a93a232209e73e9d
+
+---
+
 # Version 0.1.9
 Datum: 06.04.2025
 
