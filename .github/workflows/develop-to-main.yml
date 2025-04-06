@@ -48,23 +48,24 @@ jobs:
 
       - name: Create release notes
         run: |
-          echo "# Version ${{ steps.increment.outputs.new_version }}" > release-notes.txt
-          echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "## Änderungen" >> release-notes.txt
+          mkdir -p public
+          echo "# Version ${{ steps.increment.outputs.new_version }}" > public/release-notes.txt
+          echo "Datum: $(date +'%d.%m.%Y')" >> public/release-notes.txt
+          echo "" >> public/release-notes.txt
+          echo "## Änderungen" >> public/release-notes.txt
           # Hole alle Commits seit dem letzten Tag
-          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "## Technische Details" >> release-notes.txt
-          echo "- Build: ${{ github.run_id }}" >> release-notes.txt
-          echo "- Commit: ${{ github.sha }}" >> release-notes.txt
+          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> public/release-notes.txt
+          echo "" >> public/release-notes.txt
+          echo "## Technische Details" >> public/release-notes.txt
+          echo "- Build: ${{ github.run_id }}" >> public/release-notes.txt
+          echo "- Commit: ${{ github.sha }}" >> public/release-notes.txt
 
       - name: Push changes
         run: |
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
-          git add version.txt release-notes.txt
+          git add version.txt public/release-notes.txt
           git commit -m "Bump version to ${{ steps.increment.outputs.new_version }} #auto-release"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
@@ -80,7 +81,7 @@ jobs:
             Automatisches Update für Version ${{ steps.increment.outputs.new_version }}
             
             ## Änderungen
-            $(cat release-notes.txt | sed -n '/## Änderungen/,/## Technische Details/p' | sed '$d')
+            $(cat public/release-notes.txt | sed -n '/## Änderungen/,/## Technische Details/p' | sed '$d')
           branch: "release/v${{ steps.increment.outputs.new_version }}"
           base: main
           labels: release

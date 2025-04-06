@@ -39,7 +39,7 @@ export default function Home() {
           </Button>
           <Button
             component={Link}
-            href="/release-notes.html"
+            href="/release-notes"
             size="lg"
             radius="xl"
             variant="light"

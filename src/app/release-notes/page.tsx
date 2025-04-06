@@ -1,17 +1,36 @@
 'use client';
 
-import { Container, Title, Text, Paper, Stack, Button } from '@mantine/core';
+import { Container, Title, Text, Paper, Stack, Button, Loader, Center } from '@mantine/core';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 export default function ReleaseNotes() {
   const [releaseNotes, setReleaseNotes] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    fetch('/release-notes.txt')
-      .then(response => response.text())
-      .then(text => setReleaseNotes(text))
-      .catch(error => console.error('Fehler beim Laden der Release Notes:', error));
+    const loadReleaseNotes = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/release-notes.txt');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const text = await response.text();
+        if (!text.trim()) {
+          throw new Error('Release Notes sind leer');
+        }
+        setReleaseNotes(text);
+      } catch (error) {
+        console.error('Fehler beim Laden der Release Notes:', error);
+        setError('Release Notes konnten nicht geladen werden. Bitte versuchen Sie es später erneut.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadReleaseNotes();
   }, []);
 
   return (
@@ -29,11 +48,21 @@ export default function ReleaseNotes() {
           Zurück zur Startseite
         </Button>
 
-        <Paper shadow="sm" p="xl" radius="md" withBorder>
-          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
-            {releaseNotes || 'Lade Release Notes...'}
-          </pre>
-        </Paper>
+        {loading ? (
+          <Center>
+            <Loader size="xl" />
+          </Center>
+        ) : error ? (
+          <Paper shadow="sm" p="xl" radius="md" withBorder>
+            <Text c="red" ta="center">{error}</Text>
+          </Paper>
+        ) : (
+          <Paper shadow="sm" p="xl" radius="md" withBorder>
+            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
+              {releaseNotes}
+            </pre>
+          </Paper>
+        )}
       </Stack>
     </Container>
   );
