@@ -4,12 +4,24 @@ const createJestConfig = nextJest({
   dir: './',
 });
 
-const customJestConfig = {
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
-  testEnvironment: 'jest-environment-jsdom',
+/** @type {import('jest').Config} */
+const config = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov'],
+  coverageThreshold: {
+    global: {
+      branches: 0,
+      functions: 0,
+      lines: 0,
+      statements: 0,
+    },
+  },
 };
 
-module.exports = createJestConfig(customJestConfig); 
+module.exports = createJestConfig(config); 

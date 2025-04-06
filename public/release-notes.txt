@@ -1,0 +1,43 @@
+# Version 0.1.2
+Datum: 06.04.2025
+
+## Änderungen
+- Entferne die Rewrite-Regel für die Release-Notizen und passe den CI-Workflow an, um die Release-Notizen in das öffentliche Verzeichnis zu speichern. Aktualisiere die Fetch-Logik in der Release-Notizen-Komponente, um Fehlerbehandlung und Ladeanzeige hinzuzufügen. (Daniel Jordan)
+- Bump version to 0.1.1 #auto-release (dajor)
+- Aktualisiere den CI-Workflow zur Versionsverwaltung: Ändere den Schritt zur Versionsbestimmung, erhöhe die Patch-Version und passe die Erstellung der Release-Notizen an, um Änderungen der letzten 24 Stunden zu erfassen. Füge technische Details zur Release-Notiz hinzu und aktualisiere den Push-Schritt für die neuen Versionen. (Daniel Jordan)
+- Füge Token für Berechtigungen auf private Repos im CI-Workflow hinzu, um den Checkout-Prozess zu verbessern und Push-Zugriff zu ermöglichen. (Daniel Jordan)
+- Vereinfachung des CI-Workflows durch Entfernen der Coverage-Tests und Anpassung des Testschritts, um nur die Tests ohne Coverage auszuführen. (Daniel Jordan)
+- Aktualisiere den Badge für die Testabdeckung im README von einem statischen Link zu einem dynamischen Codecov-Link, um die aktuelle Abdeckungsstatistik anzuzeigen. (Daniel Jordan)
+- Aktualisiere die Codecov-Aktion im CI-Workflow von Version 4 auf Version 5 und passe den Schlüssel für das Token von 'codecov-token' zu 'token' an, um die neuesten Änderungen der Aktion zu berücksichtigen. (Daniel Jordan)
+- Ändere den Schlüssel für das Codecov-Token im CI-Workflow von 'TOKEN' zu 'CODECOV_TOKEN', um die Konsistenz mit den aktuellen Geheimnissen zu gewährleisten. (Daniel Jordan)
+- Ändere den Schlüssel für das Codecov-Token im CI-Workflow von 'token' zu 'codecov-token', um die Kompatibilität mit der aktuellen Version der Codecov-Aktion sicherzustellen. (Daniel Jordan)
+- Aktualisiere Jest-Konfiguration zur Unterstützung von Coverage-Reports und passe CI-Workflow an, um Tests mit Coverage auszuführen und die Ergebnisse zu Codecov hochzuladen. Füge Badge für Testabdeckung im README hinzu. (Daniel Jordan)
+- Update release notes for version  #auto-release (Conventional Changelog Action)
+- Füge Token zur Authentifizierung im CI-Workflow hinzu, um die Sicherheit beim Checkout zu erhöhen und die Funktionalität zu verbessern. (Daniel Jordan)
+- Füge Badge für Tests im README hinzu, um den Status der CI-Integration sichtbar zu machen. (Daniel Jordan)
+- Aktualisiere die Hauptseite mit neuen Schaltflächen für die Erstellung von Bewirtungsbelegen und die Anzeige von Release-Notizen. Ändere den Titel der HTML-Datei und verbessere das Layout mit einem neuen Header und Container. Füge eine Rewrite-Regel in der Next.js-Konfiguration hinzu, um die Release-Notizen bereitzustellen. Aktualisiere den CI-Workflow zur Erstellung von Release-Notizen im Textformat. (Daniel Jordan)
+- Update release notes for version  #auto-release (Conventional Changelog Action)
+- Füge eine Bedingung hinzu, um automatische Releases im CI-Workflow zu steuern. Aktualisiere die Commit-Nachricht für die Release-Notizen, um die Automatisierung zu unterstützen. (Daniel Jordan)
+- Update release notes for version (Conventional Changelog Action)
+- Update release notes for version (Conventional Changelog Action)
+- Füge das Token zur Authentifizierung im CI-Workflow hinzu, um die Sicherheit beim Checkout zu erhöhen und die Funktionalität zu verbessern. (Daniel Jordan)
+- Verbessere die Commit-Logik im CI-Workflow, indem eine Fehlermeldung hinzugefügt wird, wenn es nichts zu committen gibt. Dies sorgt für eine robustere Handhabung von Änderungen an den Release-Notizen. (Daniel Jordan)
+- Entferne überflüssige Leerzeile im CI-Workflow, um die Lesbarkeit und Struktur der Datei zu verbessern. (Daniel Jordan)
+- Füge das Token zur Authentifizierung im CI-Workflow hinzu, um die Erstellung von Pull Requests und das Pushen von Änderungen an den Release-Notizen zu ermöglichen. Dies verbessert die Sicherheit und Funktionalität des Workflows. (Daniel Jordan)
+- fix (Daniel Jordan)
+- Füge die Konfiguration der Remote-URL im CI-Workflow hinzu, um das Pushen in den Develop-Branch mit dem Token zu ermöglichen. Dies verbessert die Authentifizierung beim Push-Vorgang. (Daniel Jordan)
+- Optimiere die Push-Logik im CI-Workflow für den Develop-Branch, indem der Pull-Befehl durch einen Fetch- und Rebase-Befehl ersetzt wird. Dies verbessert die Handhabung von Änderungen an den Release-Notizen. (Daniel Jordan)
+- Optimiere die Push-Logik im CI-Workflow für den Develop-Branch, indem der Pull-Befehl durch einen Fetch- und Rebase-Befehl ersetzt wird. Dies verbessert die Handhabung von Änderungen an den Release-Notizen. (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um die Push-Logik für den Develop-Branch zu optimieren und die vorherige Push-Logik zu bereinigen. Füge die Konfiguration des Git-Benutzers hinzu und stelle sicher, dass die Release-Notizen korrekt in den Develop-Branch gepusht werden. (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um das Löschen des Branches nach dem Merge zu aktivieren und die Pull-Logik für den Develop-Branch um einen Rebase-Befehl zu erweitern. (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um die Version des Pull-Request-Generators zu aktualisieren und eine Push-Logik für Änderungen an den Release-Notizen in den Develop-Branch hinzuzufügen. (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um die Erstellung eines Pull Requests für die Release-Notizen zu integrieren und die vorherige Commit- und Push-Logik zu entfernen. (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um die Remote-URL für das Pushen in den Develop-Branch mit dem Token zu setzen. (Daniel Jordan)
+- add the token to the workflow (Daniel Jordan)
+- Aktualisiere den CI-Workflow, um Änderungen an den Release-Notizen zu committen und in den Hauptbranch zu pushen. Entferne die Erstellung des Releases und die Bereitstellung der Release-Seite. (Daniel Jordan)
+- Ändere den Installationsprozess der Abhängigkeiten im CI-Workflow, um zuerst npm install und anschließend npm ci auszuführen. (Daniel Jordan)
+- Aktualisiere die API zur Rechnungsbeleg-Analyse, um die Unterstützung für neue Felder zu erweitern. Füge Validierungen für die neuen Eingabefelder hinzu und verbessere die PDF-Generierung, um die aktualisierten finanziellen Details korrekt anzuzeigen. (Daniel Jordan)
+- Entferne die Jest-Konfigurationsdatei und aktualisiere die Jest-Setup-Datei auf ES6-Importsyntax. Lösche die Next.js-Konfigurationsdatei und aktualisiere die Abhängigkeiten in package-lock.json sowie package.json. Entferne die Testdatei für das Bewirtungsbeleg-Formular. (Daniel Jordan)
+## Technische Details
+- Build: 14290600806
+- Commit: 2378bb0bdc23e280eae1720f0a86f41d06549264

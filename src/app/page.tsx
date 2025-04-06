@@ -9,14 +9,16 @@ export default function Home() {
     <Container size="lg" py="xl">
       {/* Logo */}
       <Stack align="center" mb={rem(48)}>
-        <Image
-          src="/docbits.svg"
-          alt="DocBits Logo"
-          width={200}
-          height={50}
-          fit="contain"
-          style={{ maxWidth: '200px', height: '50px' }}
-        />
+        <Link href="https://www.docbits.com" target="_blank" rel="noopener noreferrer">
+          <Image
+            src="/docbits.svg"
+            alt="DocBits Logo"
+            width={200}
+            height={50}
+            fit="contain"
+            style={{ maxWidth: '200px', height: '50px' }}
+          />
+        </Link>
       </Stack>
 
       {/* Hero Section */}
@@ -28,14 +30,26 @@ export default function Home() {
           Erstellen Sie professionelle Bewirtungsbelege in wenigen Minuten. 
           Mit KI-gestützter Texterkennung und automatischer Datenextraktion.
         </Text>
-        <Button 
-          component={Link} 
-          href="/bewirtungsbeleg" 
-          size="lg" 
-          radius="xl"
-        >
-          Jetzt Bewirtungsbeleg erstellen
-        </Button>
+        <Stack gap="md" align="center" ta="center">
+          <Button 
+            component={Link} 
+            href="/bewirtungsbeleg" 
+            size="lg" 
+            radius="xl"
+          >
+            Jetzt Bewirtungsbeleg erstellen
+          </Button>
+          <Button
+            component={Link}
+            href="/release-notes"
+            size="lg"
+            radius="xl"
+            variant="light"
+            color="gray"
+          >
+            Release Notes anzeigen
+          </Button>
+        </Stack>
       </Stack>
 
       {/* Features Grid */}

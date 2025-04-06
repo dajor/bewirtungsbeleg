@@ -1,5 +1,8 @@
 # Bewirtungsbeleg-App
 
+[![Tests](https://github.com/dajor/bewirtungsbeleg/actions/workflows/develop-to-main.yml/badge.svg)](https://github.com/dajor/bewirtungsbeleg/actions/workflows/develop-to-main.yml)
+[![Coverage](https://codecov.io/gh/dajor/bewirtungsbeleg/branch/main/graph/badge.svg)](https://codecov.io/gh/dajor/bewirtungsbeleg)
+
 Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatischer Datenextraktion aus Fotos/Scans.
 
 ## Features
@@ -60,6 +63,7 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 src/
 ├── app/
 │   ├── api/
+│   │   └── extract-receipt/    # OCR API-Endpoint
 │   │   └── extract-receipt/    # OCR API-Endpoint
 │   ├── components/
 │   │   └── BewirtungsbelegForm # Hauptformular-Komponente

@@ -3,55 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bewir Release Notes</title>
+    <title>Bewirtungsbelege einfach erstellen</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            line-height: 1.6;
-        }
-        .release-notes {
-            margin-top: 20px;
-        }
-        .release-item {
-            margin: 20px 0;
-            padding: 15px;
-            border: 1px solid #eee;
-            border-radius: 5px;
-        }
-        .version {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-        .date {
-            color: #7f8c8d;
-            font-size: 0.9em;
-        }
-        .changes {
-            margin-top: 10px;
-        }
-        .change-item {
-            margin: 5px 0;
         }
         header {
+            background-color: #fff;
+            padding: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+        }
+        .main-content {
             text-align: center;
-            margin-bottom: 40px;
+            padding: 40px 0;
         }
         h1 {
-            color: #2c3e50;
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+        .secondary-button {
+            display: inline-block;
+            background-color: #6c757d;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .secondary-button:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Bewir Release Notes</h1>
-        <p>Hier finden Sie alle wichtigen Änderungen und Updates der Bewir-App.</p>
+        <div class="container">
+            <div class="header-content">
+                <img src="docbits.svg" alt="DocBits Logo" class="logo">
+            </div>
+        </div>
     </header>
-    <div id="release-notes">
-        <!-- Release notes werden hier dynamisch eingefügt -->
+
+    <div class="container">
+        <div class="main-content">
+            <h1>Bewirtungsbelege einfach erstellen3453125435</h1>
+            <div class="button-container">
+                <a href="/bewirtungsbeleg" class="cta-button">Jetzt Bewirtungsbeleg erstellen</a>
+                <a href="/release-notes.html" class="secondary-button">Release Notes anzeigen</a>
+            </div>
+        </div>
     </div>
 </body>
 </html> 
