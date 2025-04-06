@@ -48,16 +48,28 @@ jobs:
 
       - name: Create release notes
         run: |
-          echo "# Version ${{ steps.increment.outputs.new_version }}" > release-notes.txt
-          echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "## Änderungen" >> release-notes.txt
+          # Erstelle temporäre Datei mit neuer Version
+          echo "# Version ${{ steps.increment.outputs.new_version }}" > release-notes.tmp
+          echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.tmp
+          echo "" >> release-notes.tmp
+          echo "## Änderungen" >> release-notes.tmp
           # Hole alle Commits seit dem letzten Tag
-          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> release-notes.txt
-          echo "" >> release-notes.txt
-          echo "## Technische Details" >> release-notes.txt
-          echo "- Build: ${{ github.run_id }}" >> release-notes.txt
-          echo "- Commit: ${{ github.sha }}" >> release-notes.txt
+          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> release-notes.tmp
+          echo "" >> release-notes.tmp
+          echo "## Technische Details" >> release-notes.tmp
+          echo "- Build: ${{ github.run_id }}" >> release-notes.tmp
+          echo "- Commit: ${{ github.sha }}" >> release-notes.tmp
+          echo "" >> release-notes.tmp
+          echo "---" >> release-notes.tmp
+          echo "" >> release-notes.tmp
+          
+          # Füge bestehende Release Notes hinzu, falls vorhanden
+          if [ -f release-notes.txt ]; then
+            cat release-notes.txt >> release-notes.tmp
+          fi
+          
+          # Ersetze die alte Datei mit der neuen
+          mv release-notes.tmp release-notes.txt
 
       - name: Push changes
         run: |
