@@ -15,44 +15,56 @@ class ReleaseManager:
         openai.api_key = self.openai_api_key
         self.client = openai.OpenAI()
 
+    def get_current_version(self) -> str:
+        """Liest die aktuelle Version aus version.txt"""
+        try:
+            with open('version.txt', 'r', encoding='utf-8') as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            return "0.0.0"  # Startversion wenn keine Datei existiert
+
     def analyze_commits(self, commits: List[str]) -> Tuple[str, List[str]]:
         """Analysiert Commits mit OpenAI um die Versionsnummer und verbesserte Beschreibungen zu generieren"""
         
+        current_version = self.get_current_version()
+        
         prompt = f"""
-        Analysiere diese Git-Commits und beantworte zwei Fragen:
-        1. Basierend auf den Änderungen, welche Versionsnummer sollte als nächstes kommen? 
-           Folge Semantic Versioning (MAJOR.MINOR.PATCH):
-           - MAJOR: Breaking Changes
-           - MINOR: Neue Features
-           - PATCH: Bugfixes
-        2. Schreibe die Commit-Nachrichten in klare, verständliche deutsche Änderungsbeschreibungen um.
+        Die aktuelle Version ist: {current_version}
+
+        Analysiere diese Git-Commits und erstelle eine neue Version und verbesserte Beschreibungen.
+        Folge dabei Semantic Versioning (MAJOR.MINOR.PATCH):
+        - MAJOR: Breaking Changes
+        - MINOR: Neue Features
+        - PATCH: Bugfixes
 
         Aktuelle Commits:
         {commits}
 
-        Antworte im Format:
-        VERSION: x.y.z
-        CHANGES:
-        - Änderung 1
-        - Änderung 2
+        Antworte ausschließlich mit einem JSON-Objekt im folgenden Format:
+        {{
+            "version": "x.y.z",
+            "changes": [
+                "Klare Beschreibung der Änderung 1",
+                "Klare Beschreibung der Änderung 2"
+            ]
+        }}
         """
 
         response = self.client.chat.completions.create(
             model="gpt-4-turbo-preview",
             messages=[
-                {"role": "system", "content": "Du bist ein erfahrener Software Release Manager, der Semantic Versioning perfekt beherrscht und technische Änderungen klar kommunizieren kann."},
+                {"role": "system", "content": "Du bist ein erfahrener Software Release Manager, der Semantic Versioning perfekt beherrscht und technische Änderungen klar kommunizieren kann. Antworte ausschließlich im spezifizierten JSON-Format."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7
+            temperature=0.7,
+            response_format={ "type": "json_object" }
         )
 
-        result = response.choices[0].message.content
-        version_line = [line for line in result.split('\n') if line.startswith('VERSION:')][0]
-        changes_lines = [line[2:] for line in result.split('\n') if line.startswith('- ')]
-        
-        new_version = version_line.split(': ')[1].strip()
-        
-        return new_version, changes_lines
+        try:
+            result = json.loads(response.choices[0].message.content)
+            return result["version"], result["changes"]
+        except (json.JSONDecodeError, KeyError) as e:
+            raise ValueError(f"Fehler beim Parsen der OpenAI-Antwort: {str(e)}")
 
     def create_release_notes(self, version: str, changes: List[str], build_id: str, commit_sha: str) -> Tuple[str, Dict]:
         """Erstellt Release Notes in Text- und JSON-Format"""
