@@ -7,6 +7,7 @@ on:
 
 jobs:
   test-and-merge:
+    if: "!contains(github.event.head_commit.message, '#auto-release')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -61,7 +62,7 @@ jobs:
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
           git add release-notes.html
-          git commit -m "Update release notes for version ${{ steps.version.outputs.version }}" || echo "Nothing to commit"
+          git commit -m "Update release notes for version ${{ steps.version.outputs.version }} #auto-release" || echo "Nothing to commit"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
           git push origin develop
