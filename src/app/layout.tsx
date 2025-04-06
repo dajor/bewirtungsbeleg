@@ -37,14 +37,6 @@ export default function RootLayout({
     <html lang="de">
       <head>
         <ColorSchemeScript />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-        <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        <link rel="icon" type="image/svg+xml" href="/LOGO.svg" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/LOGO-192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/LOGO-512.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/LOGO-192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/LOGO-512.png" />
-        <link rel="shortcut icon" href="/favicon.ico" />
       </head>
       <body className={inter.className}>
         <MantineProvider theme={theme}>
