@@ -30,33 +30,42 @@ jobs:
       - name: Run tests
         run: npm test
 
-      - name: Get next version
+      - name: Get current version
         id: version
-        uses: TriPSs/conventional-changelog-action@v4
-        with:
-          github-token: ${{ secrets.TOKEN }}
-          preset: 'angular'
-          tag-prefix: 'v'
-          skip-version-file: true
-          git-message: 'chore(release): {version}'
-          release-count: 0
-          output-file: 'false'
+        run: |
+          CURRENT_VERSION=$(cat version.txt)
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Increment version
+        id: increment
+        run: |
+          CURRENT_VERSION=$(cat version.txt)
+          IFS='.' read -r major minor patch <<< "$CURRENT_VERSION"
+          NEW_PATCH=$((patch + 1))
+          NEW_VERSION="$major.$minor.$NEW_PATCH"
+          echo "$NEW_VERSION" > version.txt
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
 
       - name: Create release notes
         run: |
-          echo "Version ${{ steps.version.outputs.version }}" > release-notes.txt
+          echo "# Version ${{ steps.increment.outputs.new_version }}" > release-notes.txt
           echo "Datum: $(date +'%d.%m.%Y')" >> release-notes.txt
           echo "" >> release-notes.txt
-          echo "Änderungen:" >> release-notes.txt
-          git log --pretty=format:"- %s (%an)" $(git describe --tags --abbrev=0)..HEAD >> release-notes.txt
+          echo "## Änderungen" >> release-notes.txt
+          # Hole alle Commits seit dem letzten Tag
+          git log --since="1 day ago" --pretty=format:"- %s (%an)" >> release-notes.txt
+          echo "" >> release-notes.txt
+          echo "## Technische Details" >> release-notes.txt
+          echo "- Build: ${{ github.run_id }}" >> release-notes.txt
+          echo "- Commit: ${{ github.sha }}" >> release-notes.txt
 
-      - name: Push to develop
+      - name: Push changes
         run: |
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git checkout develop
-          git add release-notes.txt
-          git commit -m "Update release notes for version ${{ steps.version.outputs.version }} #auto-release" || echo "Nothing to commit"
+          git add version.txt release-notes.txt
+          git commit -m "Bump version to ${{ steps.increment.outputs.new_version }} #auto-release"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin develop
           git push origin develop
@@ -65,10 +74,14 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.TOKEN }}
-          commit-message: "Update release notes for version ${{ steps.version.outputs.version }}"
-          title: "Release v${{ steps.version.outputs.version }}"
-          body: "Automatisches Update der Release Notes für Version ${{ steps.version.outputs.version }}"
-          branch: "release/v${{ steps.version.outputs.version }}"
+          commit-message: "Release v${{ steps.increment.outputs.new_version }}"
+          title: "Release v${{ steps.increment.outputs.new_version }}"
+          body: |
+            Automatisches Update für Version ${{ steps.increment.outputs.new_version }}
+            
+            ## Änderungen
+            $(cat release-notes.txt | sed -n '/## Änderungen/,/## Technische Details/p' | sed '$d')
+          branch: "release/v${{ steps.increment.outputs.new_version }}"
           base: main
           labels: release
           draft: false
