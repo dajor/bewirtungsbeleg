@@ -1,7 +1,11 @@
-# Version 0.1.1
+# Version 0.1.3
 Datum: 06.04.2025
 
 ## Änderungen
+- Füge eine Rewrite-Regel für die Release-Notizen hinzu und passe den CI-Workflow an, um die Release-Notizen direkt im Arbeitsverzeichnis zu speichern. Aktualisiere die Referenzen im Workflow, um die Änderungen zu berücksichtigen. (Daniel Jordan)
+- Bump version to 0.1.2 #auto-release (dajor)
+- Entferne die Rewrite-Regel für die Release-Notizen und passe den CI-Workflow an, um die Release-Notizen in das öffentliche Verzeichnis zu speichern. Aktualisiere die Fetch-Logik in der Release-Notizen-Komponente, um Fehlerbehandlung und Ladeanzeige hinzuzufügen. (Daniel Jordan)
+- Bump version to 0.1.1 #auto-release (dajor)
 - Aktualisiere den CI-Workflow zur Versionsverwaltung: Ändere den Schritt zur Versionsbestimmung, erhöhe die Patch-Version und passe die Erstellung der Release-Notizen an, um Änderungen der letzten 24 Stunden zu erfassen. Füge technische Details zur Release-Notiz hinzu und aktualisiere den Push-Schritt für die neuen Versionen. (Daniel Jordan)
 - Füge Token für Berechtigungen auf private Repos im CI-Workflow hinzu, um den Checkout-Prozess zu verbessern und Push-Zugriff zu ermöglichen. (Daniel Jordan)
 - Vereinfachung des CI-Workflows durch Entfernen der Coverage-Tests und Anpassung des Testschritts, um nur die Tests ohne Coverage auszuführen. (Daniel Jordan)
@@ -37,5 +41,5 @@ Datum: 06.04.2025
 - Aktualisiere die API zur Rechnungsbeleg-Analyse, um die Unterstützung für neue Felder zu erweitern. Füge Validierungen für die neuen Eingabefelder hinzu und verbessere die PDF-Generierung, um die aktualisierten finanziellen Details korrekt anzuzeigen. (Daniel Jordan)
 - Entferne die Jest-Konfigurationsdatei und aktualisiere die Jest-Setup-Datei auf ES6-Importsyntax. Lösche die Next.js-Konfigurationsdatei und aktualisiere die Abhängigkeiten in package-lock.json sowie package.json. Entferne die Testdatei für das Bewirtungsbeleg-Formular. (Daniel Jordan)
 ## Technische Details
-- Build: 14290491886
-- Commit: e2bbc81e03b7074e6deeda6e9e86dcbf8735bc41
+- Build: 14290613804
+- Commit: 6e8db2c5062acef1c6f096db60776f75335a8a1c
