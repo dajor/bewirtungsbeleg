@@ -115,7 +115,10 @@ jobs:
             elif [[ $line =~ ^-\ Commit:\ (.+)$ ]]; then
               COMMIT="${BASH_REMATCH[1]}"
             elif [[ $line =~ ^-\ (.+)$ ]] && [[ ! $line =~ "Build:" ]] && [[ ! $line =~ "Commit:" ]] && [[ ! $line =~ "Technische Details" ]]; then
-              CHANGES+=("${BASH_REMATCH[1]}")
+              TRIMMED_CHANGE="$(echo "${BASH_REMATCH[1]}" | xargs)"
+              if [ -n "$TRIMMED_CHANGE" ]; then
+                CHANGES+=("$TRIMMED_CHANGE")
+              fi
             fi
           done < release-notes.txt
 
