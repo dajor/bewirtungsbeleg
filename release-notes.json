@@ -2,6 +2,13 @@
   "versions": [
     {
       "version": "0.4.0",
+      "date": "07.04.2025",
+      "changes": [],
+      "build": "14316153181",
+      "commit": "066889b044f984cf0b79419948edc8b30ae8c5b2"
+    },
+    {
+      "version": "0.4.0",
       "date": "06.04.2025",
       "changes": [
         "Erweiterung des CI-Workflows um die Handhabung von Tokens f\\u00fcr den Push-Zugriff auf private Repos und zur Verbesserung der Authentifizierung im Checkout-Prozess.",
