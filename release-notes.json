@@ -4,6 +4,15 @@
       "version": "0.4.0",
       "date": "08.04.2025",
       "changes": [
+        "Keine neuen Änderungen identifiziert. Die aktuelle Version bleibt unverändert."
+      ],
+      "build": "14329180269",
+      "commit": "87a650991f705c38fb2e0f7ab5068aad759c0ee5"
+    },
+    {
+      "version": "0.4.0",
+      "date": "08.04.2025",
+      "changes": [
         "Die angegebenen Commits beziehen sich auf die Veröffentlichung und Versionsaktualisierung zu 0.4.0, ohne weitere Änderungen oder Verbesserungen."
       ],
       "build": "14329153166",
