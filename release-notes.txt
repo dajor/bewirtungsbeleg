@@ -2,6 +2,18 @@
 Datum: 08.04.2025
 
 ## Änderungen
+- Keine neuen Änderungen seit der letzten Version 0.4.0.
+
+## Technische Details
+- Build: 14329297111
+- Commit: 1704dc661a52998f32856e308945323a4fffe9be
+
+---
+
+# Version 0.4.0
+Datum: 08.04.2025
+
+## Änderungen
 - Keine neuen Änderungen identifiziert. Die aktuelle Version bleibt unverändert.
 
 ## Technische Details
