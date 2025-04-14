@@ -3,9 +3,9 @@ import { generatePdf } from '@/lib/pdfGenerator';
 import formidable from 'formidable';
 import fs from 'fs/promises';
 import path from 'path';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb } from 'pdf-lib';
 import sizeOf from 'image-size';
-import {degrees, rgb} from 'pdf-lib'
+import {degrees} from 'pdf-lib'
 
 export async function POST(request: Request) {
   if (request.method !== 'POST') {
@@ -161,6 +161,93 @@ export async function POST(request: Request) {
 
       // Formularfelder fixieren
       form.flatten();
+
+      // Wenn ein Bild vorhanden ist, füge es als neue Seite hinzu
+      if (requestData.imageData) {
+        try {
+          console.log('Adding image as new page...');
+          
+          // Extrahiere den MIME-Typ und die Base64-Daten
+          const [mimeType, base64Data] = requestData.imageData.split(';base64,');
+          const imageType = mimeType.split('/')[1];
+          
+          // Konvertiere Base64 zu Uint8Array
+          const imageBytes = Uint8Array.from(atob(base64Data), c => c.charCodeAt(0));
+          
+          // Lade das Bild basierend auf dem Format
+          let image;
+          switch (imageType.toLowerCase()) {
+            case 'jpeg':
+            case 'jpg':
+              image = await pdfDoc.embedJpg(imageBytes);
+              break;
+            case 'png':
+              image = await pdfDoc.embedPng(imageBytes);
+              break;
+            default:
+              throw new Error(`Nicht unterstütztes Bildformat: ${imageType}`);
+          }
+          
+          // Erstelle eine neue Seite mit A4-Format
+          const page = pdfDoc.addPage([595.28, 841.89]); // A4 in Punkten
+          
+          // Füge den Kopf "Anlagen" hinzu
+          page.drawText('Anlagen', {
+            x: 50,
+            y: 800,
+            size: 16,
+            color: rgb(0, 0, 0),
+          });
+          
+          // Berechne die Position für das zentrierte Bild
+          const imageWidth = image.width;
+          const imageHeight = image.height;
+          const pageWidth = page.getWidth();
+          const pageHeight = page.getHeight();
+          
+          // Skaliere das Bild, wenn es zu groß ist
+          const maxWidth = pageWidth - 100; // 50px Rand auf jeder Seite
+          const maxHeight = pageHeight - 150; // 100px für den Kopf, 50px für den unteren Rand
+          
+          let scaledWidth = imageWidth;
+          let scaledHeight = imageHeight;
+          
+          if (imageWidth > maxWidth) {
+            const ratio = maxWidth / imageWidth;
+            scaledWidth = maxWidth;
+            scaledHeight = imageHeight * ratio;
+          }
+          
+          if (scaledHeight > maxHeight) {
+            const ratio = maxHeight / scaledHeight;
+            scaledHeight = maxHeight;
+            scaledWidth = scaledWidth * ratio;
+          }
+          
+          // Berechne die zentrierte Position
+          const x = (pageWidth - scaledWidth) / 2;
+          const y = (pageHeight - scaledHeight) / 2;
+          
+          // Zeichne das Bild zentriert
+          page.drawImage(image, {
+            x,
+            y,
+            width: scaledWidth,
+            height: scaledHeight,
+          });
+          
+          console.log('Image added as new page successfully');
+        } catch (error) {
+          console.error('Error adding image page:', error);
+          return new Response(
+            JSON.stringify({ 
+              error: 'Fehler beim Hinzufügen des Bildes',
+              details: error instanceof Error ? error.message : 'Unbekannter Fehler'
+            }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } }
+          );
+        }
+      }
 
       console.log('Converting PDF to buffer...');
       const modifiedPdfBytes = await pdfDoc.save();
