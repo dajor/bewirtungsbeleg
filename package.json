@@ -35,6 +35,7 @@
     "jspdf-autotable": "^5.0.2",
     "next": "^14.2.24",
     "openai": "^4.87.3",
+    "pdf-lib": "^1.17.1",
     "postcss": "^8.4.35",
     "react": "^18.2.0",
     "react-chrono": "^2.6.1",

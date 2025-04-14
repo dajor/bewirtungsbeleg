@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.4.1",
+      "date": "14.04.2025",
+      "changes": [
+        "Unspezifizierte Korrekturen und Verbesserungen."
+      ],
+      "build": "14449313057",
+      "commit": "033018a4fae33f11ef37cb068350afb962a325e0"
+    },
+    {
       "version": "0.4.0",
       "date": "08.04.2025",
       "changes": [

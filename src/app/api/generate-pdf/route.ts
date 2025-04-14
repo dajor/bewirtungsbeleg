@@ -1,14 +1,39 @@
 import { NextResponse } from 'next/server';
 import jsPDF from 'jspdf';
 import fs from 'fs';
+import { PDFDocument } from 'pdf-lib';
 import path from 'path';
 import sizeOf from 'image-size';
 
 export async function POST(request: Request) {
-  console.log('PDF generation API called');
   try {
+    console.log('PDF generation API called');
+    
+    // Test to modify an existing pdf file
+    try{
+        console.log('Starting test to modify an existing pdf file');
+        const pdfPath = path.join(process.cwd(), 'public', 'kundenbewirtung.pdf');
+
+        const pdfBytes = fs.readFileSync(pdfPath);
+        const pdfDoc = await PDFDocument.load(pdfBytes);
+        const pages = pdfDoc.getPages();
+        const firstPage = pages[0];
+        const { width, height } = firstPage.getSize();
+        
+        firstPage.drawText('test', { x: width / 2, y: height / 2 });
+        
+        const modifiedPdfBytes = await pdfDoc.save();
+        fs.writeFileSync(path.join(process.cwd(), 'public', 'modified_kundenbewirtung.pdf'), modifiedPdfBytes);
+
+        console.log('Test to modify an existing pdf file finished');
+    }catch(pdfError){
+        console.error('Error trying to modify existing pdf file', pdfError);
+    }
+    
+
     const data = await request.json();
     console.log('Received data:', JSON.stringify(data, null, 2));
+
 
     const doc = new jsPDF();
     console.log('Created new PDF document');

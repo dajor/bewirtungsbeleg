@@ -1,3 +1,15 @@
+# Version 0.4.1
+Datum: 14.04.2025
+
+## Änderungen
+- Unspezifizierte Korrekturen und Verbesserungen.
+
+## Technische Details
+- Build: 14449313057
+- Commit: 033018a4fae33f11ef37cb068350afb962a325e0
+
+---
+
 # Version 0.4.0
 Datum: 08.04.2025
 
