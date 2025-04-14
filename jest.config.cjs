@@ -22,6 +22,9 @@ const config = {
       statements: 0,
     },
   },
+  testEnvironmentOptions: {
+    url: 'http://localhost:3000'
+  }
 };
 
 module.exports = createJestConfig(config); 
