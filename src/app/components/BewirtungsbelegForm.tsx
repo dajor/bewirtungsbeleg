@@ -232,10 +232,27 @@ export default function BewirtungsbelegForm() {
 
       // Erstelle die Daten für die API
       const apiData = {
-        ...form.values,
-        datum: formattedDate,
-        anlass: form.values.anlass, // Stelle sicher, dass der Anlass explizit übergeben wird
-        image: imageData
+        jsonData: {
+          bewirtungsart: form.values.bewirtungsart,
+          datum: formattedDate,
+          restaurantName: form.values.restaurantName,
+          restaurantAnschrift: form.values.restaurantAnschrift,
+          teilnehmer: form.values.teilnehmer,
+          anlass: form.values.anlass,
+          gesamtbetrag: form.values.gesamtbetrag,
+          gesamtbetragMwst: form.values.gesamtbetragMwst,
+          gesamtbetragNetto: form.values.gesamtbetragNetto,
+          trinkgeld: form.values.trinkgeld,
+          trinkgeldMwst: form.values.trinkgeldMwst,
+          kreditkartenBetrag: form.values.kreditkartenBetrag,
+          zahlungsart: form.values.zahlungsart,
+          geschaeftlicherAnlass: form.values.geschaeftlicherAnlass,
+          geschaeftspartnerNamen: form.values.geschaeftspartnerNamen,
+          geschaeftspartnerFirma: form.values.geschaeftspartnerFirma,
+          istAuslaendischeRechnung: form.values.istAuslaendischeRechnung,
+          auslaendischeWaehrung: form.values.auslaendischeWaehrung
+        },
+        imageData: imageData
       };
 
       console.log('Sende Daten an API:', apiData);
@@ -249,25 +266,25 @@ export default function BewirtungsbelegForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Fehler bei der PDF-Generierung');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
       }
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `bewirtungsbeleg-${formattedDate}.pdf`;
+      a.download = 'bewirtungsbeleg.pdf';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-      setShowConfirm(false);
       setSuccess(true);
-    } catch (error) {
-      console.error('Error generating PDF:', error);
       setShowConfirm(false);
-      setError('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
+    } catch (err) {
+      console.error('Error generating PDF:', err);
+      setError(err instanceof Error ? err.message : 'Fehler bei der PDF-Generierung');
     } finally {
       setIsSubmitting(false);
     }
