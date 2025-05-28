@@ -74,9 +74,9 @@ export async function POST(request: Request) {
     // Allgemeine Angaben
     yPosition += 15;
     doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text('Allgemeine Angaben:', 20, yPosition);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     
     yPosition += 10;
@@ -92,10 +92,9 @@ export async function POST(request: Request) {
     
     // Geschäftlicher Anlass
     yPosition += 20;
-    doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
+    doc.setFont('helvetica', 'bold');
     doc.text(`${data.bewirtungsart === 'kunden' ? 'Geschäftlicher Anlass:' : 'Anlass:'}`, 20, yPosition);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     
     yPosition += 15;
@@ -171,7 +170,7 @@ export async function POST(request: Request) {
 
     // Footer
     doc.setFontSize(8);
-    doc.setFont(undefined, 'normal');
+    doc.setFont('helvetica', 'normal');
     doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
     yPosition += 5;
 
@@ -192,9 +191,9 @@ export async function POST(request: Request) {
       console.log('Adding image attachment...');
       doc.addPage();
       doc.setFontSize(12);
-      doc.setFont(undefined, 'bold');
+      doc.setFont('helvetica', 'bold');
       doc.text('Anlage: Original-Rechnung', 20, 20);
-      doc.setFont(undefined, 'normal');
+      doc.setFont('helvetica', 'normal');
       doc.setFontSize(10);
   
       try {

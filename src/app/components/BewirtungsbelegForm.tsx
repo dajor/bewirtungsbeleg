@@ -214,17 +214,20 @@ export default function BewirtungsbelegForm() {
       console.log('Form values before PDF generation:', form.values);
       
       // Konvertiere das Bild in Base64, wenn es vorhanden ist
-      let imageData = null;
+      let imageData: string | null = null;
       if (selectedImage) {
         const reader = new FileReader();
-        imageData = await new Promise((resolve, reject) => {
-          reader.onload = () => resolve(reader.result);
+        imageData = await new Promise<string | null>((resolve, reject) => {
+          reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
           reader.onerror = reject;
           reader.readAsDataURL(selectedImage);
         });
       }
 
       // Formatiere das Datum
+      if (!form.values.datum) {
+        throw new Error('Datum ist erforderlich');
+      }
       const formattedDate = form.values.datum.toISOString().split('T')[0];
 
       // Erstelle die Daten für die API
