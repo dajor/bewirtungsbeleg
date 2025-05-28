@@ -17,7 +17,7 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 ## Voraussetzungen
 
 - Node.js (Version 18 oder höher)
-- npm (normalerweise mit Node.js installiert)
+- Yarn (über Corepack mit Node.js geliefert)
 - Ein OpenAI API-Key für die OCR-Funktionalität
 
 ## Installation
@@ -30,7 +30,7 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 
 2. Abhängigkeiten installieren:
    ```bash
-   npm install
+   yarn install
    ```
 
 3. Umgebungsvariablen einrichten:
@@ -44,7 +44,7 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 
 1. Entwicklungsserver starten:
    ```bash
-   npm run dev
+   yarn dev
    ```
 
 2. Öffne http://localhost:3000 in deinem Browser

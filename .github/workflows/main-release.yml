@@ -29,12 +29,11 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'yarn'
 
       - name: Install Node dependencies
         run: |
-          npm install
-          npm ci
+          yarn install --immutable
 
       - name: Get recent commits
         run: |
