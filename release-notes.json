@@ -1,6 +1,22 @@
 {
   "versions": [
     {
+      "version": "0.5.0",
+      "date": "28.05.2025",
+      "changes": [
+        "Neues Feature: Aktualisierung der Versionsnummer beim Push auf den Hauptbranch.",
+        "Verbesserung des Layouts der Release-Notizen-Seite durch Anpassung der Container- und Kartenmaße für eine optimierte Benutzererfahrung.",
+        "Einführung strikter Nullprüfungen in tsconfig.json und Aktualisierung der Schriftarten in PDF-Generierung für eine konsistentere Darstellung.",
+        "Anforderung des Datumsfeldes im Formular sichergestellt.",
+        "CI-Workflows wurden auf Yarn umgestellt, einschließlich Coverage und Health Check Workflows.",
+        "Entfernung der package-lock.json Datei und des 'generate-template' Skripts aus dem Projekt.",
+        "Bugfix: Kopieren der Release-Notizen in das öffentliche Verzeichnis.",
+        "Entfernung der fehlerhaften 'yarn-path' Konfiguration."
+      ],
+      "build": "15296650140",
+      "commit": "9fe285659d6e2da716e31e526fa2709f076b1173"
+    },
+    {
       "version": "0.4.1",
       "date": "14.04.2025",
       "changes": [
