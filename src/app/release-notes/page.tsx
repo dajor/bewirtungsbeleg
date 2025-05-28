@@ -105,7 +105,7 @@ export default function ReleaseNotes() {
             <Text c="red" ta="center">{error}</Text>
           </Paper>
         ) : (
-          <div style={{ width: '100%', height: '500px' }}>
+          <div style={{ width: '100%', minHeight: '70vh', height: '80vh', maxHeight: '90vh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
             <Chrono
               items={items}
               mode="VERTICAL_ALTERNATING"
@@ -117,12 +117,13 @@ export default function ReleaseNotes() {
                 titleColor: '#4486AA',
                 titleColorActive: '#2B5C78',
               }}
-              cardHeight={200}
+              cardHeight={220}
               slideShow
               slideItemDuration={3000}
               enableOutline
               hideControls={false}
               useReadMore={false}
+              style={{ flex: 1, minHeight: 0 }}
             />
           </div>
         )}
