@@ -47,11 +47,15 @@ jobs:
 
       - name: Push changes
         run: |
+          cp release-notes.json public/release-notes.json
+          cp version.txt public/version.txt
           git config --global user.name 'dajor'
           git config --global user.email 'daniel.jordan@fellowpro.com'
           git add version.txt release-notes.txt release-notes.json
           VERSION=$(cat version.txt)
+          git add .
           git commit -m "Bump version to $VERSION #auto-release"
           git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
           git pull origin main
           git push origin main
+          
