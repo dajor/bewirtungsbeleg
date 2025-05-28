@@ -127,6 +127,12 @@ Datum: {today}
         with open('release-notes.json', 'w', encoding='utf-8') as f:
             json.dump(json_content, f, indent=2, ensure_ascii=False)
 
+        # Kopiere JSON-Datei auch in das public-Verzeichnis, damit die
+        # Release Notes von der Anwendung geladen werden können
+        os.makedirs('public', exist_ok=True)
+        with open('public/release-notes.json', 'w', encoding='utf-8') as f:
+            json.dump(json_content, f, indent=2, ensure_ascii=False)
+
 def main():
     if len(sys.argv) < 4:
         print("Verwendung: release_manager.py <commits_file> <build_id> <commit_sha>")
