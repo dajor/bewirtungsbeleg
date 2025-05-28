@@ -1,0 +1,58 @@
+name: Release on Main
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-release:
+    if: "!contains(github.event.head_commit.message, '#auto-release')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: |
+          npm install
+          npm ci
+
+      - name: Get recent commits
+        run: |
+          git log --since="1 day ago" --pretty=format:"%s (%an)" > recent_commits.txt
+
+      - name: Create Release
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python .github/release_manager.py recent_commits.txt ${{ github.run_id }} ${{ github.sha }}
+
+      - name: Push changes
+        run: |
+          git config --global user.name 'dajor'
+          git config --global user.email 'daniel.jordan@fellowpro.com'
+          git add version.txt release-notes.txt release-notes.json
+          VERSION=$(cat version.txt)
+          git commit -m "Bump version to $VERSION #auto-release"
+          git remote set-url origin https://${{ secrets.TOKEN }}@github.com/dajor/bewirtungsbeleg.git
+          git pull origin main
+          git push origin main
