@@ -9,8 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "jest --config jest.config.cjs",
-    "test:watch": "jest --watch --config jest.config.cjs",
-    "generate-template": "node src/scripts/generate-template.mjs"
+    "test:watch": "jest --watch --config jest.config.cjs"
   },
   "dependencies": {
     "@mantine/core": "^7.17.2",
