@@ -1,32 +1,99 @@
 {
   "versions": [
     {
-      "version": "0.3.0",
-      "date": "06.04.2025",
+      "version": "0.6.0",
+      "date": "28.05.2025",
       "changes": [
-        "Erweiterung der CI-Workflow: Integration eines Tokens f\\u00fcr den Push-Zugriff auf private Repos, Verbesserung der Python-Abh\\u00e4ngigkeitsverwaltung durch Nutzung der requirements.txt, und Optimierung der Release-Notizen-Erstellung.",
-        "Einf\\u00fchrung neuer Funktionen zur Analyse und Auslesung der aktuellen Version im Software-Release-Prozess, inklusive verbesserter Fehlerbehandlung.",
-        "Verbesserung der Verarbeitung und Darstellung von Release-Notizen durch Trim-Logik und JSON-Formatierung, um die Genauigkeit und Konsistenz der Notizen zu erh\\u00f6hen.",
-        "Optimierung des CI-Workflows durch Anpassung der Installationsbefehle und Verbesserungen im Umgang mit Abh\\u00e4ngigkeiten.",
-        "Aktualisierung der API zur Rechnungsbeleg-Analyse mit Unterst\\u00fctzung f\\u00fcr neue Felder, erweiterte Validierungen und verbesserte PDF-Generierung f\\u00fcr finanzielle Details."
+        "Automatisierung der Veröffentlichung durch Hinzufügen des Kopierens von Release-Notizen und Versionsdatei zum CI-Workflow.",
+        "Wechsel von npm zu yarn für Abhängigkeiten zur Verbesserung der Workflow-Effizienz.",
+        "Verbesserung des Layouts der Release-Notizen-Seite für eine bessere Benutzererfahrung.",
+        "Einführung strikter Nullprüfungen und Aktualisierung der Schriftarten in der PDF-Generierung für eine konsistente Darstellung.",
+        "Entfernung des 'generate-template' Skripts zur Vereinfachung der package.json.",
+        "Bereinigung der Konfiguration durch Entfernen fehlerhafter yarn-path Einstellungen.",
+        "Einführung von Gesundheitsprüfungen und automatischen Tests vor Merges zur Verbesserung der Codequalität."
       ],
-      "build": "20250406_134328",
-      "commit": "4b45d3c311f60a0cb05c6b54a93a232209e73e9d"
+      "build": "15297312619",
+      "commit": "4d396c8660e9ba70dec2ca7b4239fa0610ffba32"
     },
     {
-      "version": "0.2.0",
+      "version": "0.5.0",
+      "date": "28.05.2025",
+      "changes": [
+        "Neues Feature: Aktualisierung der Versionsnummer beim Push auf den Hauptbranch.",
+        "Verbesserung des Layouts der Release-Notizen-Seite durch Anpassung der Container- und Kartenmaße für eine optimierte Benutzererfahrung.",
+        "Einführung strikter Nullprüfungen in tsconfig.json und Aktualisierung der Schriftarten in PDF-Generierung für eine konsistentere Darstellung.",
+        "Anforderung des Datumsfeldes im Formular sichergestellt.",
+        "CI-Workflows wurden auf Yarn umgestellt, einschließlich Coverage und Health Check Workflows.",
+        "Entfernung der package-lock.json Datei und des 'generate-template' Skripts aus dem Projekt.",
+        "Bugfix: Kopieren der Release-Notizen in das öffentliche Verzeichnis.",
+        "Entfernung der fehlerhaften 'yarn-path' Konfiguration."
+      ],
+      "build": "15296650140",
+      "commit": "9fe285659d6e2da716e31e526fa2709f076b1173"
+    },
+    {
+      "version": "0.4.1",
+      "date": "14.04.2025",
+      "changes": [
+        "Unspezifizierte Korrekturen und Verbesserungen."
+      ],
+      "build": "14449313057",
+      "commit": "033018a4fae33f11ef37cb068350afb962a325e0"
+    },
+    {
+      "version": "0.4.0",
+      "date": "08.04.2025",
+      "changes": [
+        "Keine neuen Änderungen seit der letzten Version 0.4.0."
+      ],
+      "build": "14329297111",
+      "commit": "1704dc661a52998f32856e308945323a4fffe9be"
+    },
+    {
+      "version": "0.4.0",
+      "date": "08.04.2025",
+      "changes": [
+        "Keine neuen Änderungen identifiziert. Die aktuelle Version bleibt unverändert."
+      ],
+      "build": "14329180269",
+      "commit": "87a650991f705c38fb2e0f7ab5068aad759c0ee5"
+    },
+    {
+      "version": "0.4.0",
+      "date": "08.04.2025",
+      "changes": [
+        "Die angegebenen Commits beziehen sich auf die Veröffentlichung und Versionsaktualisierung zu 0.4.0, ohne weitere Änderungen oder Verbesserungen."
+      ],
+      "build": "14329153166",
+      "commit": "4600e0c6c4dd76240a3cac08aa8153d3710b848c"
+    },
+    {
+      "version": "0.4.0",
+      "date": "07.04.2025",
+      "changes": [],
+      "build": "14316153181",
+      "commit": "066889b044f984cf0b79419948edc8b30ae8c5b2"
+    },
+    {
+      "version": "0.4.0",
       "date": "06.04.2025",
       "changes": [
-        "Aktualisierung des CI-Workflows, um den Push-Zugriff auf private Repos durch Hinzufügen eines Tokens zu verbessern, die Installation von Abhängigkeiten aus der requirements.txt zu ermöglichen und die Python-Umgebungseinrichtung zu optimieren.",
-        "Einführung einer Methode zur Auslesung der aktuellen Version aus der Datei version.txt, Verbesserung der Analyse-Logik der Commits und der Fehlerbehandlung beim Parsen der OpenAI-Antwort.",
-        "Verbesserung der Verarbeitung und Generierung der Release-Notizen durch Hinzufügen einer Trim-Logik und Optimierung der Logik zur Handhabung von Versionsinformationen.",
-        "Erweiterung des CI-Workflows zur Erstellung von Release-Notizen in JSON-Format, Verbesserung der Release-Notizen-Komponente für eine verbesserte Benutzeroberfläche.",
-        "Vereinfachung des CI-Workflows durch Entfernen von Coverage-Tests und Anpassung der Testausführung, Aktualisierung der Badge für die Testabdeckung und Anpassung der Codecov-Aktion.",
-        "Aktualisierung der API zur Rechnungsbeleg-Analyse mit Unterstützung für neue Felder, Verbesserung der Validierungen und der PDF-Generierung für finanzielle Details.",
-        "Hinzufügen von Unterstützung für ausländische Rechnungen, Erweiterung der API um neue Felder für MwSt. und Netto-Beträge sowie Anpassung der Validierungs- und Beschreibung der Eingabefelder."
+        "Erweiterung des CI-Workflows um die Handhabung von Tokens f\\u00fcr den Push-Zugriff auf private Repos und zur Verbesserung der Authentifizierung im Checkout-Prozess.",
+        "Verbesserung der Verwaltung von Python-Abh\\u00e4ngigkeiten durch die Installation aller Abh\\u00e4ngigkeiten aus der 'requirements.txt'.",
+        "Einf\\u00fchrung einer Methode zur Auslesung der aktuellen Version aus der Datei 'version.txt' und Optimierung der Analyse-Logik der Commits.",
+        "Optimierung des CI-Workflows durch die Einf\\u00fchrung von Schritten zur Python-Umgebungseinrichtung, Verbesserung der Installationslogik f\\u00fcr Abh\\u00e4ngigkeiten und Ersetzung der Versionsinkrementierungslogik durch ein Skript f\\u00fcr Release-Notizen.",
+        "Verbesserung der Genauigkeit und Sauberkeit der generierten Release-Notizen durch Hinzuf\\u00fcgung einer Trim-Logik.",
+        "Vereinheitlichung der Ausgabe der Release-Notizen im JSON-Format und Optimierung der Push-Optionen im CI-Workflow.",
+        "Erweiterung der Release-Notizen-Komponente zur Anzeige von Daten aus einer JSON-Datei und Verbesserung der Fehlerbehandlung.",
+        "Optimierung der Darstellung der Release-Notizen auf der Benutzeroberfl\\u00e4che durch Strukturaktualisierungen und die Einf\\u00fchrung einer Timeline-Darstellung.",
+        "Verbesserung des CI-Workflows f\\u00fcr die Ver\\u00f6ffentlichung durch Direktmerging von \\u00c4nderungen in den Hauptbranch.",
+        "Aktualisierung der Testabdeckungsanzeige und Optimierung der Jest-Konfiguration f\\u00fcr Coverage-Reports.",
+        "Einf\\u00fchrung neuer Schaltfl\\u00e4chen f\\u00fcr die Erstellung von Bewirtungsbelegen und Anzeige von Release-Notizen auf der Hauptseite.",
+        "Aktualisierung der API zur Rechnungsbeleg-Analyse mit Unterst\\u00fctzung f\\u00fcr neue Felder und verbesserte PDF-Generierung.",
+        "Entfernung und Aktualisierung von Konfigurationsdateien zur Optimierung der Codebasis."
       ],
-      "build": "20250406_134051",
-      "commit": "4b45d3c311f60a0cb05c6b54a93a232209e73e9d"
+      "build": "14292262847",
+      "commit": "8d94c1c045ae0614f2716b789a868d448b998d3c"
     },
     {
       "version": "0.1.9",

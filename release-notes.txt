@@ -1,3 +1,21 @@
+# Version 0.6.0
+Datum: 28.05.2025
+
+## Änderungen
+- Automatisierung der Veröffentlichung durch Hinzufügen des Kopierens von Release-Notizen und Versionsdatei zum CI-Workflow.
+- Wechsel von npm zu yarn für Abhängigkeiten zur Verbesserung der Workflow-Effizienz.
+- Verbesserung des Layouts der Release-Notizen-Seite für eine bessere Benutzererfahrung.
+- Einführung strikter Nullprüfungen und Aktualisierung der Schriftarten in der PDF-Generierung für eine konsistente Darstellung.
+- Entfernung des 'generate-template' Skripts zur Vereinfachung der package.json.
+- Bereinigung der Konfiguration durch Entfernen fehlerhafter yarn-path Einstellungen.
+- Einführung von Gesundheitsprüfungen und automatischen Tests vor Merges zur Verbesserung der Codequalität.
+
+## Technische Details
+- Build: 15297312619
+- Commit: 4d396c8660e9ba70dec2ca7b4239fa0610ffba32
+
+---
+
 # Version 0.5.0
 Datum: 28.05.2025
 
