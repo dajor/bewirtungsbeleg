@@ -3,10 +3,10 @@ set -euo pipefail
 PORT=${PORT:-3000}
 
 # Build the Next.js app
-npm run build
+yarn build
 
 # Start the server in the background on the given port
-PORT=$PORT npm run start &
+PORT=$PORT yarn start &
 SERVER_PID=$!
 
 cleanup() {
