@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.6.1",
+      "date": "29.05.2025",
+      "changes": [
+        "Hinzufügen eines Coverage-Workflow-Abzeichens zum README, um die Testabdeckung anzuzeigen."
+      ],
+      "build": "15327814207",
+      "commit": "943947239ebdfe9e21ff05b2455c111f24788e27"
+    },
+    {
       "version": "0.6.0",
       "date": "28.05.2025",
       "changes": [

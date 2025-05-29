@@ -1,3 +1,15 @@
+# Version 0.6.1
+Datum: 29.05.2025
+
+## Änderungen
+- Hinzufügen eines Coverage-Workflow-Abzeichens zum README, um die Testabdeckung anzuzeigen.
+
+## Technische Details
+- Build: 15327814207
+- Commit: 943947239ebdfe9e21ff05b2455c111f24788e27
+
+---
+
 # Version 0.6.0
 Datum: 28.05.2025
 
