@@ -1,13 +1,43 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { env } from '@/lib/env';
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
+import { getToken } from 'next-auth/jwt';
+import { classifyReceiptSchema, sanitizeObject } from '@/lib/validation';
+import { z } from 'zod';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: env.OPENAI_API_KEY,
 });
 
 export async function POST(request: Request) {
   try {
-    const { fileName, fileType } = await request.json();
+    // Get user ID from session if available
+    const token = await getToken({ req: request as any });
+    const userId = token?.id as string | undefined;
+    
+    // Check rate limit
+    const identifier = getIdentifier(request, userId);
+    const rateLimitResponse = await checkRateLimit(apiRatelimit.general, identifier);
+    if (rateLimitResponse) return rateLimitResponse;
+    
+    const body = await request.json();
+    
+    // Validate input
+    let validatedInput;
+    try {
+      validatedInput = classifyReceiptSchema.parse(body);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          { error: 'Ungültige Eingabe', details: error.errors },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
+    
+    const { fileName, fileType } = sanitizeObject(validatedInput);
 
     const prompt = `Analysiere den folgenden Dateinamen und bestimme, ob es sich um eine Rechnung oder einen Kundenbeleg (Kreditkartenabrechnung) handelt.
     Dateiname: ${fileName}

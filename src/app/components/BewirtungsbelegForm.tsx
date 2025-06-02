@@ -32,6 +32,7 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
+import { UserMenu } from './UserMenu';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -376,9 +377,12 @@ export default function BewirtungsbelegForm() {
       <Paper shadow="sm" p="xs">
         <form onSubmit={handleSubmit}>
           <Stack gap="xs">
-            <Title order={1} ta="center" size="h6">
-              Bewirtungsbeleg
-            </Title>
+            <Group justify="space-between" align="center">
+              <Title order={1} size="h6">
+                Bewirtungsbeleg
+              </Title>
+              <UserMenu />
+            </Group>
             
             <Box>
               <Title order={2} size="h6">Allgemeine Angaben</Title>

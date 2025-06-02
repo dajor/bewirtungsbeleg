@@ -1,18 +1,13 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-
-// Ausführlicheres Logging für Debugging
-console.log('Verfügbare Umgebungsvariablen:', {
-  OPENAI_API_KEY: process.env.OPENAI_API_KEY?.substring(0, 10) + '...',
-  NODE_ENV: process.env.NODE_ENV,
-});
-
-if (!process.env.OPENAI_API_KEY) {
-  throw new Error('OPENAI_API_KEY ist nicht gesetzt');
-}
+import { env } from '@/lib/env';
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
+import { getToken } from 'next-auth/jwt';
+import { fileValidation, extractReceiptResponseSchema, sanitizeObject } from '@/lib/validation';
+import { sanitizeFilename } from '@/lib/sanitize';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY?.trim(),
+  apiKey: env.OPENAI_API_KEY,
 });
 
 // Hilfsfunktion zum Konvertieren von Zahlen ins deutsche Format
@@ -61,6 +56,15 @@ Wichtige Hinweise:
 
 export async function POST(request: Request) {
   try {
+    // Get user ID from session if available
+    const token = await getToken({ req: request as any });
+    const userId = token?.id as string | undefined;
+    
+    // Check rate limit
+    const identifier = getIdentifier(request, userId);
+    const rateLimitResponse = await checkRateLimit(apiRatelimit.ocr, identifier);
+    if (rateLimitResponse) return rateLimitResponse;
+    
     const formData = await request.formData();
     const image = formData.get('image') as File;
 
@@ -71,8 +75,20 @@ export async function POST(request: Request) {
       );
     }
 
+    // Validate file
+    const fileValidationResult = fileValidation.validate(image);
+    if (!fileValidationResult.valid) {
+      return NextResponse.json(
+        { error: fileValidationResult.error },
+        { status: 400 }
+      );
+    }
+
+    // Sanitize filename for logging
+    const safeFilename = sanitizeFilename(image.name);
+    
     console.log('Verarbeite Bild:', {
-      name: image.name,
+      name: safeFilename,
       type: image.type,
       size: image.size
     });
@@ -115,12 +131,22 @@ export async function POST(request: Request) {
     try {
       const parsedResult = JSON.parse(result || '{}');
       
+      // Validate and sanitize the response
+      const validatedResult = extractReceiptResponseSchema.parse(parsedResult);
+      const sanitizedResult = sanitizeObject(validatedResult);
+      
       // Konvertiere Zahlen ins deutsche Format
-      if (parsedResult.gesamtbetrag) {
-        parsedResult.gesamtbetrag = convertToGermanNumber(parsedResult.gesamtbetrag);
+      if (sanitizedResult.gesamtbetrag) {
+        sanitizedResult.gesamtbetrag = convertToGermanNumber(sanitizedResult.gesamtbetrag);
+      }
+      if (sanitizedResult.mwst) {
+        sanitizedResult.mwst = convertToGermanNumber(sanitizedResult.mwst);
+      }
+      if (sanitizedResult.netto) {
+        sanitizedResult.netto = convertToGermanNumber(sanitizedResult.netto);
       }
 
-      return NextResponse.json(parsedResult);
+      return NextResponse.json(sanitizedResult);
     } catch (e) {
       console.error('Fehler beim Parsen der Daten:', e);
       return NextResponse.json(

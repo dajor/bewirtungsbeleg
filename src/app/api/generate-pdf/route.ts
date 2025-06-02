@@ -4,10 +4,24 @@ import fs from 'fs';
 import { PDFDocument } from 'pdf-lib';
 import path from 'path';
 import sizeOf from 'image-size';
+import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
+import { getToken } from 'next-auth/jwt';
+import { generatePdfSchema, sanitizeObject, parseGermanDecimal } from '@/lib/validation';
+import { sanitizeFilename } from '@/lib/sanitize';
+import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
     console.log('PDF generation API called');
+    
+    // Get user ID from session if available
+    const token = await getToken({ req: request as any });
+    const userId = token?.id as string | undefined;
+    
+    // Check rate limit
+    const identifier = getIdentifier(request, userId);
+    const rateLimitResponse = await checkRateLimit(apiRatelimit.pdf, identifier);
+    if (rateLimitResponse) return rateLimitResponse;
     
     // Test to modify an existing pdf file
     try{
@@ -31,8 +45,28 @@ export async function POST(request: Request) {
     }
     
 
-    const data = await request.json();
-    console.log('Received data:', JSON.stringify(data, null, 2));
+    const body = await request.json();
+    
+    // Validate input
+    let data;
+    try {
+      // Convert date string to Date object if needed
+      if (body.datum && typeof body.datum === 'string') {
+        body.datum = new Date(body.datum);
+      }
+      const validatedInput = generatePdfSchema.parse(body);
+      data = sanitizeObject(validatedInput);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return NextResponse.json(
+          { error: 'Ungültige Eingabe', details: error.errors },
+          { status: 400 }
+        );
+      }
+      throw error;
+    }
+    
+    console.log('Validated data:', JSON.stringify(data, null, 2));
 
 
     const doc = new jsPDF();

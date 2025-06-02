@@ -14,6 +14,10 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 - 📅 Datumseingabe im deutschen Format
 - 📄 PDF-Export mit allen Details
 - 🖼️ Automatisches Anhängen des Original-Belegs im PDF
+- 🔒 Benutzer-Authentifizierung mit NextAuth.js
+- 👥 Rollenbasierte Zugriffskontrolle
+- 🚦 API Rate Limiting mit Upstash Redis
+- 🛡️ Input-Validierung und Sanitierung mit Zod
 
 ## Voraussetzungen
 
@@ -35,10 +39,22 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
    ```
 
 3. Umgebungsvariablen einrichten:
-   - Erstelle eine Datei `.env.local` im Hauptverzeichnis
-   - Füge deinen OpenAI API-Key hinzu:
+   - Kopiere die `.env.example` Datei zu `.env.local`:
+     ```bash
+     cp .env.example .env.local
      ```
-     OPENAI_API_KEY=dein-api-key-hier
+   - Füge deine API-Keys und Secrets hinzu:
+     ```
+     # OpenAI API Key für OCR und Textverarbeitung
+     OPENAI_API_KEY=dein-openai-api-key-hier
+     
+     # NextAuth Konfiguration
+     NEXTAUTH_URL=http://localhost:3000
+     NEXTAUTH_SECRET=dein-nextauth-secret-hier
+     ```
+   - Generiere ein sicheres NEXTAUTH_SECRET:
+     ```bash
+     openssl rand -base64 32
      ```
 
 ## Entwicklung
@@ -49,6 +65,10 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
    ```
 
 2. Öffne http://localhost:3000 in deinem Browser
+
+3. Demo-Accounts für die Entwicklung:
+   - Admin: `admin@docbits.com` / `admin123`
+   - Benutzer: `user@docbits.com` / `user123`
 
 ## Verwendete Technologien
 
@@ -82,6 +102,53 @@ Extrahiert Daten aus einem hochgeladenen Bild:
   - restaurantAnschrift
   - gesamtbetrag (im deutschen Format)
   - datum (im Format DD.MM.YYYY)
+- Rate Limit: 5 Anfragen pro Minute
+
+### POST /api/classify-receipt
+Klassifiziert eine Datei als Rechnung oder Kundenbeleg:
+- Akzeptiert: JSON mit fileName und fileType
+- Gibt JSON zurück mit Klassifizierung
+- Rate Limit: 10 Anfragen pro 10 Sekunden
+
+### POST /api/generate-pdf
+Generiert ein PDF aus den Bewirtungsdaten:
+- Akzeptiert: JSON mit allen Formulardaten
+- Gibt PDF als Base64 zurück
+- Rate Limit: 20 Anfragen pro Minute
+
+## Rate Limiting
+
+Die API verwendet Upstash Redis für Rate Limiting. Limits:
+- OCR-Endpunkte: 5 Anfragen/Minute (höhere Kosten)
+- PDF-Generierung: 20 Anfragen/Minute
+- Allgemeine API: 10 Anfragen/10 Sekunden
+
+Rate Limits werden pro Benutzer (wenn angemeldet) oder pro IP-Adresse angewendet.
+
+## Sicherheit
+
+Die Anwendung implementiert mehrere Sicherheitsmaßnahmen:
+
+### Input-Validierung
+- Alle API-Eingaben werden mit Zod-Schemas validiert
+- Dateiuploads sind auf 10MB und bestimmte Bildformate beschränkt
+- HTML-Inhalte werden sanitiert um XSS zu verhindern
+- Dateinamen werden bereinigt um Path-Traversal-Angriffe zu verhindern
+
+### Authentifizierung & Autorisierung
+- JWT-basierte Sessions mit NextAuth.js
+- Geschützte API-Routen mit Middleware
+- Rollenbasierte Zugriffskontrolle
+
+### Rate Limiting
+- API-Endpunkte haben unterschiedliche Rate Limits
+- Limits basieren auf Benutzer-ID oder IP-Adresse
+- Headers zeigen verbleibende Anfragen an
+
+### Umgebungsvariablen
+- Sensible Daten werden nur serverseitig verwendet
+- API-Keys sind nie im Client-Code enthalten
+- Verwendung von `server-only` Package zur Sicherstellung
 
 ## Bekannte Einschränkungen
 
