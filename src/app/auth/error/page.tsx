@@ -1,12 +1,15 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useSearchParams } from 'next/navigation';
 import { Container, Title, Text, Button, Paper } from '@mantine/core';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
-  const error = searchParams.get('error');
+  const error = searchParams?.get('error');
 
   const getErrorMessage = () => {
     switch (error) {
@@ -37,5 +40,13 @@ export default function AuthErrorPage() {
         </Button>
       </Paper>
     </Container>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AuthErrorContent />
+    </Suspense>
   );
 }

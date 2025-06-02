@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
@@ -15,11 +17,12 @@ import {
   Alert,
 } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { Suspense } from 'react';
 
-export default function SignInPage() {
+function SignInContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/bewirtungsbeleg';
+  const callbackUrl = searchParams?.get('callbackUrl') || '/bewirtungsbeleg';
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -113,5 +116,13 @@ export default function SignInPage() {
         </Text>
       </Paper>
     </Container>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   );
 }

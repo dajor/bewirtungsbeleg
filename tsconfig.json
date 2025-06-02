@@ -33,6 +33,12 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/test-utils.tsx",
+    "**/jest.setup.*",
+    "**/jest.config.*",
+    "**/tests/**/*"
   ]
 }

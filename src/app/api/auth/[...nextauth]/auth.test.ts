@@ -1,4 +1,4 @@
-import { authOptions } from './route';
+import { authOptions } from '@/lib/auth';
 import { compare } from 'bcryptjs';
 
 // Mock bcryptjs
