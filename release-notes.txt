@@ -1,3 +1,15 @@
+# Version 0.6.2
+Datum: 02.06.2025
+
+## Änderungen
+- Ein kritischer Fehler wurde behoben.
+
+## Technische Details
+- Build: 15387878945
+- Commit: 53c85055feae566c50374ee9c72c7b735cafef9b
+
+---
+
 # Version 0.6.1
 Datum: 29.05.2025
 

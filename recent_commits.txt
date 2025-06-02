@@ -1,2 +1,1 @@
-Merge pull request #10 from dajor/codex/add-coverage-badge-to-readme.md (Daniel Jordan)
-docs: add coverage workflow badge (Daniel Jordan)
+Fix (Daniel Jordan)
