@@ -1,3 +1,5 @@
+ifix (Daniel Jordan)
+Bump version to 0.6.3 #auto-release (dajor)
 fix (Daniel Jordan)
 Bump version to 0.6.2 #auto-release (dajor)
 Fix (Daniel Jordan)

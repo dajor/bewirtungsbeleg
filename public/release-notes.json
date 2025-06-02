@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.6.4",
+      "date": "02.06.2025",
+      "changes": [
+        "Drei Bugfixes wurden implementiert, um bekannte Probleme zu beheben."
+      ],
+      "build": "15389583830",
+      "commit": "2b3b905200c9f34620807c5d10b9bd85dbf04135"
+    },
+    {
       "version": "0.6.3",
       "date": "02.06.2025",
       "changes": [

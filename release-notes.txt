@@ -1,3 +1,15 @@
+# Version 0.6.4
+Datum: 02.06.2025
+
+## Änderungen
+- Drei Bugfixes wurden implementiert, um bekannte Probleme zu beheben.
+
+## Technische Details
+- Build: 15389583830
+- Commit: 2b3b905200c9f34620807c5d10b9bd85dbf04135
+
+---
+
 # Version 0.6.3
 Datum: 02.06.2025
 
