@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.6.3",
+      "date": "02.06.2025",
+      "changes": [
+        "Zwei Fehlerbehebungen durchgef&#252;hrt"
+      ],
+      "build": "15389441503",
+      "commit": "a911ad192bb96629a173774a2d0709352ad3270e"
+    },
+    {
       "version": "0.6.2",
       "date": "02.06.2025",
       "changes": [
