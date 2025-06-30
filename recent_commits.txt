@@ -1,1 +1,3 @@
+Fix PDF rendering to show actual PDF content instead of placeholders (Daniel Jordan)
+Bump version to 0.7.0 #auto-release (dajor)
 Add PDF to actual image conversion with system dependencies (Daniel Jordan)

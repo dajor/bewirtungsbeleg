@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.8.0",
+      "date": "30.06.2025",
+      "changes": [
+        "Behebung eines Fehlers bei der PDF-Darstellung, sodass nun der tatsächliche PDF-Inhalt anstelle von Platzhaltern angezeigt wird.",
+        "Einführung einer Funktion zur Umwandlung von PDFs in tatsächliche Bilder unter Nutzung von Systemabhängigkeiten."
+      ],
+      "build": "15972824726",
+      "commit": "a9e437e5ebbdabb51551963948f00b0e964cc5fe"
+    },
+    {
       "version": "0.7.0",
       "date": "30.06.2025",
       "changes": [

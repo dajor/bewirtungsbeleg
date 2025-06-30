@@ -1,3 +1,16 @@
+# Version 0.8.0
+Datum: 30.06.2025
+
+## Änderungen
+- Behebung eines Fehlers bei der PDF-Darstellung, sodass nun der tatsächliche PDF-Inhalt anstelle von Platzhaltern angezeigt wird.
+- Einführung einer Funktion zur Umwandlung von PDFs in tatsächliche Bilder unter Nutzung von Systemabhängigkeiten.
+
+## Technische Details
+- Build: 15972824726
+- Commit: a9e437e5ebbdabb51551963948f00b0e964cc5fe
+
+---
+
 # Version 0.7.0
 Datum: 30.06.2025
 
