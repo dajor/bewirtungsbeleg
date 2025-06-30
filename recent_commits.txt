@@ -1,3 +1,5 @@
+Fix attachment processing to completely eliminate empty pages (Daniel Jordan)
+Bump version to 0.10.0 #auto-release (dajor)
 Fix empty page issue in PDF generation - eliminate unnecessary error pages (Daniel Jordan)
 Bump version to 0.9.0 #auto-release (dajor)
 Fix PDF and image scaling to preserve original aspect ratio (Daniel Jordan)

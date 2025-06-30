@@ -1,3 +1,19 @@
+# Version 0.11.0
+Datum: 30.06.2025
+
+## Änderungen
+- Behandlung von Anhängen verbessert, um leere Seiten vollständig zu eliminieren.
+- Problem mit leeren Seiten in der PDF-Generierung behoben, unnötige Fehlerseiten werden nun vermieden.
+- PDF- und Bildskalierung korrigiert, um das ursprüngliche Seitenverhältnis zu bewahren.
+- PDF-Rendering korrigiert, um tatsächliche PDF-Inhalte anstelle von Platzhaltern anzuzeigen.
+- Funktion hinzugefügt, um PDFs in tatsächliche Bilder mit Systemabhängigkeiten zu konvertieren.
+
+## Technische Details
+- Build: 15973792545
+- Commit: 65fd71d53d70b224327af5549423f654f56a9287
+
+---
+
 # Version 0.10.0
 Datum: 30.06.2025
 
