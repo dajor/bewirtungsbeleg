@@ -222,13 +222,7 @@ export async function POST(request: Request) {
       
       for (let i = 0; i < attachmentsToAdd.length; i++) {
         const attachment = attachmentsToAdd[i];
-        doc.addPage();
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, 20, 20);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(10);
-    
+        
         try {
           console.log(`Processing attachment ${i + 1}: ${attachment.name}, type: ${attachment.type}`);
           
@@ -236,6 +230,14 @@ export async function POST(request: Request) {
           if (!attachment.data || !attachment.data.startsWith('data:')) {
             throw new Error('Invalid attachment data format');
           }
+          
+          // Only add page and title if we can successfully process the attachment
+          doc.addPage();
+          doc.setFontSize(12);
+          doc.setFont('helvetica', 'bold');
+          doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, 20, 20);
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(10);
 
           // Handle PDF attachments by converting them to images
           if (attachment.type === 'application/pdf') {
@@ -351,7 +353,8 @@ export async function POST(request: Request) {
             dataLength: attachment.data?.length || 0,
             dataPrefix: attachment.data?.substring(0, 50)
           });
-          doc.text('Fehler beim Hinzufügen des Anhangs', 20, 30);
+          // Don't add empty error pages - just log the error and continue
+          console.warn(`Skipping attachment ${i + 1} due to processing error`);
         }
       }
     }
