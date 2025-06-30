@@ -237,12 +237,6 @@ export async function POST(request: Request) {
             throw new Error('Invalid attachment data format');
           }
 
-          // For attachments, we'll use fixed dimensions that fit well on A4
-          const x = 20;
-          const y = 30;
-          const width = 170; // A4 width (210mm - 40mm margins)
-          const height = 200; // Leave space for header text
-
           // Handle PDF attachments by converting them to images
           if (attachment.type === 'application/pdf') {
             try {
@@ -255,9 +249,38 @@ export async function POST(request: Request) {
               // Convert PDF to image
               const imageData = await convertPdfToImage(pdfBuffer, attachment.name);
               
-              // Add the converted image to the PDF
-              console.log('Adding converted PDF image to document');
-              doc.addImage(imageData, 'JPEG', x, y, width, height);
+              // Calculate proportional scaling to preserve aspect ratio
+              const maxWidth = 170; // A4 width (210mm - 40mm margins)
+              const maxHeight = 240; // Leave space for header text
+              const x = 20;
+              const y = 30;
+              
+              // Get image dimensions from base64 data
+              const base64Buffer = Buffer.from(imageData.split(',')[1], 'base64');
+              const sizeOf = await import('image-size');
+              const dimensions = sizeOf.default(base64Buffer);
+              
+              if (!dimensions.width || !dimensions.height) {
+                throw new Error('Could not determine image dimensions');
+              }
+              
+              const originalWidth = dimensions.width;
+              const originalHeight = dimensions.height;
+              
+              console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
+              
+              // Calculate scale to fit within max dimensions while preserving aspect ratio
+              const scaleX = maxWidth / originalWidth;
+              const scaleY = maxHeight / originalHeight;
+              const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
+              
+              const scaledWidth = originalWidth * scale;
+              const scaledHeight = originalHeight * scale;
+              
+              console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
+              
+              // Add the converted image to the PDF with proper proportions
+              doc.addImage(imageData, 'JPEG', x, y, scaledWidth, scaledHeight);
               
               console.log(`PDF attachment ${i + 1} converted and added successfully`);
             } catch (pdfError) {
@@ -276,7 +299,35 @@ export async function POST(request: Request) {
             continue;
           }
           
-          console.log(`Adding image: format=${attachment.type}, position=(${x},${y}), size=(${width}x${height})`);
+          // Calculate proportional scaling for regular images too
+          const maxWidth = 170; // A4 width (210mm - 40mm margins)
+          const maxHeight = 240; // Leave space for header text
+          const x = 20;
+          const y = 30;
+          
+          // Get image dimensions from base64 data
+          const base64Buffer = Buffer.from(attachment.data.split(',')[1], 'base64');
+          const sizeOf = await import('image-size');
+          const dimensions = sizeOf.default(base64Buffer);
+          
+          if (!dimensions.width || !dimensions.height) {
+            throw new Error('Could not determine image dimensions');
+          }
+          
+          const originalWidth = dimensions.width;
+          const originalHeight = dimensions.height;
+          
+          console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
+          
+          // Calculate scale to fit within max dimensions while preserving aspect ratio
+          const scaleX = maxWidth / originalWidth;
+          const scaleY = maxHeight / originalHeight;
+          const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
+          
+          const scaledWidth = originalWidth * scale;
+          const scaledHeight = originalHeight * scale;
+          
+          console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
           
           // Add the image with explicit format
           // jsPDF requires format as second parameter when using data URI
@@ -288,7 +339,7 @@ export async function POST(request: Request) {
           // WEBP will be treated as JPEG (browser should handle conversion in data URL)
           
           console.log(`Adding image with format: ${imageFormat} (original type: ${attachment.type})`);
-          doc.addImage(attachment.data, imageFormat, x, y, width, height);
+          doc.addImage(attachment.data, imageFormat, x, y, scaledWidth, scaledHeight);
           
           console.log(`Attachment ${i + 1} added successfully`);
     
