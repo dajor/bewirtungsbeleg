@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.7.0",
+      "date": "30.06.2025",
+      "changes": [
+        "Ein neues Feature wurde hinzugefügt: Umwandlung von PDFs in tatsächliche Bilder unter Verwendung systemabhängiger Funktionalitäten."
+      ],
+      "build": "15972732708",
+      "commit": "f5248a5ef0e620b98bea14fb48a790e996251035"
+    },
+    {
       "version": "0.6.4",
       "date": "02.06.2025",
       "changes": [
