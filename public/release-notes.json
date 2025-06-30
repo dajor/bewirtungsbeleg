@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.9.0",
+      "date": "30.06.2025",
+      "changes": [
+        "Verbesserte Skalierung von PDFs und Bildern, um das ursprüngliche Seitenverhältnis zu erhalten.",
+        "PDF-Rendering korrigiert, sodass nun der tatsächliche Inhalt der PDFs angezeigt wird, anstelle von Platzhaltern.",
+        "Neue Funktion hinzugefügt, die PDFs in tatsächliche Bilder mit Systemabhängigkeiten umwandelt."
+      ],
+      "build": "15973256143",
+      "commit": "0ea1915dcb6a449fb97451b85acc815fd7cb81a7"
+    },
+    {
       "version": "0.8.0",
       "date": "30.06.2025",
       "changes": [
