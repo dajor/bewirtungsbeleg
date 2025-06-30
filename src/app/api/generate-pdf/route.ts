@@ -231,117 +231,108 @@ export async function POST(request: Request) {
             throw new Error('Invalid attachment data format');
           }
           
-          // Only add page and title if we can successfully process the attachment
+          // Variables to store processed attachment data
+          let processedImageData: string;
+          let scaledWidth: number;
+          let scaledHeight: number;
+
+          // Handle PDF attachments by converting them to images
+          if (attachment.type === 'application/pdf') {
+            console.log(`Converting PDF attachment: ${attachment.name}`);
+            
+            // Extract PDF data from base64
+            const base64Data = attachment.data.split(',')[1];
+            const pdfBuffer = Buffer.from(base64Data, 'base64');
+            
+            // Convert PDF to image
+            const imageData = await convertPdfToImage(pdfBuffer, attachment.name);
+            
+            // Calculate proportional scaling to preserve aspect ratio
+            const maxWidth = 170; // A4 width (210mm - 40mm margins)
+            const maxHeight = 240; // Leave space for header text
+            
+            // Get image dimensions from base64 data
+            const base64Buffer = Buffer.from(imageData.split(',')[1], 'base64');
+            const sizeOf = await import('image-size');
+            const dimensions = sizeOf.default(base64Buffer);
+            
+            if (!dimensions.width || !dimensions.height) {
+              throw new Error('Could not determine image dimensions');
+            }
+            
+            const originalWidth = dimensions.width;
+            const originalHeight = dimensions.height;
+            
+            console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
+            
+            // Calculate scale to fit within max dimensions while preserving aspect ratio
+            const scaleX = maxWidth / originalWidth;
+            const scaleY = maxHeight / originalHeight;
+            const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
+            
+            scaledWidth = originalWidth * scale;
+            scaledHeight = originalHeight * scale;
+            processedImageData = imageData;
+            
+            console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
+            console.log(`PDF attachment ${i + 1} converted successfully`);
+          } else {
+            // Handle regular images
+            console.log(`Processing regular image: ${attachment.name}`);
+            
+            // Calculate proportional scaling for regular images
+            const maxWidth = 170; // A4 width (210mm - 40mm margins)
+            const maxHeight = 240; // Leave space for header text
+            
+            // Get image dimensions from base64 data
+            const base64Buffer = Buffer.from(attachment.data.split(',')[1], 'base64');
+            const sizeOf = await import('image-size');
+            const dimensions = sizeOf.default(base64Buffer);
+            
+            if (!dimensions.width || !dimensions.height) {
+              throw new Error('Could not determine image dimensions');
+            }
+            
+            const originalWidth = dimensions.width;
+            const originalHeight = dimensions.height;
+            
+            console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
+            
+            // Calculate scale to fit within max dimensions while preserving aspect ratio
+            const scaleX = maxWidth / originalWidth;
+            const scaleY = maxHeight / originalHeight;
+            const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
+            
+            scaledWidth = originalWidth * scale;
+            scaledHeight = originalHeight * scale;
+            processedImageData = attachment.data;
+            
+            console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
+          }
+          
+          // If we reach here, attachment processing was successful
+          // NOW create the page and add the content
           doc.addPage();
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
           doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, 20, 20);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
-
-          // Handle PDF attachments by converting them to images
-          if (attachment.type === 'application/pdf') {
-            try {
-              console.log(`Converting PDF attachment: ${attachment.name}`);
-              
-              // Extract PDF data from base64
-              const base64Data = attachment.data.split(',')[1];
-              const pdfBuffer = Buffer.from(base64Data, 'base64');
-              
-              // Convert PDF to image
-              const imageData = await convertPdfToImage(pdfBuffer, attachment.name);
-              
-              // Calculate proportional scaling to preserve aspect ratio
-              const maxWidth = 170; // A4 width (210mm - 40mm margins)
-              const maxHeight = 240; // Leave space for header text
-              const x = 20;
-              const y = 30;
-              
-              // Get image dimensions from base64 data
-              const base64Buffer = Buffer.from(imageData.split(',')[1], 'base64');
-              const sizeOf = await import('image-size');
-              const dimensions = sizeOf.default(base64Buffer);
-              
-              if (!dimensions.width || !dimensions.height) {
-                throw new Error('Could not determine image dimensions');
-              }
-              
-              const originalWidth = dimensions.width;
-              const originalHeight = dimensions.height;
-              
-              console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
-              
-              // Calculate scale to fit within max dimensions while preserving aspect ratio
-              const scaleX = maxWidth / originalWidth;
-              const scaleY = maxHeight / originalHeight;
-              const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
-              
-              const scaledWidth = originalWidth * scale;
-              const scaledHeight = originalHeight * scale;
-              
-              console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
-              
-              // Add the converted image to the PDF with proper proportions
-              doc.addImage(imageData, 'JPEG', x, y, scaledWidth, scaledHeight);
-              
-              console.log(`PDF attachment ${i + 1} converted and added successfully`);
-            } catch (pdfError) {
-              console.error(`Error converting PDF ${attachment.name}:`, pdfError);
-              
-              // Fallback: show placeholder
-              doc.setFontSize(12);
-              doc.setFont('helvetica', 'bold');
-              doc.rect(20, 40, 170, 220);
-              doc.text('PDF-Dokument', 105, 140, { align: 'center' });
-              doc.setFont('helvetica', 'normal');
-              doc.setFontSize(10);
-              doc.text(attachment.name || 'PDF-Anhang', 105, 150, { align: 'center' });
-              doc.text('(Konvertierung fehlgeschlagen)', 105, 160, { align: 'center' });
-            }
-            continue;
-          }
           
-          // Calculate proportional scaling for regular images too
-          const maxWidth = 170; // A4 width (210mm - 40mm margins)
-          const maxHeight = 240; // Leave space for header text
+          // Add the processed image to the PDF
           const x = 20;
           const y = 30;
           
-          // Get image dimensions from base64 data
-          const base64Buffer = Buffer.from(attachment.data.split(',')[1], 'base64');
-          const sizeOf = await import('image-size');
-          const dimensions = sizeOf.default(base64Buffer);
-          
-          if (!dimensions.width || !dimensions.height) {
-            throw new Error('Could not determine image dimensions');
-          }
-          
-          const originalWidth = dimensions.width;
-          const originalHeight = dimensions.height;
-          
-          console.log(`Original image dimensions: ${originalWidth}x${originalHeight}`);
-          
-          // Calculate scale to fit within max dimensions while preserving aspect ratio
-          const scaleX = maxWidth / originalWidth;
-          const scaleY = maxHeight / originalHeight;
-          const scale = Math.min(scaleX, scaleY); // Use smaller scale to fit within bounds
-          
-          const scaledWidth = originalWidth * scale;
-          const scaledHeight = originalHeight * scale;
-          
-          console.log(`Scaled dimensions (preserving aspect ratio): ${scaledWidth.toFixed(1)}x${scaledHeight.toFixed(1)}`);
-          
-          // Add the image with explicit format
-          // jsPDF requires format as second parameter when using data URI
-          // Note: jsPDF only supports JPEG and PNG formats
-          let imageFormat = 'JPEG'; // default
+          // Determine image format for jsPDF
+          let imageFormat = 'JPEG'; // default for PDF conversions
           if (attachment.type === 'image/png') {
             imageFormat = 'PNG';
+          } else if (attachment.type === 'application/pdf') {
+            imageFormat = 'JPEG'; // PDF conversions are always JPEG
           }
-          // WEBP will be treated as JPEG (browser should handle conversion in data URL)
           
           console.log(`Adding image with format: ${imageFormat} (original type: ${attachment.type})`);
-          doc.addImage(attachment.data, imageFormat, x, y, scaledWidth, scaledHeight);
+          doc.addImage(processedImageData, imageFormat, x, y, scaledWidth, scaledHeight);
           
           console.log(`Attachment ${i + 1} added successfully`);
     
