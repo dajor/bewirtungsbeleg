@@ -1,6 +1,7 @@
 import { createCanvas } from 'canvas';
 import { PDFDocument } from 'pdf-lib';
-import { fromBuffer } from 'pdf2pic';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
@@ -30,6 +31,8 @@ export async function convertPdfToImage(pdfBuffer: Buffer, fileName: string): Pr
   }
 }
 
+const execAsync = promisify(exec);
+
 // Render actual PDF content using system dependencies
 async function renderActualPdfContent(pdfBuffer: Buffer, fileName: string): Promise<string | null> {
   let tempPdfPath: string | null = null;
@@ -45,42 +48,41 @@ async function renderActualPdfContent(pdfBuffer: Buffer, fileName: string): Prom
     // Write PDF to temporary file
     const timestamp = Date.now();
     tempPdfPath = path.join(tempDir, `temp_${timestamp}.pdf`);
+    tempImagePath = path.join(tempDir, `page_${timestamp}.jpg`);
     fs.writeFileSync(tempPdfPath, pdfBuffer);
     
     console.log('📄 PDF written to temp file, starting conversion...');
     
-    // Convert PDF to image using pdf2pic (requires poppler-utils)
-    const convertOptions = {
-      format: 'jpeg' as const,
-      out_dir: tempDir,
-      out_prefix: `pdf_page_${timestamp}`,
-      page: 1, // Convert only first page
-      quality: 90,
-      scale: 1200, // High quality scale
-    };
+    // Use pdftoppm directly (more reliable than pdf2pic)
+    const outputPrefix = path.join(tempDir, `page_${timestamp}`);
+    const pdftoppmCommand = `pdftoppm -jpeg -f 1 -l 1 -r 150 -scale-to-x 800 -scale-to-y -1 "${tempPdfPath}" "${outputPrefix}"`;
     
-    console.log('🖼️ Converting PDF page to image...');
-    const convert = fromBuffer(pdfBuffer, convertOptions);
-    const convert_result = await convert(1); // Convert page 1
+    console.log('🖼️ Converting PDF page to image with pdftoppm...');
+    console.log('Command:', pdftoppmCommand);
     
-    if (!convert_result || !convert_result.path) {
-      console.error('❌ PDF conversion returned no results');
-      return null;
+    const { stdout, stderr } = await execAsync(pdftoppmCommand);
+    
+    if (stderr && !stderr.includes('Syntax Warning')) {
+      console.log('⚠️ pdftoppm stderr:', stderr);
     }
     
-    // Read the generated image
-    tempImagePath = convert_result.path;
-    if (!fs.existsSync(tempImagePath)) {
-      console.error('❌ Generated image file not found:', tempImagePath);
+    // pdftoppm creates files with -1 suffix for page numbers
+    const expectedImagePath = `${outputPrefix}-1.jpg`;
+    
+    if (!fs.existsSync(expectedImagePath)) {
+      console.error('❌ Generated image file not found:', expectedImagePath);
       return null;
     }
     
     console.log('📸 Reading converted image...');
-    const imageBuffer = fs.readFileSync(tempImagePath);
+    const imageBuffer = fs.readFileSync(expectedImagePath);
     const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
     
     console.log('✅ PDF successfully converted to actual image!');
     console.log(`📊 Image size: ${imageBuffer.length} bytes`);
+    
+    // Update tempImagePath for cleanup
+    tempImagePath = expectedImagePath;
     
     return base64Image;
     
