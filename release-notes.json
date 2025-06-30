@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.10.0",
+      "date": "30.06.2025",
+      "changes": [
+        "Bugfix: Behoben wurde das Problem leerer Seiten in der PDF-Generierung, indem unnötige Fehlerseiten eliminiert wurden.",
+        "Bugfix: Korrektur der PDF- und Bildskalierung, um das ursprüngliche Seitenverhältnis zu bewahren.",
+        "Bugfix: Behoben wurde das Rendering von PDFs, sodass nun der tatsächliche PDF-Inhalt anstelle von Platzhaltern angezeigt wird.",
+        "Neues Feature: Hinzugefügt wurde die Konvertierung von PDFs in tatsächliche Bilder unter Verwendung von Systemabhängigkeiten."
+      ],
+      "build": "15973309420",
+      "commit": "c1b3242347ac6d1bc76edc430703b54516928cf1"
+    },
+    {
       "version": "0.9.0",
       "date": "30.06.2025",
       "changes": [
