@@ -1,49 +1,22 @@
 import { NextResponse } from 'next/server';
-import jsPDF from 'jspdf';
 import fs from 'fs';
-import { PDFDocument } from 'pdf-lib';
 import path from 'path';
-import sizeOf from 'image-size';
-import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
-import { getToken } from 'next-auth/jwt';
 import { generatePdfSchema, sanitizeObject, parseGermanDecimal } from '@/lib/validation';
 import { sanitizeFilename } from '@/lib/sanitize';
+import { convertPdfToImage } from '@/lib/pdf-to-image';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
   try {
     console.log('PDF generation API called');
     
-    // Get user ID from session if available
-    const token = await getToken({ req: request as any });
-    const userId = token?.id as string | undefined;
+    // Dynamic import for jsPDF to avoid SSR issues
+    const { default: jsPDF } = await import('jspdf');
     
-    // Check rate limit
-    const identifier = getIdentifier(request, userId);
-    const rateLimitResponse = await checkRateLimit(apiRatelimit.pdf, identifier);
-    if (rateLimitResponse) return rateLimitResponse;
-    
-    // Test to modify an existing pdf file
-    try{
-        console.log('Starting test to modify an existing pdf file');
-        const pdfPath = path.join(process.cwd(), 'public', 'kundenbewirtung.pdf');
-
-        const pdfBytes = fs.readFileSync(pdfPath);
-        const pdfDoc = await PDFDocument.load(pdfBytes);
-        const pages = pdfDoc.getPages();
-        const firstPage = pages[0];
-        const { width, height } = firstPage.getSize();
-        
-        firstPage.drawText('test', { x: width / 2, y: height / 2 });
-        
-        const modifiedPdfBytes = await pdfDoc.save();
-        fs.writeFileSync(path.join(process.cwd(), 'public', 'modified_kundenbewirtung.pdf'), modifiedPdfBytes);
-
-        console.log('Test to modify an existing pdf file finished');
-    }catch(pdfError){
-        console.error('Error trying to modify existing pdf file', pdfError);
-    }
-    
+    // Rate limiting temporarily disabled
+    // const identifier = getIdentifier(request, undefined);
+    // const rateLimitResponse = await checkRateLimit(apiRatelimit.pdf, identifier);
+    // if (rateLimitResponse) return rateLimitResponse;
 
     const body = await request.json();
     
@@ -187,22 +160,27 @@ export async function POST(request: Request) {
       yPosition += 10;
     }
 
-    // Weniger Abstand vor der Unterschrift
-    yPosition += 10;
+    // Ensure we have enough space for signature (check if we need a new page)
+    if (yPosition > 240) {
+      doc.addPage();
+      yPosition = 20;
+    }
+    
+    // Add some space before signature section
+    yPosition += 20;
 
-    // Unterschrift
+    // Unterschrift Section with better layout
     doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
     doc.text('Unterschrift:', 20, yPosition);
-    yPosition += 10;
+    yPosition += 15;
 
-    // Linie für Unterschrift mit Platz für die Unterschrift
-    doc.line(20, yPosition, 190, yPosition);
-    yPosition += 5;
-    doc.setFontSize(8);
-    doc.text('_____________________________', 20, yPosition);
-    yPosition += 10;
+    // Signature line
+    doc.setLineWidth(0.5);
+    doc.line(20, yPosition, 120, yPosition);
+    yPosition += 15;
 
-    // Footer
+    // Footer text
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
@@ -220,60 +198,110 @@ export async function POST(request: Request) {
     }
     console.log('Added footer to all pages');
 
-    // Wenn ein Bild vorhanden ist, füge es als Anlage hinzu
+    // Handle attachments - both legacy single image and new multiple attachments
+    const attachmentsToAdd: Array<{ data: string; name: string; type: string }> = [];
+    
+    // Check for legacy single image
     if (data.image) {
-      console.log('Adding image attachment...');
-      doc.addPage();
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Anlage: Original-Rechnung', 20, 20);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(10);
-  
-      try {
-        // Base64-Bild in Buffer umwandeln
-        const base64Data = data.image.split(',')[1];
-        const imageBuffer = Buffer.from(base64Data, 'base64');
-  
-        // Originaldimensionen auslesen
-        const dimensions = sizeOf(imageBuffer);
-        const imgWidth = dimensions.width!;
-        const imgHeight = dimensions.height!;
-  
-        // Maximal zulässige Abmessungen (mm) auf A4 Seite
-        const maxWidth = 170; // A4 Breite (210mm - 40mm Rand)
-        const maxHeight = 250; // A4 Höhe (297mm - 47mm Rand)
-  
-        // Proportionalen Skalierungsfaktor berechnen
-        const widthRatio = maxWidth / imgWidth;
-        const heightRatio = maxHeight / imgHeight;
-        const scaleFactor = Math.min(widthRatio, heightRatio);
-  
-        // Skalierte Dimensionen berechnen
-        const scaledWidth = imgWidth * scaleFactor;
-        const scaledHeight = imgHeight * scaleFactor;
-  
-        // Zentriere das Bild horizontal
-        const xOffset = 20 + (maxWidth - scaledWidth) / 2;
-        const yOffset = 30; // Du kannst auch vertikal zentrieren, wenn gewünscht
-  
-        // Bild hinzufügen
-        doc.addImage(
-          data.image,
-          'JPEG',
-          xOffset,
-          yOffset,
-          scaledWidth,
-          scaledHeight,
-          undefined,
-          'FAST'
-        );
-  
-        console.log('Image added successfully with proportional scaling');
-  
-      } catch (imageError) {
-        console.error('Error adding image:', imageError);
-        doc.text('Fehler beim Hinzufügen des Bildes', 20, 30);
+      attachmentsToAdd.push({
+        data: data.image,
+        name: 'Original-Rechnung',
+        type: 'image/jpeg'
+      });
+    }
+    
+    // Check for new attachments array
+    if (data.attachments && Array.isArray(data.attachments)) {
+      console.log(`Found ${data.attachments.length} attachments in request`);
+      attachmentsToAdd.push(...data.attachments);
+    }
+    
+    // Add all attachments
+    if (attachmentsToAdd.length > 0) {
+      console.log(`Adding ${attachmentsToAdd.length} attachment(s) to PDF...`);
+      
+      for (let i = 0; i < attachmentsToAdd.length; i++) {
+        const attachment = attachmentsToAdd[i];
+        doc.addPage();
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, 20, 20);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(10);
+    
+        try {
+          console.log(`Processing attachment ${i + 1}: ${attachment.name}, type: ${attachment.type}`);
+          
+          // Validate attachment data
+          if (!attachment.data || !attachment.data.startsWith('data:')) {
+            throw new Error('Invalid attachment data format');
+          }
+
+          // For attachments, we'll use fixed dimensions that fit well on A4
+          const x = 20;
+          const y = 30;
+          const width = 170; // A4 width (210mm - 40mm margins)
+          const height = 200; // Leave space for header text
+
+          // Handle PDF attachments by converting them to images
+          if (attachment.type === 'application/pdf') {
+            try {
+              console.log(`Converting PDF attachment: ${attachment.name}`);
+              
+              // Extract PDF data from base64
+              const base64Data = attachment.data.split(',')[1];
+              const pdfBuffer = Buffer.from(base64Data, 'base64');
+              
+              // Convert PDF to image
+              const imageData = await convertPdfToImage(pdfBuffer, attachment.name);
+              
+              // Add the converted image to the PDF
+              console.log('Adding converted PDF image to document');
+              doc.addImage(imageData, 'JPEG', x, y, width, height);
+              
+              console.log(`PDF attachment ${i + 1} converted and added successfully`);
+            } catch (pdfError) {
+              console.error(`Error converting PDF ${attachment.name}:`, pdfError);
+              
+              // Fallback: show placeholder
+              doc.setFontSize(12);
+              doc.setFont('helvetica', 'bold');
+              doc.rect(20, 40, 170, 220);
+              doc.text('PDF-Dokument', 105, 140, { align: 'center' });
+              doc.setFont('helvetica', 'normal');
+              doc.setFontSize(10);
+              doc.text(attachment.name || 'PDF-Anhang', 105, 150, { align: 'center' });
+              doc.text('(Konvertierung fehlgeschlagen)', 105, 160, { align: 'center' });
+            }
+            continue;
+          }
+          
+          console.log(`Adding image: format=${attachment.type}, position=(${x},${y}), size=(${width}x${height})`);
+          
+          // Add the image with explicit format
+          // jsPDF requires format as second parameter when using data URI
+          // Note: jsPDF only supports JPEG and PNG formats
+          let imageFormat = 'JPEG'; // default
+          if (attachment.type === 'image/png') {
+            imageFormat = 'PNG';
+          }
+          // WEBP will be treated as JPEG (browser should handle conversion in data URL)
+          
+          console.log(`Adding image with format: ${imageFormat} (original type: ${attachment.type})`);
+          doc.addImage(attachment.data, imageFormat, x, y, width, height);
+          
+          console.log(`Attachment ${i + 1} added successfully`);
+    
+        } catch (imageError) {
+          console.error(`Error adding attachment ${i + 1}:`, imageError);
+          console.error('Attachment details:', {
+            name: attachment.name,
+            type: attachment.type,
+            dataLength: attachment.data?.length || 0,
+            dataPrefix: attachment.data?.substring(0, 50)
+          });
+          doc.text('Fehler beim Hinzufügen des Anhangs', 20, 30);
+        }
       }
     }
 

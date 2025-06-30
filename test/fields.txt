@@ -1,0 +1,23 @@
+Bewirtungsbeleg Form Data
+========================
+Art der Bewirtung: Kundenbewirtung (70% abzugsfähig)
+Restaurant: Restaurant zur goldenen Gans
+Restaurant Adresse: Hauptstraße 42, 12345 Berlin
+Datum: 09.05.2025
+Anlass: Geschäftsessen mit Kunde ABC AG
+
+Teilnehmer:
+Max Mustermann (Musterfirma GmbH)
+Anna Schmidt (ABC AG)
+Peter Wagner (XYZ GmbH)
+Hans Meyer (Eigene Firma)
+
+Beträge:
+Gesamtbetrag (Brutto): 185,50 €
+Trinkgeld: 18,50 €
+Gesamtbetrag (mit Trinkgeld): 204,00 €
+
+Firma der Geschäftspartner: Test Company GmbH
+Namen der Geschäftspartner: John Doe, Jane Smith
+
+Steuerliche Auswirkung: 70% abzugsfähig (Kundenbewirtung)

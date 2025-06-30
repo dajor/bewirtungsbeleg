@@ -1,14 +1,28 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { env } from '@/lib/env';
-import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
-import { getToken } from 'next-auth/jwt';
+// import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit'; // Temporarily disabled
 import { fileValidation, extractReceiptResponseSchema, sanitizeObject } from '@/lib/validation';
 import { sanitizeFilename } from '@/lib/sanitize';
+import { convertPdfToImage, isPdfFile } from '@/lib/pdf-to-image';
+import { checkOpenAIKey } from '@/lib/check-openai';
 
-const openai = new OpenAI({
-  apiKey: env.OPENAI_API_KEY,
-});
+// Initialize OpenAI client and check key validity on startup
+let openai: OpenAI | null = null;
+let apiKeyError: string | null = null;
+
+// Check API key on module load
+(async () => {
+  const keyCheck = await checkOpenAIKey();
+  if (!keyCheck.valid) {
+    apiKeyError = keyCheck.error || 'OpenAI API-Schlüssel ist ungültig';
+    console.error('❌ OpenAI API Fehler:', apiKeyError);
+  } else {
+    openai = new OpenAI({
+      apiKey: env.OPENAI_API_KEY,
+    });
+  }
+})();
 
 // Hilfsfunktion zum Konvertieren von Zahlen ins deutsche Format
 function convertToGermanNumber(value: string | number): string {
@@ -56,14 +70,22 @@ Wichtige Hinweise:
 
 export async function POST(request: Request) {
   try {
-    // Get user ID from session if available
-    const token = await getToken({ req: request as any });
-    const userId = token?.id as string | undefined;
+    // Check if OpenAI is initialized
+    if (!openai || apiKeyError) {
+      return NextResponse.json(
+        { 
+          error: apiKeyError || 'OpenAI API ist nicht verfügbar.',
+          userMessage: '🔑 Die automatische Texterkennung ist derzeit nicht verfügbar. Bitte füllen Sie die Felder manuell aus.',
+          details: 'Der Administrator muss einen gültigen OpenAI API-Schlüssel in der .env Datei konfigurieren.'
+        },
+        { status: 503 }
+      );
+    }
     
-    // Check rate limit
-    const identifier = getIdentifier(request, userId);
-    const rateLimitResponse = await checkRateLimit(apiRatelimit.ocr, identifier);
-    if (rateLimitResponse) return rateLimitResponse;
+    // Rate limiting temporarily disabled
+    // const identifier = getIdentifier(request, undefined);
+    // const rateLimitResponse = await checkRateLimit(apiRatelimit.ocr, identifier);
+    // if (rateLimitResponse) return rateLimitResponse;
     
     const formData = await request.formData();
     const image = formData.get('image') as File;
@@ -93,8 +115,23 @@ export async function POST(request: Request) {
       size: image.size
     });
 
+    // Check if the file is a PDF
+    if (await isPdfFile(image)) {
+      console.log('PDF erkannt - OCR für PDFs wird nicht unterstützt');
+      return NextResponse.json(
+        { 
+          error: 'PDF-Dateien werden für OCR nicht unterstützt',
+          userMessage: '📄 PDF-Dateien können nicht automatisch ausgelesen werden. Bitte laden Sie ein Foto oder Scan der Rechnung hoch (JPG, PNG) oder füllen Sie die Felder manuell aus.',
+          skipOCR: true
+        },
+        { status: 422 }
+      );
+    }
+
     const bytes = await image.arrayBuffer();
     const buffer = Buffer.from(bytes);
+    const imageType = image.type;
+    
     const base64Image = buffer.toString('base64');
 
     console.log('Sende Anfrage an OpenAI...');
@@ -115,7 +152,7 @@ export async function POST(request: Request) {
             {
               type: "image_url",
               image_url: {
-                url: `data:${image.type};base64,${base64Image}`
+                url: `data:${imageType};base64,${base64Image}`
               }
             }
           ]
@@ -156,8 +193,37 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     console.error('Fehler bei der OCR-Verarbeitung:', error);
+    
+    // Handle specific OpenAI errors
+    if (error instanceof OpenAI.APIError) {
+      if (error.status === 401) {
+        return NextResponse.json(
+          { 
+            error: 'Ungültiger API-Schlüssel',
+            userMessage: '🔑 Die automatische Texterkennung ist nicht verfügbar. Bitte füllen Sie die Felder manuell aus.',
+            details: 'Der OpenAI API-Schlüssel ist ungültig oder abgelaufen.'
+          },
+          { status: 401 }
+        );
+      }
+      if (error.status === 429) {
+        return NextResponse.json(
+          { 
+            error: 'API-Limit erreicht',
+            userMessage: '⏱️ Die automatische Texterkennung ist momentan überlastet. Bitte versuchen Sie es später erneut oder füllen Sie die Felder manuell aus.'
+          },
+          { status: 429 }
+        );
+      }
+    }
+    
+    // Generic error
     return NextResponse.json(
-      { error: 'Fehler bei der OCR-Verarbeitung' },
+      { 
+        error: 'Fehler bei der Verarbeitung',
+        userMessage: '❌ Die automatische Texterkennung ist fehlgeschlagen. Bitte füllen Sie die Felder manuell aus.',
+        details: error instanceof Error ? error.message : 'Unbekannter Fehler'
+      },
       { status: 500 }
     );
   }

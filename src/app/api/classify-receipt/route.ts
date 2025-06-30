@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { env } from '@/lib/env';
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
-import { getToken } from 'next-auth/jwt';
 import { classifyReceiptSchema, sanitizeObject } from '@/lib/validation';
 import { z } from 'zod';
 
@@ -12,12 +11,8 @@ const openai = new OpenAI({
 
 export async function POST(request: Request) {
   try {
-    // Get user ID from session if available
-    const token = await getToken({ req: request as any });
-    const userId = token?.id as string | undefined;
-    
     // Check rate limit
-    const identifier = getIdentifier(request, userId);
+    const identifier = getIdentifier(request, undefined);
     const rateLimitResponse = await checkRateLimit(apiRatelimit.general, identifier);
     if (rateLimitResponse) return rateLimitResponse;
     

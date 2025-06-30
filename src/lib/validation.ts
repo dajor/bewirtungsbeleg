@@ -6,6 +6,12 @@ const germanDecimalString = z.string().regex(
   'Bitte verwenden Sie das deutsche Zahlenformat (z.B. 123,45)'
 );
 
+// Optional German decimal - allows empty string
+const optionalGermanDecimalString = z.union([
+  germanDecimalString,
+  z.literal(''), // Allow empty string
+]);
+
 // Helper to parse German decimal to number
 export function parseGermanDecimal(value: string): number {
   // Remove thousand separators (dots) and replace comma with dot
@@ -64,27 +70,41 @@ export const bewirtungsbelegSchema = z.object({
   
   // Amounts (German decimal format)
   gesamtbetrag: germanDecimalString,
-  gesamtbetragMwst: germanDecimalString.optional(),
-  gesamtbetragNetto: germanDecimalString.optional(),
-  trinkgeld: germanDecimalString.optional(),
-  trinkgeldMwst: germanDecimalString.optional(),
-  kreditkartenBetrag: germanDecimalString.optional(),
+  gesamtbetragMwst: optionalGermanDecimalString.optional(),
+  gesamtbetragNetto: optionalGermanDecimalString.optional(),
+  trinkgeld: optionalGermanDecimalString.optional(),
+  trinkgeldMwst: optionalGermanDecimalString.optional(),
+  kreditkartenBetrag: optionalGermanDecimalString.optional(),
   
   // Payment and type
   zahlungsart: z.enum(['firma', 'privat', 'bar']),
   bewirtungsart: z.enum(['kunden', 'mitarbeiter']),
   geschaeftlicherAnlass: z.string().max(1000).optional(),
   
+  // Business partner info (for Kundenbewirtung)
+  geschaeftspartnerNamen: z.string().max(500).optional(),
+  geschaeftspartnerFirma: z.string().max(500).optional(),
+  
   // Receipt type
   receiptType: z.enum(['rechnung', 'kundenbeleg']).optional(),
   
   // Foreign currency
+  istAuslaendischeRechnung: z.boolean().optional(),
+  auslaendischeWaehrung: z.string().max(10).optional(),
   fremdwaehrung: z.string().max(3).optional(),
   wechselkurs: germanDecimalString.optional(),
   
   // Image attachment
+  image: z.string().optional(),
   imageData: z.string().optional(),
   imageName: z.string().max(255).optional(),
+  
+  // Multiple attachments
+  attachments: z.array(z.object({
+    data: z.string(),
+    name: z.string(),
+    type: z.string()
+  })).optional(),
 });
 
 // PDF generation request schema
@@ -128,7 +148,7 @@ export function sanitizeObject<T extends Record<string, any>>(obj: T): T {
 // File validation
 export const fileValidation = {
   maxSize: 10 * 1024 * 1024, // 10MB
-  allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'],
+  allowedTypes: ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'],
   
   validate(file: File): { valid: boolean; error?: string } {
     if (file.size > this.maxSize) {
@@ -141,7 +161,7 @@ export const fileValidation = {
     if (!this.allowedTypes.includes(file.type)) {
       return { 
         valid: false, 
-        error: 'Ungültiger Dateityp. Erlaubt sind: JPEG, PNG, WebP' 
+        error: 'Ungültiger Dateityp. Erlaubt sind: JPEG, PNG, WebP, PDF' 
       };
     }
     

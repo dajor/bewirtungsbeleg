@@ -1,0 +1,27 @@
+spec:
+  name: bewirtungsbeleg-app
+  services:
+  - name: web
+    source_dir: /
+    github:
+      repo: your-repo/bewirtungsbeleg-app
+      branch: main
+    run_command: yarn start
+    build_command: yarn build
+    environment_slug: node-js
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    # Add system dependencies for PDF processing
+    buildpacks:
+      - heroku/nodejs
+    env:
+      - key: NODE_ENV
+        value: production
+    # System dependencies for PDF processing
+    apt_packages:
+      - imagemagick
+      - ghostscript
+      - poppler-utils
+      - libmagickwand-dev
+    routes:
+    - path: /

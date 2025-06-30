@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useForm } from '@mantine/form';
 import {
   TextInput,
@@ -32,7 +32,7 @@ import {
 } from '@mantine/core';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
-import { UserMenu } from './UserMenu';
+import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -57,6 +57,60 @@ interface BewirtungsbelegFormData {
 
 export default function BewirtungsbelegForm() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [attachedFiles, setAttachedFiles] = useState<FileWithPreview[]>([]);
+
+  // Helper function to create a PDF thumbnail
+  const createPdfThumbnail = () => {
+    // Create a canvas to draw PDF icon
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 260;
+    const ctx = canvas.getContext('2d');
+    
+    if (ctx) {
+      // Background
+      ctx.fillStyle = '#f8f9fa';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Border
+      ctx.strokeStyle = '#dee2e6';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
+      
+      // PDF icon background
+      ctx.fillStyle = '#ff0000';
+      ctx.fillRect(60, 40, 80, 100);
+      
+      // White fold corner
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.moveTo(140, 40);
+      ctx.lineTo(140, 60);
+      ctx.lineTo(120, 60);
+      ctx.closePath();
+      ctx.fill();
+      
+      // PDF text
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('PDF', 100, 95);
+      
+      // File icon lines
+      ctx.strokeStyle = '#868e96';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(40, 170);
+      ctx.lineTo(160, 170);
+      ctx.moveTo(40, 190);
+      ctx.lineTo(160, 190);
+      ctx.moveTo(40, 210);
+      ctx.lineTo(120, 210);
+      ctx.stroke();
+    }
+    
+    return canvas.toDataURL('image/png');
+  };
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -153,7 +207,15 @@ export default function BewirtungsbelegForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Fehler bei der Verarbeitung des Belegs');
+        const errorData = await response.json();
+        console.error('Server error:', response.status, errorData);
+        
+        // Use the user-friendly message if available
+        if (errorData.userMessage) {
+          throw new Error(errorData.userMessage);
+        }
+        
+        throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
@@ -187,7 +249,14 @@ export default function BewirtungsbelegForm() {
       });
     } catch (err) {
       console.error('Fehler bei der OCR-Verarbeitung:', err);
-      setError('Fehler bei der Verarbeitung des Belegs. Bitte füllen Sie die Felder manuell aus.');
+      
+      // If it's already a user-friendly message, use it directly
+      if (err instanceof Error && err.message.includes('📄') || err.message.includes('🔑') || err.message.includes('⏱️') || err.message.includes('❌')) {
+        setError(err.message);
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler';
+        setError(`Fehler bei der Verarbeitung: ${errorMessage}`);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -199,6 +268,87 @@ export default function BewirtungsbelegForm() {
       await extractDataFromImage(file);
     }
   };
+
+  const handleFileDrop = useCallback(async (files: File[]) => {
+    const newFiles: FileWithPreview[] = [];
+    
+    for (const file of files) {
+      const fileData: FileWithPreview = {
+        file,
+        id: Math.random().toString(36).substr(2, 9),
+        isConverting: file.type === 'application/pdf'
+      };
+
+      // Create preview for images
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setAttachedFiles(prev => prev.map(f => 
+            f.id === fileData.id ? { ...f, preview: e.target?.result as string } : f
+          ));
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type === 'application/pdf') {
+        // For PDFs, we'll create a generic PDF thumbnail
+        // You could also use pdf.js or similar to generate actual thumbnails
+        const pdfThumbnail = createPdfThumbnail();
+        setAttachedFiles(prev => prev.map(f => 
+          f.id === fileData.id ? { ...f, preview: pdfThumbnail } : f
+        ));
+      }
+
+      newFiles.push(fileData);
+    }
+
+    setAttachedFiles(prev => [...prev, ...newFiles]);
+
+    // Process the first file for OCR if no file has been processed yet
+    if (!selectedImage && files.length > 0) {
+      const firstFile = files[0];
+      setSelectedImage(firstFile);
+      
+      // If it's a PDF, we can attach it but not OCR it
+      if (firstFile.type === 'application/pdf') {
+        // Show info message in a nicer way
+        setError(null); // Clear any previous errors
+        setSuccess(false);
+        
+        // Set a special info state for PDFs
+        const infoMessage = '📄 PDF-Datei erkannt: PDFs können als Anhang hinzugefügt werden. Die automatische Texterkennung funktioniert nur mit Bildern (JPG, PNG). Bitte füllen Sie die Felder manuell aus.';
+        
+        // Show as a notification instead of error
+        setError(infoMessage);
+        
+        // Mark as not converting since we're not processing it
+        const fileId = newFiles[0].id;
+        setAttachedFiles(prev => prev.map(f => 
+          f.id === fileId ? { ...f, isConverting: false } : f
+        ));
+        
+        // Clear the message after 6 seconds
+        setTimeout(() => {
+          setError(null);
+        }, 6000);
+      } else {
+        // Process image files directly  
+        await extractDataFromImage(firstFile);
+      }
+    }
+  }, [selectedImage, attachedFiles]);
+
+  const handleFileRemove = useCallback((id: string) => {
+    setAttachedFiles(prev => {
+      const newFiles = prev.filter(f => f.id !== id);
+      
+      // If we removed the selected image, clear it
+      const removedFile = prev.find(f => f.id === id);
+      if (removedFile && selectedImage === removedFile.file) {
+        setSelectedImage(null);
+      }
+      
+      return newFiles;
+    });
+  }, [selectedImage]);
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -212,18 +362,28 @@ export default function BewirtungsbelegForm() {
     setError(null);
 
     try {
-      console.log('Form values before PDF generation:', form.values);
+      console.log('Starting PDF generation with form values:', Object.keys(form.values));
       
-      // Konvertiere das Bild in Base64, wenn es vorhanden ist
-      let imageData: string | null = null;
-      if (selectedImage) {
+      // Konvertiere alle Anhänge in Base64
+      const attachments: Array<{ data: string; name: string; type: string }> = [];
+      
+      for (const fileData of attachedFiles) {
         const reader = new FileReader();
-        imageData = await new Promise<string | null>((resolve, reject) => {
-          reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : null);
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
           reader.onerror = reject;
-          reader.readAsDataURL(selectedImage);
+          reader.readAsDataURL(fileData.file);
+        });
+        
+        attachments.push({
+          data: base64Data,
+          name: fileData.file.name,
+          type: fileData.file.type
         });
       }
+      
+      // For backward compatibility, keep the first image as the main image
+      const imageData = attachments.length > 0 ? attachments[0].data : null;
 
       // Formatiere das Datum
       if (!form.values.datum) {
@@ -231,15 +391,32 @@ export default function BewirtungsbelegForm() {
       }
       const formattedDate = form.values.datum.toISOString().split('T')[0];
 
+      // Konvertiere numerische Werte zu deutschem Dezimalformat
+      const convertToGermanDecimal = (value: string | number) => {
+        if (!value) return '';
+        // Ensure number has 2 decimal places and convert to German format
+        const numValue = Number(value);
+        return numValue.toFixed(2).replace('.', ',');
+      };
+
       // Erstelle die Daten für die API
       const apiData = {
         ...form.values,
         datum: formattedDate,
-        anlass: form.values.anlass, // Stelle sicher, dass der Anlass explizit übergeben wird
-        image: imageData
+        anlass: form.values.geschaeftlicherAnlass || form.values.anlass, // Map geschaeftlicherAnlass to anlass
+        gesamtbetrag: convertToGermanDecimal(form.values.gesamtbetrag),
+        gesamtbetragMwst: convertToGermanDecimal(form.values.gesamtbetragMwst),
+        gesamtbetragNetto: convertToGermanDecimal(form.values.gesamtbetragNetto),
+        trinkgeld: convertToGermanDecimal(form.values.trinkgeld),
+        trinkgeldMwst: convertToGermanDecimal(form.values.trinkgeldMwst),
+        kreditkartenBetrag: convertToGermanDecimal(form.values.kreditkartenBetrag),
+        image: imageData,
+        attachments: attachments
       };
 
-      console.log('Sende Daten an API:', apiData);
+      console.log('Sending data to PDF API:', apiData);
+      console.log('API data keys:', Object.keys(apiData));
+      console.log('Restaurant name:', apiData.restaurantName);
 
       const response = await fetch('/api/generate-pdf', {
         method: 'POST',
@@ -250,7 +427,18 @@ export default function BewirtungsbelegForm() {
       });
 
       if (!response.ok) {
-        throw new Error('Fehler bei der PDF-Generierung');
+        const errorData = await response.json();
+        console.error('PDF generation error:', errorData);
+        
+        // Show detailed validation errors
+        if (errorData.details && Array.isArray(errorData.details)) {
+          const validationErrors = errorData.details.map((detail: any) => 
+            `${detail.path?.join('.')}: ${detail.message}`
+          ).join(', ');
+          throw new Error(`Validierungsfehler: ${validationErrors}`);
+        }
+        
+        throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
       }
 
       const blob = await response.blob();
@@ -268,7 +456,11 @@ export default function BewirtungsbelegForm() {
     } catch (error) {
       console.error('Error generating PDF:', error);
       setShowConfirm(false);
-      setError('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Fehler beim Erstellen des PDFs. Bitte versuchen Sie es erneut.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -377,24 +569,25 @@ export default function BewirtungsbelegForm() {
       <Paper shadow="sm" p="xs">
         <form onSubmit={handleSubmit}>
           <Stack gap="xs">
-            <Group justify="space-between" align="center">
-              <Title order={1} size="h6">
-                Bewirtungsbeleg
-              </Title>
-              <UserMenu />
-            </Group>
+            <Title order={1} size="h6">
+              Bewirtungsbeleg
+            </Title>
             
             <Box>
               <Title order={2} size="h6">Allgemeine Angaben</Title>
               <Stack gap="xs">
-                <FileInput
-                  label="Foto/Scan der Rechnung"
-                  description="Laden Sie ein Foto oder einen Scan hoch - die Daten werden automatisch extrahiert"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  value={selectedImage}
-                  size="sm"
-                />
+                <Box>
+                  <Text size="sm" fw={500} mb="xs">Foto/Scan der Rechnung</Text>
+                  <Text size="xs" c="dimmed" mb="sm">
+                    Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
+                  </Text>
+                  <MultiFileDropzone
+                    files={attachedFiles}
+                    onDrop={handleFileDrop}
+                    onRemove={handleFileRemove}
+                    loading={isProcessing}
+                  />
+                </Box>
                 <DateInput
                   label="Datum der Bewirtung"
                   placeholder="Wählen Sie ein Datum"
@@ -489,15 +682,8 @@ export default function BewirtungsbelegForm() {
                   description={form.values.istAuslaendischeRechnung 
                     ? `Geben Sie den Gesamtbetrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'} ein` 
                     : "Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)"}
-                  value={form.values.gesamtbetrag}
+                  {...form.getInputProps('gesamtbetrag')}
                   onChange={handleGesamtbetragChange}
-                  onBlur={(event) => {
-                    const value = event.currentTarget.value;
-                    if (value) {
-                      const numericValue = value.replace(',', '.');
-                      handleGesamtbetragChange(numericValue);
-                    }
-                  }}
                 />
                 {!form.values.istAuslaendischeRechnung && (
                   <>
@@ -510,7 +696,7 @@ export default function BewirtungsbelegForm() {
                       decimalScale={2}
                       fixedDecimalScale
                       description="MwSt. (19%) wird automatisch berechnet"
-                      value={form.values.gesamtbetragMwst}
+                      {...form.getInputProps('gesamtbetragMwst')}
                       readOnly
                     />
                     <NumberInput
@@ -522,7 +708,7 @@ export default function BewirtungsbelegForm() {
                       decimalScale={2}
                       fixedDecimalScale
                       description="Netto wird automatisch berechnet"
-                      value={form.values.gesamtbetragNetto}
+                      {...form.getInputProps('gesamtbetragNetto')}
                       readOnly
                     />
                   </>
@@ -536,15 +722,8 @@ export default function BewirtungsbelegForm() {
                   decimalScale={2}
                   fixedDecimalScale
                   description="Geben Sie den Betrag ein, der auf der Kreditkarte belastet wurde (inkl. Trinkgeld)"
-                  value={form.values.kreditkartenBetrag}
+                  {...form.getInputProps('kreditkartenBetrag')}
                   onChange={handleKreditkartenBetragChange}
-                  onBlur={(event) => {
-                    const value = event.currentTarget.value;
-                    if (value) {
-                      const numericValue = value.replace(',', '.');
-                      handleKreditkartenBetragChange(numericValue);
-                    }
-                  }}
                 />
                 <NumberInput
                   label="Trinkgeld"
@@ -555,15 +734,8 @@ export default function BewirtungsbelegForm() {
                   decimalScale={2}
                   fixedDecimalScale
                   description="Geben Sie das Trinkgeld ein. Dies wird automatisch berechnet, wenn Sie den Betrag auf der Kreditkarte eingeben"
-                  value={form.values.trinkgeld}
+                  {...form.getInputProps('trinkgeld')}
                   onChange={handleTrinkgeldChange}
-                  onBlur={(event) => {
-                    const value = event.currentTarget.value;
-                    if (value) {
-                      const numericValue = value.replace(',', '.');
-                      handleTrinkgeldChange(numericValue);
-                    }
-                  }}
                 />
                 {!form.values.istAuslaendischeRechnung && (
                   <NumberInput
@@ -575,7 +747,7 @@ export default function BewirtungsbelegForm() {
                     decimalScale={2}
                     fixedDecimalScale
                     description="MwSt. (19%) wird automatisch berechnet"
-                    value={form.values.trinkgeldMwst}
+                    {...form.getInputProps('trinkgeldMwst')}
                     readOnly
                   />
                 )}

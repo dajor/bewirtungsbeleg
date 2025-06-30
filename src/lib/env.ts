@@ -6,6 +6,11 @@ export function getEnvVariable(name: string, required: boolean = true): string {
   const value = process.env[name];
   
   if (!value && required) {
+    console.error(`Missing required environment variable: ${name}`);
+    // Return empty string instead of throwing in production
+    if (process.env.NODE_ENV === 'production') {
+      return '';
+    }
     throw new Error(`Missing required environment variable: ${name}`);
   }
   

@@ -1,0 +1,22 @@
+.dropzone {
+  border: 2px dashed var(--mantine-color-gray-4);
+  border-radius: var(--mantine-radius-md);
+  padding: var(--mantine-spacing-xl);
+  transition: border-color 150ms ease, background-color 150ms ease;
+  cursor: pointer;
+}
+
+.dropzone:hover {
+  border-color: var(--mantine-color-blue-5);
+  background-color: var(--mantine-color-blue-0);
+}
+
+.dropzone[data-accept] {
+  border-color: var(--mantine-color-blue-6);
+  background-color: var(--mantine-color-blue-0);
+}
+
+.dropzone[data-reject] {
+  border-color: var(--mantine-color-red-6);
+  background-color: var(--mantine-color-red-0);
+}

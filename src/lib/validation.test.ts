@@ -109,7 +109,7 @@ describe('Validation Utilities', () => {
     });
 
     it('should reject invalid file types', () => {
-      const file = new File([''], 'test.pdf', { type: 'application/pdf' });
+      const file = new File([''], 'test.txt', { type: 'text/plain' });
       Object.defineProperty(file, 'size', { value: 1024 });
       
       const result = fileValidation.validate(file);
@@ -202,6 +202,50 @@ describe('Validation Utilities', () => {
           // Optional fields omitted
         };
         expect(() => bewirtungsbelegSchema.parse(data)).not.toThrow();
+      });
+
+      it('should validate all fields from BewirtungsbelegForm', () => {
+        // This test ensures the schema accepts all fields the form sends
+        const completeFormData = {
+          datum: new Date(),
+          restaurantName: 'Engel Restaurant',
+          restaurantAnschrift: 'Musterstraße 123',
+          teilnehmer: 'Christian Gabireli',
+          anlass: 'Projektbesprechung',
+          gesamtbetrag: '53,40',
+          gesamtbetragMwst: '10,15',
+          gesamtbetragNetto: '43,25',
+          trinkgeld: '6,60',
+          trinkgeldMwst: '1,25',
+          kreditkartenBetrag: '60,00',
+          zahlungsart: 'bar' as const,
+          bewirtungsart: 'mitarbeiter' as const,
+          geschaeftlicherAnlass: 'Team Meeting',
+          geschaeftspartnerNamen: 'Partner Names',
+          geschaeftspartnerFirma: 'Partner Company',
+          istAuslaendischeRechnung: false,
+          auslaendischeWaehrung: 'EUR',
+          image: 'data:image/jpeg;base64,test',
+          attachments: [{
+            data: 'data:image/jpeg;base64,test',
+            name: 'receipt.jpg',
+            type: 'image/jpeg'
+          }]
+        };
+        
+        const result = bewirtungsbelegSchema.parse(completeFormData);
+        expect(result).toBeDefined();
+        expect(result.geschaeftspartnerNamen).toBe('Partner Names');
+        expect(result.istAuslaendischeRechnung).toBe(false);
+        expect(result.attachments).toHaveLength(1);
+      });
+
+      it('should accept PDF files', () => {
+        const file = new File([''], 'test.pdf', { type: 'application/pdf' });
+        Object.defineProperty(file, 'size', { value: 1024 * 1024 }); // 1MB
+        
+        const result = fileValidation.validate(file);
+        expect(result.valid).toBe(true);
       });
     });
   });

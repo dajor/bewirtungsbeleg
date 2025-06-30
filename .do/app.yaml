@@ -1,0 +1,31 @@
+# DigitalOcean App Platform Configuration
+name: bewirtungsbeleg-app
+services:
+- name: web
+  source_dir: /
+  build_command: |
+    # Install system dependencies
+    apt-get update
+    apt-get install -y imagemagick ghostscript poppler-utils libmagickwand-dev
+    
+    # Configure ImageMagick policy for PDF processing
+    sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+    
+    # Install Node.js dependencies and build
+    yarn install --frozen-lockfile
+    yarn build
+  run_command: yarn start
+  environment_slug: node-js
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: NEXTAUTH_URL
+    value: ${APP_URL}
+  - key: NEXTAUTH_SECRET
+    value: ${NEXTAUTH_SECRET}
+  - key: OPENAI_API_KEY
+    value: ${OPENAI_API_KEY}
