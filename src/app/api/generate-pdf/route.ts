@@ -111,46 +111,94 @@ export async function POST(request: Request) {
 
     // Finanzielle Details
     yPosition += 20;
-    doc.setFontSize(10);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
     doc.text('Finanzielle Details:', 20, yPosition);
+    doc.setFont('helvetica', 'normal');
     yPosition += 15;
 
+    // Create table for financial details
     doc.setFontSize(9);
+    const tableX = 20;
+    const col1Width = 100;
+    const col2X = tableX + col1Width;
+    
     if (data.istAuslaendischeRechnung) {
-      doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}${data.auslaendischeWaehrung || '$'}`, 20, yPosition);
+      // Row 1
+      doc.text('Gesamtbetrag (Brutto):', tableX, yPosition);
+      doc.text(`${data.gesamtbetrag}${data.auslaendischeWaehrung || '$'}`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Trinkgeld: ${data.trinkgeld}${data.auslaendischeWaehrung || '$'}`, 20, yPosition);
+      
+      // Row 2
+      doc.text('Trinkgeld:', tableX, yPosition);
+      doc.text(`${data.trinkgeld}${data.auslaendischeWaehrung || '$'}`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 20, yPosition);
+      
+      // Row 3
+      doc.text('Betrag auf Kreditkarte/Bar:', tableX, yPosition);
+      doc.text(`${data.kreditkartenBetrag}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
+      
+      // Row 4
+      doc.text('Zahlungsart:', tableX, yPosition);
+      doc.text(`${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, col2X, yPosition);
       yPosition += 8;
+      
       if (data.auslaendischeWaehrung) {
-        doc.text(`Währung: ${data.auslaendischeWaehrung}`, 20, yPosition);
+        doc.text('Währung:', tableX, yPosition);
+        doc.text(`${data.auslaendischeWaehrung}`, col2X, yPosition);
+        yPosition += 8;
       }
-      yPosition += 10;
+      yPosition += 2;
     } else {
-      doc.text(`Gesamtbetrag (Brutto): ${data.gesamtbetrag}€`, 20, yPosition);
+      // Row 1
+      doc.text('Gesamtbetrag (Brutto):', tableX, yPosition);
+      doc.text(`${data.gesamtbetrag}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`MwSt. Gesamtbetrag: ${data.gesamtbetragMwst}€`, 20, yPosition);
+      
+      // Row 2
+      doc.text('MwSt. Gesamtbetrag:', tableX, yPosition);
+      doc.text(`${data.gesamtbetragMwst}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Netto Gesamtbetrag: ${data.gesamtbetragNetto}€`, 20, yPosition);
+      
+      // Row 3
+      doc.text('Netto Gesamtbetrag:', tableX, yPosition);
+      doc.text(`${data.gesamtbetragNetto}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Betrag auf Kreditkarte: ${data.kreditkartenBetrag}€`, 20, yPosition);
+      
+      // Add separator line
+      doc.setLineWidth(0.3);
+      doc.line(tableX, yPosition - 3, col2X + 40, yPosition - 3);
+      yPosition += 5;
+      
+      // Row 4
+      doc.text('Betrag auf Kreditkarte/Bar:', tableX, yPosition);
+      doc.text(`${data.kreditkartenBetrag}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Trinkgeld: ${data.trinkgeld}€`, 20, yPosition);
+      
+      // Row 5
+      doc.text('Trinkgeld:', tableX, yPosition);
+      doc.text(`${data.trinkgeld}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`MwSt. Trinkgeld: ${data.trinkgeldMwst}€`, 20, yPosition);
+      
+      // Row 6
+      doc.text('MwSt. Trinkgeld:', tableX, yPosition);
+      doc.text(`${data.trinkgeldMwst}€`, col2X, yPosition);
       yPosition += 8;
-      doc.text(`Zahlungsart: ${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, 20, yPosition);
+      
+      // Row 7
+      doc.text('Zahlungsart:', tableX, yPosition);
+      doc.text(`${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, col2X, yPosition);
       yPosition += 10;
     }
 
     // Geschäftspartner (nur bei Kundenbewirtung)
     if (data.bewirtungsart === 'kunden') {
       yPosition += 20; // Mehr Abstand vor dem Abschnitt
-      doc.setFontSize(10);
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
       doc.text('Geschäftspartner:', 20, yPosition);
+      doc.setFont('helvetica', 'normal');
       yPosition += 10;
 
       doc.setFontSize(9);
@@ -198,22 +246,21 @@ export async function POST(request: Request) {
     }
     console.log('Added footer to all pages');
 
-    // Handle attachments - both legacy single image and new multiple attachments
+    // Handle attachments - prioritize new attachments array over legacy single image
     const attachmentsToAdd: Array<{ data: string; name: string; type: string }> = [];
     
-    // Check for legacy single image
-    if (data.image) {
+    // Check for new attachments array first
+    if (data.attachments && Array.isArray(data.attachments) && data.attachments.length > 0) {
+      console.log(`Found ${data.attachments.length} attachments in request`);
+      attachmentsToAdd.push(...data.attachments);
+    } 
+    // Fall back to legacy single image only if no attachments array
+    else if (data.image) {
       attachmentsToAdd.push({
         data: data.image,
         name: 'Original-Rechnung',
         type: 'image/jpeg'
       });
-    }
-    
-    // Check for new attachments array
-    if (data.attachments && Array.isArray(data.attachments)) {
-      console.log(`Found ${data.attachments.length} attachments in request`);
-      attachmentsToAdd.push(...data.attachments);
     }
     
     // Add all attachments

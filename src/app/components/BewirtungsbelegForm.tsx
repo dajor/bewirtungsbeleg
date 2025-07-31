@@ -714,8 +714,8 @@ export default function BewirtungsbelegForm() {
                   </>
                 )}
                 <NumberInput
-                  label="Betrag auf Kreditkarte"
-                  placeholder="Betrag auf Kreditkarte in Euro"
+                  label="Betrag auf Kreditkarte/Bar"
+                  placeholder="Betrag auf Kreditkarte/Bar in Euro"
                   min={0}
                   step={0.01}
                   size="sm"

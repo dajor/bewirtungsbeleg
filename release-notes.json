@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.11.1",
+      "date": "31.07.2025",
+      "changes": [
+        "Bugfix: Behoben wurde das Problem doppelter Bilder in der PDF-Generierung durch Priorisierung des neuen Attachments-Array-Formats.",
+        "Verbesserung: Finanzielle Details werden jetzt als übersichtliche Tabelle mit konsistenter Spaltenausrichtung dargestellt.",
+        "Verbesserung: Die Überschriften 'Finanzielle Details' und 'Geschäftspartner' werden jetzt fett formatiert für bessere Lesbarkeit.",
+        "Verbesserung: Das Label 'Betrag auf Kreditkarte' wurde zu 'Betrag auf Kreditkarte/Bar' geändert, um beide Zahlungsarten abzudecken."
+      ],
+      "build": "",
+      "commit": ""
+    },
+    {
       "version": "0.11.0",
       "date": "30.06.2025",
       "changes": [
