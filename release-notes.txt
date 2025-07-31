@@ -1,3 +1,16 @@
+# Version 0.12.0
+Datum: 31.07.2025
+
+## Änderungen
+- Verbesserung der PDF-Generierung.
+- Verbesserung der Benutzeroberfläche für Formulare.
+
+## Technische Details
+- Build: 16646412864
+- Commit: ce7b76f4d2b7da3e7140a8c8757cb3752c320f33
+
+---
+
 # Version 0.11.0
 Datum: 30.06.2025
 
