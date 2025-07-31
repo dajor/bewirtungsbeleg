@@ -307,28 +307,57 @@ export default function BewirtungsbelegForm() {
       const firstFile = files[0];
       setSelectedImage(firstFile);
       
-      // If it's a PDF, we can attach it but not OCR it
+      // If it's a PDF, convert it to image first for OCR
       if (firstFile.type === 'application/pdf') {
-        // Show info message in a nicer way
-        setError(null); // Clear any previous errors
+        setError(null);
         setSuccess(false);
         
-        // Set a special info state for PDFs
-        const infoMessage = '📄 PDF-Datei erkannt: PDFs können als Anhang hinzugefügt werden. Die automatische Texterkennung funktioniert nur mit Bildern (JPG, PNG). Bitte füllen Sie die Felder manuell aus.';
-        
-        // Show as a notification instead of error
-        setError(infoMessage);
-        
-        // Mark as not converting since we're not processing it
+        // Show converting message
         const fileId = newFiles[0].id;
         setAttachedFiles(prev => prev.map(f => 
-          f.id === fileId ? { ...f, isConverting: false } : f
+          f.id === fileId ? { ...f, isConverting: true } : f
         ));
         
-        // Clear the message after 6 seconds
-        setTimeout(() => {
-          setError(null);
-        }, 6000);
+        try {
+          // Convert PDF to image
+          const formData = new FormData();
+          formData.append('file', firstFile);
+          
+          const response = await fetch('/api/convert-pdf', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'PDF-Konvertierung fehlgeschlagen');
+          }
+          
+          const result = await response.json();
+          
+          // Create a temporary file object with the converted image
+          const convertedImageBlob = await fetch(result.image).then(r => r.blob());
+          const convertedImageFile = new File([convertedImageBlob], firstFile.name.replace('.pdf', '.jpg'), {
+            type: 'image/jpeg'
+          });
+          
+          // Extract data from the converted image
+          await extractDataFromImage(convertedImageFile);
+          
+          // Update the file status
+          setAttachedFiles(prev => prev.map(f => 
+            f.id === fileId ? { ...f, isConverting: false } : f
+          ));
+          
+        } catch (error) {
+          console.error('PDF conversion error:', error);
+          setError('Fehler bei der PDF-Konvertierung. Bitte füllen Sie die Felder manuell aus.');
+          
+          // Mark as not converting
+          setAttachedFiles(prev => prev.map(f => 
+            f.id === fileId ? { ...f, isConverting: false } : f
+          ));
+        }
       } else {
         // Process image files directly  
         await extractDataFromImage(firstFile);
