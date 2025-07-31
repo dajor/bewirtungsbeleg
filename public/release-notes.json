@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.14.0",
+      "date": "31.07.2025",
+      "changes": [
+        "Hinzufügen der Dokumentklassifizierungsfunktion mithilfe von OpenAI (Claude Assistant)",
+        "Hinzufügen der Konvertierung von PDF zu Bild für OCR-Unterstützung (Claude Assistant)",
+        "Verbesserung der PDF-Erzeugung und des Formular-UIs (Claude Assistant)"
+      ],
+      "build": "16647342986",
+      "commit": "f07a1c549ae7eb1215564feaf75a42e7095caf83"
+    },
+    {
       "version": "0.13.0",
       "date": "31.07.2025",
       "changes": [

@@ -1,3 +1,5 @@
+Add document classification feature using OpenAI (Claude Assistant)
+Bump version to 0.13.0 #auto-release (dajor)
 Add PDF to image conversion for OCR support (Claude Assistant)
 Bump version to 0.12.0 #auto-release (dajor)
 Improve PDF generation and form UI (Claude Assistant)
