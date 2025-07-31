@@ -339,37 +339,51 @@ export default function BewirtungsbelegForm() {
       
       if (response.ok) {
         const classification = await response.json();
+        console.log('Classification successful:', classification);
         setAttachedFiles(prev => prev.map(f => 
           f.id === fileId 
             ? { 
                 ...f, 
                 classification: {
-                  type: classification.type,
-                  confidence: classification.confidence,
+                  type: classification.type || 'Rechnung', // Default to Rechnung instead of Unbekannt
+                  confidence: classification.confidence || 0.5,
                   isProcessing: false
                 }
               } 
             : f
         ));
-        return classification.type;
+        return classification.type || 'Rechnung';
+      } else {
+        console.error('Classification failed:', response.status, response.statusText);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Error details:', errorData);
       }
     } catch (error) {
       console.error('Classification error:', error);
-      // Mark classification as complete even on error
+      
+      // Try to determine type from filename as fallback
+      let fallbackType = 'Rechnung';
+      const lowerFileName = file.name.toLowerCase();
+      if (lowerFileName.includes('kredit') || lowerFileName.includes('card') || lowerFileName.includes('beleg')) {
+        fallbackType = 'Kreditkartenbeleg';
+      }
+      
+      // Mark classification as complete with fallback type
       setAttachedFiles(prev => prev.map(f => 
         f.id === fileId 
           ? { 
               ...f, 
               classification: {
-                type: 'Unbekannt',
-                confidence: 0,
+                type: fallbackType,
+                confidence: 0.3,
                 isProcessing: false
               }
             } 
           : f
       ));
+      return fallbackType;
     }
-    return 'Unbekannt';
+    return 'Rechnung'; // Default to Rechnung instead of Unbekannt
   };
 
   const handleFileDrop = useCallback(async (files: File[]) => {
