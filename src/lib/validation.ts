@@ -42,6 +42,7 @@ export const signInSchema = z.object({
 export const classifyReceiptSchema = z.object({
   fileName: z.string().min(1, 'Dateiname erforderlich').max(255),
   fileType: z.string().min(1, 'Dateityp erforderlich').max(50),
+  image: z.string().optional(), // Base64 image data for content analysis
 });
 
 // Extract receipt response schema

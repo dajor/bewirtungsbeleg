@@ -269,6 +269,82 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  const classifyDocument = async (fileId: string, file: File) => {
+    try {
+      let imageData: string | undefined;
+      
+      // For images and PDFs, prepare image data for classification
+      if (file.type.startsWith('image/') || file.type === 'application/pdf') {
+        if (file.type === 'application/pdf') {
+          // Convert PDF to image first
+          const formData = new FormData();
+          formData.append('file', file);
+          
+          const convertResponse = await fetch('/api/convert-pdf', {
+            method: 'POST',
+            body: formData
+          });
+          
+          if (convertResponse.ok) {
+            const result = await convertResponse.json();
+            imageData = result.image;
+          }
+        } else {
+          // For images, convert to base64
+          const reader = new FileReader();
+          imageData = await new Promise((resolve) => {
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(file);
+          });
+        }
+      }
+      
+      // Call classification API
+      const response = await fetch('/api/classify-receipt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fileName: file.name,
+          fileType: file.type,
+          image: imageData
+        })
+      });
+      
+      if (response.ok) {
+        const classification = await response.json();
+        setAttachedFiles(prev => prev.map(f => 
+          f.id === fileId 
+            ? { 
+                ...f, 
+                classification: {
+                  type: classification.type,
+                  confidence: classification.confidence,
+                  isProcessing: false
+                }
+              } 
+            : f
+        ));
+      }
+    } catch (error) {
+      console.error('Classification error:', error);
+      // Mark classification as complete even on error
+      setAttachedFiles(prev => prev.map(f => 
+        f.id === fileId 
+          ? { 
+              ...f, 
+              classification: {
+                type: 'Unbekannt',
+                confidence: 0,
+                isProcessing: false
+              }
+            } 
+          : f
+      ));
+    }
+  };
+
   const handleFileDrop = useCallback(async (files: File[]) => {
     const newFiles: FileWithPreview[] = [];
     
@@ -276,7 +352,8 @@ export default function BewirtungsbelegForm() {
       const fileData: FileWithPreview = {
         file,
         id: Math.random().toString(36).substr(2, 9),
-        isConverting: file.type === 'application/pdf'
+        isConverting: file.type === 'application/pdf',
+        classification: { type: '', confidence: 0, isProcessing: true }
       };
 
       // Create preview for images
@@ -298,6 +375,9 @@ export default function BewirtungsbelegForm() {
       }
 
       newFiles.push(fileData);
+      
+      // Classify the document
+      classifyDocument(fileData.id, file);
     }
 
     setAttachedFiles(prev => [...prev, ...newFiles]);

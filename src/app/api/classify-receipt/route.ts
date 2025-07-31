@@ -32,51 +32,88 @@ export async function POST(request: Request) {
       throw error;
     }
     
-    const { fileName, fileType } = sanitizeObject(validatedInput);
+    const { fileName, fileType, image } = sanitizeObject(validatedInput);
 
-    const prompt = `Analysiere den folgenden Dateinamen und bestimme, ob es sich um eine Rechnung oder einen Kundenbeleg (Kreditkartenabrechnung) handelt.
-    Dateiname: ${fileName}
-    Dateityp: ${fileType}
-    
-    Antworte nur mit einem JSON-Objekt im folgenden Format:
-    {
-      "type": "rechnung" | "kundenbeleg" | "unbekannt",
-      "confidence": 0-1,
-      "reason": "Kurze Begründung",
-      "details": {
-        "rechnungProbability": 0-1,
-        "kundenbelegProbability": 0-1
+    // Prepare messages based on whether we have image content
+    const messages = [
+      {
+        role: "system" as const,
+        content: `Du bist ein Experte für die Klassifizierung von Belegen. 
+        Eine Rechnung enthält typischerweise:
+        - Restaurantname und Adresse
+        - Datum
+        - Positionen mit Preisen
+        - Gesamtbetrag
+        - Mehrwertsteuer
+        
+        Ein Kreditkartenbeleg enthält typischerweise:
+        - Kreditkartennummer (teilweise maskiert)
+        - Datum und Uhrzeit
+        - Betrag
+        - Transaktionsnummer
+        - Händlername
+        - Oft kompakter und schmaler als eine Rechnung
+        
+        Analysiere den Beleg und bestimme den Typ basierend auf diesen Merkmalen.`
       }
-    }`;
+    ];
+
+    if (image) {
+      // If we have an image, analyze its content
+      messages.push({
+        role: "user" as const,
+        content: [
+          {
+            type: "text" as const,
+            text: `Analysiere dieses Dokument und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
+            
+            Antworte nur mit einem JSON-Objekt im folgenden Format:
+            {
+              "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
+              "confidence": 0-1,
+              "reason": "Kurze Begründung auf Deutsch",
+              "details": {
+                "rechnungProbability": 0-1,
+                "kreditkartenbelegProbability": 0-1
+              }
+            }`
+          },
+          {
+            type: "image_url" as const,
+            image_url: {
+              url: image
+            }
+          }
+        ]
+      });
+    } else {
+      // Fallback to filename analysis
+      const prompt = `Analysiere den folgenden Dateinamen und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
+      Dateiname: ${fileName}
+      Dateityp: ${fileType}
+      
+      Antworte nur mit einem JSON-Objekt im folgenden Format:
+      {
+        "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
+        "confidence": 0-1,
+        "reason": "Kurze Begründung",
+        "details": {
+          "rechnungProbability": 0-1,
+          "kreditkartenbelegProbability": 0-1
+        }
+      }`;
+      
+      messages.push({
+        role: "user" as const,
+        content: prompt
+      });
+    }
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        {
-          role: "system",
-          content: `Du bist ein Experte für die Klassifizierung von Belegen. 
-          Eine Rechnung enthält typischerweise:
-          - Restaurantname und Adresse
-          - Datum
-          - Positionen mit Preisen
-          - Gesamtbetrag
-          - Mehrwertsteuer
-          
-          Ein Kundenbeleg (Kreditkartenabrechnung) enthält typischerweise:
-          - Kreditkartennummer (teilweise maskiert)
-          - Datum und Uhrzeit
-          - Betrag
-          - Transaktionsnummer
-          - Händlername
-          
-          Analysiere den Dateinamen und bestimme den Belegtyp basierend auf diesen Merkmalen.`
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      response_format: { type: "json_object" }
+      model: image ? "gpt-4o" : "gpt-3.5-turbo",
+      messages: messages,
+      response_format: { type: "json_object" },
+      max_tokens: 500
     });
 
     const result = JSON.parse(completion.choices[0].message.content || '{}');

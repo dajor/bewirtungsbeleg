@@ -11,6 +11,11 @@ export interface FileWithPreview {
   preview?: string;
   id: string;
   isConverting?: boolean;
+  classification?: {
+    type: string;
+    confidence: number;
+    isProcessing?: boolean;
+  };
 }
 
 interface MultiFileDropzoneProps {
@@ -96,12 +101,31 @@ export function MultiFileDropzone({
           {fileData.file.name}
         </Text>
         
-        <Badge size="xs" variant="light" mt="xs" color="gray">
-          {fileData.file.size > 1024 * 1024 
-            ? `${(fileData.file.size / (1024 * 1024)).toFixed(1)} MB`
-            : `${(fileData.file.size / 1024).toFixed(1)} KB`
-          }
-        </Badge>
+        <Group gap="xs" mt="xs">
+          {fileData.classification && !fileData.classification.isProcessing && (
+            <Badge 
+              size="xs" 
+              variant="filled" 
+              color={fileData.classification.type === 'Kreditkartenbeleg' ? 'blue' : 'green'}
+            >
+              {fileData.classification.type}
+            </Badge>
+          )}
+          {fileData.classification?.isProcessing && (
+            <Badge size="xs" variant="light" color="gray">
+              <Group gap={4}>
+                <Loader size={10} />
+                <span>Analysiere...</span>
+              </Group>
+            </Badge>
+          )}
+          <Badge size="xs" variant="light" color="gray">
+            {fileData.file.size > 1024 * 1024 
+              ? `${(fileData.file.size / (1024 * 1024)).toFixed(1)} MB`
+              : `${(fileData.file.size / 1024).toFixed(1)} KB`
+            }
+          </Badge>
+        </Group>
         
         <ActionIcon
           size="sm"

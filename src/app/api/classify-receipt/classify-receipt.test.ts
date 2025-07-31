@@ -2,6 +2,9 @@
  * @jest-environment node
  */
 
+import * as fs from 'fs';
+import * as path from 'path';
+
 describe('POST /api/classify-receipt', () => {
   const mockOpenAICreate = jest.fn();
   
@@ -23,6 +26,12 @@ describe('POST /api/classify-receipt', () => {
         status: init?.status || 200
       })
     }
+  }));
+
+  jest.doMock('@/lib/rate-limit', () => ({
+    checkRateLimit: jest.fn().mockResolvedValue(null),
+    getIdentifier: jest.fn().mockReturnValue('test-user'),
+    apiRatelimit: { general: {} }
   }));
 
   // Set env before importing the route
@@ -290,5 +299,176 @@ describe('POST /api/classify-receipt', () => {
         })
       );
     }
+  });
+
+  it('should classify credit card receipt PDF correctly', async () => {
+    const { POST } = await import('./route');
+    
+    // Mock OpenAI response for credit card receipt
+    mockOpenAICreate.mockResolvedValue({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            type: 'Kreditkartenbeleg',
+            confidence: 0.95,
+            reason: 'Das Dokument zeigt typische Merkmale eines Kreditkartenbelegs mit Transaktionsnummer und maskierter Kartennummer',
+            details: {
+              rechnungProbability: 0.05,
+              kreditkartenbelegProbability: 0.95
+            }
+          })
+        }
+      }]
+    });
+
+    // Read the test credit card receipt PDF
+    const pdfPath = path.join(__dirname, '../../../../test/08042025_kreditbeleg_Pareo.pdf');
+    if (fs.existsSync(pdfPath)) {
+      const pdfBuffer = fs.readFileSync(pdfPath);
+      const pdfBase64 = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
+      
+      const mockRequest = {
+        json: jest.fn().mockResolvedValue({
+          fileName: '08042025_kreditbeleg_Pareo.pdf',
+          fileType: 'application/pdf',
+          image: pdfBase64
+        })
+      } as any;
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.type).toBe('Kreditkartenbeleg');
+      expect(data.confidence).toBeGreaterThan(0.9);
+      
+      // Verify that OpenAI was called with image content
+      expect(mockOpenAICreate).toHaveBeenCalledWith(
+        expect.objectContaining({
+          model: 'gpt-4o',
+          messages: expect.arrayContaining([
+            expect.objectContaining({
+              role: 'user',
+              content: expect.arrayContaining([
+                expect.objectContaining({
+                  type: 'image_url',
+                  image_url: expect.objectContaining({
+                    url: expect.stringContaining('data:application/pdf;base64,')
+                  })
+                })
+              ])
+            })
+          ])
+        })
+      );
+    }
+  });
+
+  it('should classify restaurant invoice PDF correctly', async () => {
+    const { POST } = await import('./route');
+    
+    // Mock OpenAI response for restaurant invoice
+    mockOpenAICreate.mockResolvedValue({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            type: 'Rechnung',
+            confidence: 0.92,
+            reason: 'Das Dokument zeigt eine detaillierte Restaurantrechnung mit Positionen, MwSt und Adresse',
+            details: {
+              rechnungProbability: 0.92,
+              kreditkartenbelegProbability: 0.08
+            }
+          })
+        }
+      }]
+    });
+
+    // Read the test restaurant invoice PDF
+    const pdfPath = path.join(__dirname, '../../../../test/04062025_Oehme Gastronomie GmbH_001.pdf');
+    if (fs.existsSync(pdfPath)) {
+      const pdfBuffer = fs.readFileSync(pdfPath);
+      const pdfBase64 = `data:application/pdf;base64,${pdfBuffer.toString('base64')}`;
+      
+      const mockRequest = {
+        json: jest.fn().mockResolvedValue({
+          fileName: '04062025_Oehme Gastronomie GmbH_001.pdf',
+          fileType: 'application/pdf',
+          image: pdfBase64
+        })
+      } as any;
+
+      const response = await POST(mockRequest);
+      const data = await response.json();
+
+      expect(response.status).toBe(200);
+      expect(data.type).toBe('Rechnung');
+      expect(data.confidence).toBeGreaterThan(0.9);
+    }
+  });
+
+  it('should use GPT-4o model when image is provided', async () => {
+    const { POST } = await import('./route');
+    
+    mockOpenAICreate.mockResolvedValue({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            type: 'Rechnung',
+            confidence: 0.9,
+            reason: 'Test',
+            details: { rechnungProbability: 0.9, kreditkartenbelegProbability: 0.1 }
+          })
+        }
+      }]
+    });
+
+    const mockRequest = {
+      json: jest.fn().mockResolvedValue({
+        fileName: 'test.pdf',
+        fileType: 'application/pdf',
+        image: 'data:image/jpeg;base64,test'
+      })
+    } as any;
+
+    await POST(mockRequest);
+
+    expect(mockOpenAICreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-4o'
+      })
+    );
+  });
+
+  it('should use GPT-3.5-turbo model when no image is provided', async () => {
+    const { POST } = await import('./route');
+    
+    mockOpenAICreate.mockResolvedValue({
+      choices: [{
+        message: {
+          content: JSON.stringify({
+            type: 'Rechnung',
+            confidence: 0.7,
+            reason: 'Based on filename',
+            details: { rechnungProbability: 0.7, kreditkartenbelegProbability: 0.3 }
+          })
+        }
+      }]
+    });
+
+    const mockRequest = {
+      json: jest.fn().mockResolvedValue({
+        fileName: 'rechnung_2025.pdf',
+        fileType: 'application/pdf'
+      })
+    } as any;
+
+    await POST(mockRequest);
+
+    expect(mockOpenAICreate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: 'gpt-3.5-turbo'
+      })
+    );
   });
 });
