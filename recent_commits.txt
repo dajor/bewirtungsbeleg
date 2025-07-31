@@ -1,3 +1,5 @@
+feat: Add intelligent document classification and field mapping (Claude Assistant)
+Bump version to 0.14.0 #auto-release (dajor)
 Add document classification feature using OpenAI (Claude Assistant)
 Bump version to 0.13.0 #auto-release (dajor)
 Add PDF to image conversion for OCR support (Claude Assistant)

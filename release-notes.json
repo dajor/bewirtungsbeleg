@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.15.0",
+      "date": "31.07.2025",
+      "changes": [
+        "Intelligente Dokumentenklassifizierung und Feldzuordnung hinzugefügt",
+        "Unterstützung für die Konvertierung von PDF zu Bild für OCR hinzugefügt",
+        "Verbesserungen an der PDF-Generierung und der Formular-Benutzeroberfläche"
+      ],
+      "build": "16649575343",
+      "commit": "cbdc14aed70c188cccf5017ce70699a692cb4473"
+    },
+    {
       "version": "0.14.0",
       "date": "31.07.2025",
       "changes": [

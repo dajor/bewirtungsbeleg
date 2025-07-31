@@ -1,3 +1,17 @@
+# Version 0.15.0
+Datum: 31.07.2025
+
+## Änderungen
+- Intelligente Dokumentenklassifizierung und Feldzuordnung hinzugefügt
+- Unterstützung für die Konvertierung von PDF zu Bild für OCR hinzugefügt
+- Verbesserungen an der PDF-Generierung und der Formular-Benutzeroberfläche
+
+## Technische Details
+- Build: 16649575343
+- Commit: cbdc14aed70c188cccf5017ce70699a692cb4473
+
+---
+
 # Version 0.14.0
 Datum: 31.07.2025
 
