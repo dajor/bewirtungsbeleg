@@ -193,13 +193,18 @@ export default function BewirtungsbelegForm() {
     },
   });
 
-  const extractDataFromImage = async (file: File) => {
+  const extractDataFromImage = async (file: File, classificationType?: string) => {
     setIsProcessing(true);
     setError(null);
 
     try {
       const formData = new FormData();
       formData.append('image', file);
+      
+      // Pass classification type if available
+      if (classificationType) {
+        formData.append('classificationType', classificationType);
+      }
 
       const response = await fetch('/api/extract-receipt', {
         method: 'POST',
@@ -238,15 +243,33 @@ export default function BewirtungsbelegForm() {
         finalGesamtbetrag = (Number(mwst) + Number(netto)).toFixed(2);
       }
       
-      form.setValues({
-        ...form.values,
-        restaurantName: data.restaurantName || form.values.restaurantName,
-        restaurantAnschrift: data.restaurantAnschrift || form.values.restaurantAnschrift,
-        gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag,
-        gesamtbetragMwst: finalMwst || form.values.gesamtbetragMwst,
-        gesamtbetragNetto: finalNetto || form.values.gesamtbetragNetto,
-        datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-      });
+      // Handle tip if present
+      let trinkgeld = data.trinkgeld ? data.trinkgeld.replace(',', '.') : '';
+      
+      // Handle Kreditkartenbeleg vs Rechnung differently
+      if (classificationType === 'Kreditkartenbeleg') {
+        // For Kreditkartenbeleg, only update kreditkartenBetrag and keep other fields from existing form
+        form.setValues({
+          ...form.values,
+          restaurantName: data.restaurantName || form.values.restaurantName,
+          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
+          kreditkartenBetrag: finalGesamtbetrag || form.values.kreditkartenBetrag,
+          // Don't update gesamtbetrag, mwst, netto for Kreditkartenbeleg
+        });
+      } else {
+        // For Rechnung, update all financial fields
+        form.setValues({
+          ...form.values,
+          restaurantName: data.restaurantName || form.values.restaurantName,
+          restaurantAnschrift: data.restaurantAnschrift || form.values.restaurantAnschrift,
+          gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag,
+          gesamtbetragMwst: finalMwst || form.values.gesamtbetragMwst,
+          gesamtbetragNetto: finalNetto || form.values.gesamtbetragNetto,
+          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
+          trinkgeld: trinkgeld || form.values.trinkgeld,
+          kreditkartenBetrag: form.values.kreditkartenBetrag, // Keep existing value for Rechnung
+        });
+      }
     } catch (err) {
       console.error('Fehler bei der OCR-Verarbeitung:', err);
       
@@ -265,7 +288,9 @@ export default function BewirtungsbelegForm() {
   const handleImageChange = async (file: File | null) => {
     setSelectedImage(file);
     if (file) {
-      await extractDataFromImage(file);
+      // Get classification for the file
+      const fileClassification = attachedFiles.find(f => f.file === file)?.classification;
+      await extractDataFromImage(file, fileClassification?.type);
     }
   };
 
@@ -326,6 +351,7 @@ export default function BewirtungsbelegForm() {
               } 
             : f
         ));
+        return classification.type;
       }
     } catch (error) {
       console.error('Classification error:', error);
@@ -343,6 +369,7 @@ export default function BewirtungsbelegForm() {
           : f
       ));
     }
+    return 'Unbekannt';
   };
 
   const handleFileDrop = useCallback(async (files: File[]) => {
@@ -375,12 +402,17 @@ export default function BewirtungsbelegForm() {
       }
 
       newFiles.push(fileData);
-      
-      // Classify the document
-      classifyDocument(fileData.id, file);
     }
 
     setAttachedFiles(prev => [...prev, ...newFiles]);
+    
+    // Start classification for all files and get results
+    const classificationResults = await Promise.all(
+      newFiles.map(async (fileData, index) => {
+        const type = await classifyDocument(fileData.id, fileData.file);
+        return { index, type };
+      })
+    );
 
     // Process the first file for OCR if no file has been processed yet
     if (!selectedImage && files.length > 0) {
@@ -399,14 +431,23 @@ export default function BewirtungsbelegForm() {
         ));
         
         try {
+          console.log('Starting PDF conversion for:', firstFile.name);
+          
           // Convert PDF to image
           const formData = new FormData();
           formData.append('file', firstFile);
           
+          // Add timeout to fetch request (25 seconds)
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 25000);
+          
           const response = await fetch('/api/convert-pdf', {
             method: 'POST',
-            body: formData
-          });
+            body: formData,
+            signal: controller.signal
+          }).finally(() => clearTimeout(timeoutId));
+          
+          console.log('PDF conversion response status:', response.status);
           
           if (!response.ok) {
             const error = await response.json();
@@ -414,15 +455,26 @@ export default function BewirtungsbelegForm() {
           }
           
           const result = await response.json();
+          console.log('PDF conversion result:', result);
+          
+          if (!result.success || !result.image) {
+            throw new Error('PDF-Konvertierung fehlgeschlagen - keine Bilddaten erhalten');
+          }
           
           // Create a temporary file object with the converted image
+          console.log('Creating blob from base64 image...');
           const convertedImageBlob = await fetch(result.image).then(r => r.blob());
           const convertedImageFile = new File([convertedImageBlob], firstFile.name.replace('.pdf', '.jpg'), {
             type: 'image/jpeg'
           });
+          console.log('Converted image file created:', convertedImageFile.size, 'bytes');
+          
+          // Get classification for the first file
+          const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
+          console.log('PDF Classification:', firstFileClassification);
           
           // Extract data from the converted image
-          await extractDataFromImage(convertedImageFile);
+          await extractDataFromImage(convertedImageFile, firstFileClassification);
           
           // Update the file status
           setAttachedFiles(prev => prev.map(f => 
@@ -431,7 +483,18 @@ export default function BewirtungsbelegForm() {
           
         } catch (error) {
           console.error('PDF conversion error:', error);
-          setError('Fehler bei der PDF-Konvertierung. Bitte füllen Sie die Felder manuell aus.');
+          
+          let errorMessage = 'Fehler bei der PDF-Konvertierung. Bitte füllen Sie die Felder manuell aus.';
+          
+          if (error instanceof Error) {
+            if (error.name === 'AbortError') {
+              errorMessage = 'PDF-Konvertierung abgebrochen: Zeitüberschreitung. Die Datei ist möglicherweise zu groß.';
+            } else if (error.message.includes('timeout')) {
+              errorMessage = 'PDF-Konvertierung dauerte zu lange. Bitte versuchen Sie eine kleinere Datei.';
+            }
+          }
+          
+          setError(errorMessage);
           
           // Mark as not converting
           setAttachedFiles(prev => prev.map(f => 
@@ -439,8 +502,11 @@ export default function BewirtungsbelegForm() {
           ));
         }
       } else {
+        // Get classification for the first file
+        const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
+        
         // Process image files directly  
-        await extractDataFromImage(firstFile);
+        await extractDataFromImage(firstFile, firstFileClassification);
       }
     }
   }, [selectedImage, attachedFiles]);
@@ -471,10 +537,21 @@ export default function BewirtungsbelegForm() {
     setError(null);
 
     try {
+      // Validate: If there's a Kreditkartenbeleg, there must also be a Rechnung
+      const hasKreditkartenbeleg = attachedFiles.some(f => f.classification?.type === 'Kreditkartenbeleg');
+      const hasRechnung = attachedFiles.some(f => f.classification?.type === 'Rechnung');
+      
+      if (hasKreditkartenbeleg && !hasRechnung) {
+        setError('Ein Kreditkartenbeleg allein reicht nicht aus. Bitte fügen Sie auch die Rechnung hinzu.');
+        setIsSubmitting(false);
+        setShowConfirm(false);
+        return;
+      }
+      
       console.log('Starting PDF generation with form values:', Object.keys(form.values));
       
       // Konvertiere alle Anhänge in Base64
-      const attachments: Array<{ data: string; name: string; type: string }> = [];
+      const attachments: Array<{ data: string; name: string; type: string; classification?: string }> = [];
       
       for (const fileData of attachedFiles) {
         const reader = new FileReader();
@@ -487,9 +564,19 @@ export default function BewirtungsbelegForm() {
         attachments.push({
           data: base64Data,
           name: fileData.file.name,
-          type: fileData.file.type
+          type: fileData.file.type,
+          classification: fileData.classification?.type
         });
       }
+      
+      // Sort attachments: Rechnung first, then Kreditkartenbeleg
+      attachments.sort((a, b) => {
+        if (a.classification === 'Rechnung' && b.classification !== 'Rechnung') return -1;
+        if (a.classification !== 'Rechnung' && b.classification === 'Rechnung') return 1;
+        if (a.classification === 'Kreditkartenbeleg' && b.classification !== 'Kreditkartenbeleg') return 1;
+        if (a.classification !== 'Kreditkartenbeleg' && b.classification === 'Kreditkartenbeleg') return -1;
+        return 0;
+      });
       
       // For backward compatibility, keep the first image as the main image
       const imageData = attachments.length > 0 ? attachments[0].data : null;

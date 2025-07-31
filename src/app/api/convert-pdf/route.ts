@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { convertPdfToImagesAllPages } from '@/lib/pdf-to-image-multipage';
+import { withTimeout } from '../timeout-middleware';
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     console.log('PDF to image conversion API called');
     
@@ -28,24 +29,43 @@ export async function POST(request: Request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     
-    // Convert PDF to images (all pages)
-    const convertedPages = await convertPdfToImagesAllPages(buffer, file.name);
-    
-    console.log(`Converted ${convertedPages.length} page(s) from PDF`);
-    
-    // For OCR, we'll use the first page
-    if (convertedPages.length > 0) {
-      return NextResponse.json({
-        success: true,
-        image: convertedPages[0].data,
-        pageCount: convertedPages.length,
-        allPages: convertedPages // Include all pages for potential future use
-      });
-    } else {
-      return NextResponse.json(
-        { error: 'Keine Seiten im PDF gefunden' },
-        { status: 400 }
-      );
+    try {
+      // Try to convert PDF to images (all pages)
+      const convertedPages = await convertPdfToImagesAllPages(buffer, file.name);
+      
+      console.log(`Converted ${convertedPages.length} page(s) from PDF`);
+      
+      // For OCR, we'll use the first page
+      if (convertedPages.length > 0) {
+        return NextResponse.json({
+          success: true,
+          image: convertedPages[0].data,
+          pageCount: convertedPages.length,
+          allPages: convertedPages // Include all pages for potential future use
+        });
+      } else {
+        return NextResponse.json(
+          { error: 'Keine Seiten im PDF gefunden' },
+          { status: 400 }
+        );
+      }
+    } catch (pdfError) {
+      console.error('Multi-page PDF conversion failed, trying single page fallback:', pdfError);
+      
+      // Fallback to single page conversion
+      const { convertPdfToImage } = await import('@/lib/pdf-to-image');
+      const singlePageImage = await convertPdfToImage(buffer, file.name);
+      
+      if (singlePageImage) {
+        return NextResponse.json({
+          success: true,
+          image: singlePageImage,
+          pageCount: 1,
+          allPages: [{ pageNumber: 1, data: singlePageImage, name: file.name }]
+        });
+      } else {
+        throw new Error('Beide PDF-Konvertierungsmethoden sind fehlgeschlagen');
+      }
     }
     
   } catch (error) {
@@ -56,3 +76,6 @@ export async function POST(request: Request) {
     );
   }
 }
+
+// Export with timeout wrapper (30 seconds for PDF conversion)
+export const POST = withTimeout(handlePOST, 30000);

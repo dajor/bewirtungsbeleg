@@ -10,9 +10,14 @@ import { checkOpenAIKey } from '@/lib/check-openai';
 // Initialize OpenAI client and check key validity on startup
 let openai: OpenAI | null = null;
 let apiKeyError: string | null = null;
+let initializationPromise: Promise<void> | null = null;
 
-// Check API key on module load
-(async () => {
+// Initialize OpenAI client lazily
+async function initializeOpenAI() {
+  if (openai || apiKeyError) {
+    return; // Already initialized
+  }
+  
   const keyCheck = await checkOpenAIKey();
   if (!keyCheck.valid) {
     apiKeyError = keyCheck.error || 'OpenAI API-Schlüssel ist ungültig';
@@ -22,7 +27,10 @@ let apiKeyError: string | null = null;
       apiKey: env.OPENAI_API_KEY,
     });
   }
-})();
+}
+
+// Create initialization promise
+initializationPromise = initializeOpenAI();
 
 // Hilfsfunktion zum Konvertieren von Zahlen ins deutsche Format
 function convertToGermanNumber(value: string | number): string {
@@ -70,6 +78,11 @@ Wichtige Hinweise:
 
 export async function POST(request: Request) {
   try {
+    // Wait for OpenAI initialization
+    if (initializationPromise) {
+      await initializationPromise;
+    }
+    
     // Check if OpenAI is initialized
     if (!openai || apiKeyError) {
       return NextResponse.json(
@@ -89,6 +102,7 @@ export async function POST(request: Request) {
     
     const formData = await request.formData();
     const image = formData.get('image') as File;
+    const classificationType = formData.get('classificationType') as string | null;
 
     if (!image) {
       return NextResponse.json(
@@ -134,6 +148,32 @@ export async function POST(request: Request) {
     
     const base64Image = buffer.toString('base64');
 
+    // Customize prompt based on classification
+    let extractionPrompt = "Extrahiere diese Informationen aus der Rechnung: restaurantName, restaurantAnschrift, gesamtbetrag, mwst, netto, datum (Format: DD.MM.YYYY) und optional trinkgeld. Gib die Beträge im deutschen Format mit Komma zurück (z.B. '38,60'). Antworte NUR mit einem JSON-Objekt.";
+    
+    if (classificationType === 'Kreditkartenbeleg') {
+      extractionPrompt = `Dies ist ein Kreditkartenbeleg. Extrahiere:
+      - restaurantName: Name des Händlers/Restaurants
+      - datum: Transaktionsdatum (Format: DD.MM.YYYY)
+      - gesamtbetrag: Der Hauptbetrag der Transaktion
+      - trinkgeld: Falls separat aufgeführt
+      
+      WICHTIG: Bei Kreditkartenbelegen ist der Hauptbetrag normalerweise der einzige oder größte Betrag.
+      Wenn Trinkgeld separat aufgeführt ist, gib es im Feld "trinkgeld" an.
+      Antworte NUR mit einem JSON-Objekt.`;
+    } else if (classificationType === 'Rechnung') {
+      extractionPrompt = `Dies ist eine Restaurantrechnung. Extrahiere:
+      - restaurantName, restaurantAnschrift, datum (DD.MM.YYYY)
+      - gesamtbetrag, mwst, netto
+      
+      WICHTIG: Wenn zwei Beträge zu sehen sind (z.B. 95,30€ und 100,00€):
+      - Der kleinere Betrag ist der Rechnungsbetrag (gesamtbetrag)
+      - Der größere Betrag ist der gezahlte Betrag
+      - Die Differenz ist das Trinkgeld (trinkgeld)
+      
+      Antworte NUR mit einem JSON-Objekt.`;
+    }
+
     console.log('Sende Anfrage an OpenAI...');
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
@@ -147,7 +187,7 @@ export async function POST(request: Request) {
           content: [
             {
               type: "text",
-              text: "Extrahiere diese Informationen aus der Rechnung: restaurantName, restaurantAnschrift, gesamtbetrag, mwst, netto, datum (Format: DD.MM.YYYY) und optional trinkgeld. Gib die Beträge im deutschen Format mit Komma zurück (z.B. '38,60'). Antworte NUR mit einem JSON-Objekt."
+              text: extractionPrompt
             },
             {
               type: "image_url",

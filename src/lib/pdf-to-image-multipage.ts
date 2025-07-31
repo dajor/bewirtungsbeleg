@@ -23,15 +23,16 @@ export async function convertPdfToImagesAllPages(pdfBuffer: Buffer, fileName: st
   try {
     console.log(`🔄 Converting all pages of PDF to images: ${fileName}`);
     
+    // Ensure temp directory exists
+    if (!fs.existsSync(tempDir)) {
+      console.log(`📁 Creating temp directory: ${tempDir}`);
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+    
     // Get page count first
     const pdfDoc = await PDFDocument.load(pdfBuffer);
     const pageCount = pdfDoc.getPageCount();
     console.log(`📄 PDF has ${pageCount} page(s)`);
-    
-    // Create temporary directory
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
     
     // Write PDF to temporary file
     const timestamp = Date.now();
@@ -47,7 +48,11 @@ export async function convertPdfToImagesAllPages(pdfBuffer: Buffer, fileName: st
     console.log('🖼️ Converting all PDF pages to images with pdftoppm...');
     console.log('Command:', pdftoppmCommand);
     
-    const { stdout, stderr } = await execAsync(pdftoppmCommand);
+    // Add timeout to exec command (20 seconds)
+    const { stdout, stderr } = await execAsync(pdftoppmCommand, {
+      timeout: 20000,
+      maxBuffer: 10 * 1024 * 1024 // 10MB buffer
+    });
     
     if (stderr && !stderr.includes('Syntax Warning')) {
       console.log('⚠️ pdftoppm stderr:', stderr);

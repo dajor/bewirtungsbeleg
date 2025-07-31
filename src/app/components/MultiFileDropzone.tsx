@@ -134,10 +134,11 @@ export function MultiFileDropzone({
           style={{
             position: 'absolute',
             top: rem(4),
-            right: rem(4)
+            right: rem(4),
+            zIndex: 15  // Make sure it's above the converting overlay
           }}
           onClick={() => onRemove(fileData.id)}
-          disabled={fileData.isConverting}
+          title={fileData.isConverting ? "Konvertierung abbrechen" : "Datei entfernen"}
         >
           <IconX size={16} />
         </ActionIcon>

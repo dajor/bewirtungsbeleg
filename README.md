@@ -10,6 +10,8 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
 
 - 📝 Einfache Erfassung von Bewirtungsbelegen
 - 📸 Automatische Datenextraktion aus Fotos/Scans mittels OCR
+- 🏷️ Automatische Dokumentenklassifizierung (Rechnung vs Kreditkartenbeleg)
+- 💳 Intelligente Feldausfüllung basierend auf Dokumenttyp
 - 💶 Unterstützung für deutsches Zahlenformat
 - 📅 Datumseingabe im deutschen Format
 - 📄 PDF-Export mit allen Details
