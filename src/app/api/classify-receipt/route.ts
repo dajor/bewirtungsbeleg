@@ -35,9 +35,9 @@ export async function POST(request: Request) {
     const { fileName, fileType, image } = sanitizeObject(validatedInput);
 
     // Prepare messages based on whether we have image content
-    const messages = [
+    const messages: any[] = [
       {
-        role: "system" as const,
+        role: "system",
         content: `Du bist ein Experte für die Klassifizierung von Belegen. 
         Eine Rechnung enthält typischerweise:
         - Restaurantname und Adresse
@@ -61,10 +61,10 @@ export async function POST(request: Request) {
     if (image) {
       // If we have an image, analyze its content
       messages.push({
-        role: "user" as const,
+        role: "user",
         content: [
           {
-            type: "text" as const,
+            type: "text",
             text: `Analysiere dieses Dokument und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
             
             Antworte nur mit einem JSON-Objekt im folgenden Format:
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
             }`
           },
           {
-            type: "image_url" as const,
+            type: "image_url",
             image_url: {
               url: image
             }
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
       }`;
       
       messages.push({
-        role: "user" as const,
+        role: "user",
         content: prompt
       });
     }
