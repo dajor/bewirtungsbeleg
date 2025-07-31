@@ -1,3 +1,16 @@
+# Version 0.16.0
+Datum: 31.07.2025
+
+## Änderungen
+- Behoben: TypeScript-Fehler in der classify-receipt Route für DigitalOcean-Builds.
+- Hinzugefügt: Intelligente Dokumentenklassifizierung und Feldzuordnung.
+
+## Technische Details
+- Build: 16651495486
+- Commit: bdc235782cbd4e9c2e978ff52b2fc1978e590ba4
+
+---
+
 # Version 0.15.0
 Datum: 31.07.2025
 

@@ -1,3 +1,5 @@
+fix: Fix TypeScript error in classify-receipt route for DigitalOcean build (Claude Assistant)
+Bump version to 0.15.0 #auto-release (dajor)
 feat: Add intelligent document classification and field mapping (Claude Assistant)
 Bump version to 0.14.0 #auto-release (dajor)
 Add document classification feature using OpenAI (Claude Assistant)
