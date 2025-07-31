@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.17.0",
+      "date": "31.07.2025",
+      "changes": [
+        "Ersetzt 'Unbekannt' durch eine intelligente Ausweichklassifikation, um die Genauigkeit und Nützlichkeit der Klassifizierungsergebnisse zu verbessern.",
+        "Behebt ein TypeScript-Problem in der 'classify-receipt'-Route, welches spezifisch für DigitalOcean-Builds auftrat, um die Kompatibilität und Stabilität der Anwendung zu gewährleisten."
+      ],
+      "build": "16652201408",
+      "commit": "99b70f0b10cfcfcc8612d7ba2f5c3fb30b033b36"
+    },
+    {
       "version": "0.16.0",
       "date": "31.07.2025",
       "changes": [
