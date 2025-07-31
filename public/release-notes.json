@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.13.0",
+      "date": "31.07.2025",
+      "changes": [
+        "Hinzufügen der Konvertierung von PDF zu Bild für OCR-Unterstützung.",
+        "Verbesserung der PDF-Generierung und der Formular-Benutzeroberfläche."
+      ],
+      "build": "16647120369",
+      "commit": "b719264802130ca3b59b5c264dc0d0420baa6462"
+    },
+    {
       "version": "0.12.0",
       "date": "31.07.2025",
       "changes": [

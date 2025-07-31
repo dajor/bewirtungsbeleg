@@ -1,1 +1,3 @@
+Add PDF to image conversion for OCR support (Claude Assistant)
+Bump version to 0.12.0 #auto-release (dajor)
 Improve PDF generation and form UI (Claude Assistant)

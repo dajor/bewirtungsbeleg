@@ -1,3 +1,16 @@
+# Version 0.13.0
+Datum: 31.07.2025
+
+## Änderungen
+- Hinzufügen der Konvertierung von PDF zu Bild für OCR-Unterstützung.
+- Verbesserung der PDF-Generierung und der Formular-Benutzeroberfläche.
+
+## Technische Details
+- Build: 16647120369
+- Commit: b719264802130ca3b59b5c264dc0d0420baa6462
+
+---
+
 # Version 0.12.0
 Datum: 31.07.2025
 
