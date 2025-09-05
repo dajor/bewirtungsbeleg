@@ -22,6 +22,8 @@ interface MultiFileDropzoneProps {
   files: FileWithPreview[];
   onDrop: (files: File[]) => void;
   onRemove: (id: string) => void;
+  onFileClick?: (file: File) => void;
+  selectedFile?: File | null;
   maxSize?: number;
   maxFiles?: number;
   loading?: boolean;
@@ -31,12 +33,15 @@ export function MultiFileDropzone({
   files,
   onDrop,
   onRemove,
+  onFileClick,
+  selectedFile,
   maxSize = 10 * 1024 ** 2, // 10MB
   maxFiles = 5,
   loading = false
 }: MultiFileDropzoneProps) {
   const previews = files.map((fileData) => {
     const isPdf = fileData.file.type === 'application/pdf';
+    const isSelected = selectedFile === fileData.file;
     
     return (
       <Paper
@@ -45,9 +50,13 @@ export function MultiFileDropzone({
         p="sm"
         radius="md"
         withBorder
+        onClick={() => onFileClick?.(fileData.file)}
+        data-testid="file-preview"
         style={{ 
           position: 'relative',
           width: rem(180),
+          cursor: onFileClick ? 'pointer' : 'default',
+          border: isSelected ? '2px solid var(--mantine-color-blue-5)' : undefined,
           backgroundColor: 'white'
         }}
       >

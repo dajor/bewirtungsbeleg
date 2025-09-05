@@ -1,0 +1,96 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-03",
+  "agents": [
+    {
+      "id": "meta-agent-architect",
+      "name": "Meta Agent Architect",
+      "category": "meta",
+      "path": ".claude/agents/meta-agent-architect.md",
+      "description": "The architect for creating and maintaining consistent, high-quality agents",
+      "tools": ["Read", "Write", "Edit", "MultiEdit", "Bash", "Grep", "Glob", "TodoWrite"],
+      "priority": "critical",
+      "dependencies": []
+    },
+    {
+      "id": "repo-cleaner",
+      "name": "Repo Cleaner Agent",
+      "category": "maintenance",
+      "path": ".claude/agents/repo-cleaner.md",
+      "description": "Maintains a clean, organized codebase by preventing file proliferation",
+      "tools": ["Glob", "Read", "LS", "Bash", "MultiEdit", "TodoWrite"],
+      "priority": "high",
+      "dependencies": []
+    },
+    {
+      "id": "test-runner",
+      "name": "Test Runner Agent",
+      "category": "testing",
+      "path": ".claude/agents/test-runner.md",
+      "description": "Specializes in comprehensive local testing strategies",
+      "tools": ["Bash", "Grep", "Read", "Edit", "MultiEdit", "TodoWrite"],
+      "priority": "high",
+      "dependencies": []
+    },
+    {
+      "id": "code-reviewer",
+      "name": "Code Reviewer Agent",
+      "category": "maintenance",
+      "path": ".claude/agents/code-reviewer.md",
+      "description": "Performs comprehensive code reviews focusing on quality, security, and maintainability",
+      "tools": ["Read", "Grep", "Bash", "TodoWrite", "Edit"],
+      "priority": "high",
+      "dependencies": []
+    }
+  ],
+  "categories": {
+    "meta": {
+      "description": "Agents that manage other agents",
+      "color": "#FF6B6B"
+    },
+    "maintenance": {
+      "description": "Agents that keep the codebase clean and organized",
+      "color": "#4ECDC4"
+    },
+    "testing": {
+      "description": "Agents focused on testing and quality assurance",
+      "color": "#45B7D1"
+    },
+    "api": {
+      "description": "Agents for API development and maintenance",
+      "color": "#96CEB4"
+    },
+    "ui": {
+      "description": "Agents for UI/UX development",
+      "color": "#FECA57"
+    },
+    "security": {
+      "description": "Agents for security analysis and improvements",
+      "color": "#FF6348"
+    },
+    "utility": {
+      "description": "General purpose utility agents",
+      "color": "#DDA0DD"
+    }
+  },
+  "toolUsageGuidelines": {
+    "Read": "Always use before editing files",
+    "Edit": "Prefer over Write for existing files",
+    "MultiEdit": "Use for multiple changes to same file",
+    "Write": "Only for truly new files",
+    "Bash": "Batch related commands, use for yarn commands",
+    "Grep": "Use for searching code patterns",
+    "Glob": "Use for finding files by name patterns",
+    "TodoWrite": "Use for tasks with more than 3 steps",
+    "LS": "Use to verify directory structure"
+  },
+  "bestPractices": [
+    "Always test changes locally before marking complete",
+    "Follow existing code style and conventions",
+    "Minimize file creation - prefer editing existing files",
+    "Run yarn lint after code changes",
+    "Update tests when changing functionality",
+    "Use TypeScript strict mode",
+    "Document complex logic inline"
+  ]
+}

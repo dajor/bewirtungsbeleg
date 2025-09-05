@@ -1,0 +1,207 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-06",
+  "agents": [
+    {
+      "id": "meta-architect",
+      "name": "Meta-Agent Architect",
+      "version": "1.0.0",
+      "category": "orchestration",
+      "description": "Architect for creating and managing specialized agents",
+      "status": "active",
+      "tools": ["TodoWrite", "Read", "Write", "MultiEdit", "Grep"],
+      "dependencies": [],
+      "capabilities": [
+        "Agent creation and validation",
+        "Standards enforcement",
+        "Tool selection",
+        "Best practices management"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "pm-agent",
+      "name": "Product Manager Agent",
+      "version": "1.0.0",
+      "category": "planning",
+      "description": "Product strategy and requirement definition specialist",
+      "status": "active",
+      "tools": ["TodoWrite", "Read", "WebFetch", "Grep"],
+      "dependencies": ["meta-architect"],
+      "capabilities": [
+        "Requirement analysis",
+        "User story creation",
+        "Acceptance criteria definition",
+        "German compliance validation"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "ux-designer",
+      "name": "UX Designer Agent",
+      "version": "1.0.0",
+      "category": "design",
+      "description": "User experience and interface design specialist",
+      "status": "active",
+      "tools": ["Read", "Grep", "TodoWrite", "MultiEdit"],
+      "dependencies": ["pm-agent"],
+      "capabilities": [
+        "UI/UX design",
+        "Mantine component selection",
+        "Responsive design",
+        "German locale formatting"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "frontend-dev",
+      "name": "Frontend Developer Agent",
+      "version": "1.0.0",
+      "category": "development",
+      "description": "React/Next.js implementation specialist",
+      "status": "active",
+      "tools": ["MultiEdit", "Edit", "Bash", "TodoWrite", "Grep", "Read"],
+      "dependencies": ["ux-designer"],
+      "capabilities": [
+        "React component implementation",
+        "TypeScript development",
+        "API integration",
+        "Performance optimization"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "tester",
+      "name": "Tester Agent",
+      "version": "1.0.0",
+      "category": "testing",
+      "description": "Unit and integration testing specialist",
+      "status": "active",
+      "tools": ["MultiEdit", "Bash", "Read", "Write", "Grep", "TodoWrite"],
+      "dependencies": ["frontend-dev"],
+      "capabilities": [
+        "Unit test creation",
+        "Integration testing",
+        "Mock implementation",
+        "Coverage analysis"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "e2e-tester",
+      "name": "E2E Tester Agent",
+      "version": "1.0.0",
+      "category": "testing",
+      "description": "End-to-end testing specialist using Playwright",
+      "status": "active",
+      "tools": ["Write", "Edit", "Bash", "Read", "TodoWrite", "Grep"],
+      "dependencies": ["tester"],
+      "capabilities": [
+        "E2E test scenarios",
+        "Cross-browser testing",
+        "Visual regression testing",
+        "Performance testing"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "repo-cleaner",
+      "name": "Repository Cleaner Agent",
+      "version": "1.0.0",
+      "category": "maintenance",
+      "description": "Code hygiene and repository maintenance specialist",
+      "status": "active",
+      "tools": ["Grep", "Glob", "Bash", "MultiEdit", "Read", "TodoWrite"],
+      "dependencies": [],
+      "capabilities": [
+        "Duplicate code detection",
+        "File organization",
+        "Dead code removal",
+        "Import optimization"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    },
+    {
+      "id": "local-test-improver",
+      "name": "Local Testing Improvement Agent",
+      "version": "1.0.0",
+      "category": "optimization",
+      "description": "Testing infrastructure optimization specialist",
+      "status": "active",
+      "tools": ["Read", "MultiEdit", "Write", "Bash", "Grep", "TodoWrite"],
+      "dependencies": ["tester", "e2e-tester"],
+      "capabilities": [
+        "Test performance optimization",
+        "Flaky test reduction",
+        "Mock strategy improvement",
+        "Parallel execution setup"
+      ],
+      "metrics": {
+        "usageCount": 0,
+        "successRate": 100,
+        "avgExecutionTime": 0
+      }
+    }
+  ],
+  "workflows": {
+    "feature-development": {
+      "name": "Feature Development Workflow",
+      "description": "Complete feature development from requirements to deployment",
+      "agents": ["pm-agent", "ux-designer", "frontend-dev", "tester", "e2e-tester", "repo-cleaner"],
+      "sequence": "sequential"
+    },
+    "testing-improvement": {
+      "name": "Testing Improvement Workflow",
+      "description": "Optimize and enhance testing infrastructure",
+      "agents": ["local-test-improver", "tester", "e2e-tester"],
+      "sequence": "parallel"
+    },
+    "code-cleanup": {
+      "name": "Code Cleanup Workflow",
+      "description": "Repository maintenance and optimization",
+      "agents": ["repo-cleaner", "tester"],
+      "sequence": "sequential"
+    }
+  },
+  "statistics": {
+    "totalAgents": 8,
+    "activeAgents": 8,
+    "categories": {
+      "orchestration": 1,
+      "planning": 1,
+      "design": 1,
+      "development": 1,
+      "testing": 2,
+      "maintenance": 1,
+      "optimization": 1
+    }
+  }
+}

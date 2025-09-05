@@ -2,7 +2,15 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './test',
-  testMatch: '**/end2end-test.spec.ts',
+  testMatch: [
+    '**/end2end-test.spec.ts', 
+    '**/pdf-conversion.spec.ts', 
+    '**/pdf-simple.spec.ts',
+    '**/e2e-complete-workflow.spec.ts',
+    '**/e2e-critical-scenarios.spec.ts',
+    '**/image-preview-real.spec.ts',
+    '**/e2e-zugferd.spec.ts'
+  ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

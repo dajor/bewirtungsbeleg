@@ -33,6 +33,7 @@ import {
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
+import { ImageEditor } from '@/components/ImageEditor';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -53,6 +54,16 @@ interface BewirtungsbelegFormData {
   geschaeftspartnerFirma: string;
   istAuslaendischeRechnung: boolean;
   auslaendischeWaehrung: string;
+  generateZugferd: boolean;
+  // Additional fields for ZUGFeRD
+  restaurantPlz: string;
+  restaurantOrt: string;
+  unternehmen: string;
+  unternehmenAnschrift: string;
+  unternehmenPlz: string;
+  unternehmenOrt: string;
+  speisen: string;
+  getraenke: string;
 }
 
 export default function BewirtungsbelegForm() {
@@ -137,6 +148,15 @@ export default function BewirtungsbelegForm() {
       geschaeftspartnerFirma: '',
       istAuslaendischeRechnung: false,
       auslaendischeWaehrung: '',
+      generateZugferd: false,
+      restaurantPlz: '',
+      restaurantOrt: '',
+      unternehmen: '',
+      unternehmenAnschrift: '',
+      unternehmenPlz: '',
+      unternehmenOrt: '',
+      speisen: '',
+      getraenke: '',
     },
     validate: {
       datum: (value) => (value ? null : 'Datum ist erforderlich'),
@@ -194,6 +214,12 @@ export default function BewirtungsbelegForm() {
   });
 
   const extractDataFromImage = async (file: File, classificationType?: string) => {
+    // Skip PDFs from OCR extraction - they need to be converted first
+    if (file.type === 'application/pdf') {
+      console.log('Skipping OCR for PDF file - needs conversion first');
+      return;
+    }
+    
     setIsProcessing(true);
     setError(null);
 
@@ -535,6 +561,12 @@ export default function BewirtungsbelegForm() {
         setSelectedImage(null);
       }
       
+      // Clear error when all files are removed
+      if (newFiles.length === 0) {
+        setError(null);
+        setSuccess(false);
+      }
+      
       return newFiles;
     });
   }, [selectedImage]);
@@ -620,6 +652,18 @@ export default function BewirtungsbelegForm() {
         trinkgeld: convertToGermanDecimal(form.values.trinkgeld),
         trinkgeldMwst: convertToGermanDecimal(form.values.trinkgeldMwst),
         kreditkartenBetrag: convertToGermanDecimal(form.values.kreditkartenBetrag),
+        // ZUGFeRD fields
+        generateZugferd: form.values.generateZugferd,
+        restaurantPlz: form.values.restaurantPlz,
+        restaurantOrt: form.values.restaurantOrt,
+        unternehmen: form.values.unternehmen,
+        unternehmenAnschrift: form.values.unternehmenAnschrift,
+        unternehmenPlz: form.values.unternehmenPlz,
+        unternehmenOrt: form.values.unternehmenOrt,
+        speisen: convertToGermanDecimal(form.values.speisen),
+        getraenke: convertToGermanDecimal(form.values.getraenke),
+        betragBrutto: convertToGermanDecimal(form.values.gesamtbetrag), // Add betragBrutto for ZUGFeRD
+        bewirtetePersonen: form.values.teilnehmer, // Map teilnehmer to bewirtetePersonen for ZUGFeRD
         image: imageData,
         attachments: attachments
       };
@@ -743,7 +787,7 @@ export default function BewirtungsbelegForm() {
   };
 
   return (
-    <Container size="xs" py="xs">
+    <Container size="lg" py="xs">
       {error && (
         <Notification
           color="red"
@@ -776,28 +820,32 @@ export default function BewirtungsbelegForm() {
         </Notification>
       )}
 
-      <Paper shadow="sm" p="xs">
-        <form onSubmit={handleSubmit}>
-          <Stack gap="xs">
-            <Title order={1} size="h6">
-              Bewirtungsbeleg
-            </Title>
-            
-            <Box>
-              <Title order={2} size="h6">Allgemeine Angaben</Title>
+      <Grid gutter="md">
+        <Grid.Col span={{ base: 12, md: selectedImage ? 7 : 12 }}>
+          <Paper shadow="sm" p="xs">
+            <form onSubmit={handleSubmit}>
               <Stack gap="xs">
+                <Title order={1} size="h6">
+                  Bewirtungsbeleg
+                </Title>
+                
                 <Box>
-                  <Text size="sm" fw={500} mb="xs">Foto/Scan der Rechnung</Text>
-                  <Text size="xs" c="dimmed" mb="sm">
-                    Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
-                  </Text>
-                  <MultiFileDropzone
-                    files={attachedFiles}
-                    onDrop={handleFileDrop}
-                    onRemove={handleFileRemove}
-                    loading={isProcessing}
-                  />
-                </Box>
+                  <Title order={2} size="h6">Allgemeine Angaben</Title>
+                  <Stack gap="xs">
+                    <Box>
+                      <Text size="sm" fw={500} mb="xs">Foto/Scan der Rechnung</Text>
+                      <Text size="xs" c="dimmed" mb="sm">
+                        Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
+                      </Text>
+                      <MultiFileDropzone
+                        files={attachedFiles}
+                        onDrop={handleFileDrop}
+                        onRemove={handleFileRemove}
+                        onFileClick={handleImageChange}
+                        selectedFile={selectedImage}
+                        loading={isProcessing}
+                      />
+                    </Box>
                 <DateInput
                   label="Datum der Bewirtung"
                   placeholder="Wählen Sie ein Datum"
@@ -880,6 +928,100 @@ export default function BewirtungsbelegForm() {
                     onChange={(event) => form.setFieldValue('auslaendischeWaehrung', event.currentTarget.value)}
                   />
                 )}
+                
+                <Divider my="xs" />
+                
+                <Checkbox
+                  label="ZUGFeRD-kompatibles PDF generieren"
+                  description="Erstellt ein elektronisches Rechnungsformat nach ZUGFeRD 2.0 Standard für die digitale Archivierung"
+                  checked={form.values.generateZugferd}
+                  onChange={(event) => form.setFieldValue('generateZugferd', event.currentTarget.checked)}
+                />
+                
+                {form.values.generateZugferd && (
+                  <Stack gap="xs">
+                    <Text size="xs" c="dimmed">
+                      Zusätzliche Informationen für ZUGFeRD benötigt:
+                    </Text>
+                    <Grid>
+                      <Grid.Col span={6}>
+                        <TextInput
+                          label="Restaurant PLZ"
+                          placeholder="z.B. 10115"
+                          size="sm"
+                          {...form.getInputProps('restaurantPlz')}
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={6}>
+                        <TextInput
+                          label="Restaurant Ort"
+                          placeholder="z.B. Berlin"
+                          size="sm"
+                          {...form.getInputProps('restaurantOrt')}
+                        />
+                      </Grid.Col>
+                    </Grid>
+                    <TextInput
+                      label="Ihr Unternehmen"
+                      placeholder="Name Ihres Unternehmens"
+                      size="sm"
+                      {...form.getInputProps('unternehmen')}
+                    />
+                    <TextInput
+                      label="Unternehmensanschrift"
+                      placeholder="Straße und Hausnummer"
+                      size="sm"
+                      {...form.getInputProps('unternehmenAnschrift')}
+                    />
+                    <Grid>
+                      <Grid.Col span={6}>
+                        <TextInput
+                          label="Unternehmens-PLZ"
+                          placeholder="z.B. 20099"
+                          size="sm"
+                          {...form.getInputProps('unternehmenPlz')}
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={6}>
+                        <TextInput
+                          label="Unternehmens-Ort"
+                          placeholder="z.B. Hamburg"
+                          size="sm"
+                          {...form.getInputProps('unternehmenOrt')}
+                        />
+                      </Grid.Col>
+                    </Grid>
+                    <Grid>
+                      <Grid.Col span={6}>
+                        <NumberInput
+                          label="Speisen"
+                          placeholder="Betrag für Speisen"
+                          min={0}
+                          step={0.01}
+                          size="sm"
+                          decimalScale={2}
+                          fixedDecimalScale
+                          description="7% MwSt."
+                          {...form.getInputProps('speisen')}
+                        />
+                      </Grid.Col>
+                      <Grid.Col span={6}>
+                        <NumberInput
+                          label="Getränke"
+                          placeholder="Betrag für Getränke"
+                          min={0}
+                          step={0.01}
+                          size="sm"
+                          decimalScale={2}
+                          fixedDecimalScale
+                          description="19% MwSt."
+                          {...form.getInputProps('getraenke')}
+                        />
+                      </Grid.Col>
+                    </Grid>
+                  </Stack>
+                )}
+                
                 <NumberInput
                   label="Gesamtbetrag (Brutto)"
                   placeholder={`Gesamtbetrag in ${form.values.istAuslaendischeRechnung ? (form.values.auslaendischeWaehrung || 'ausländischer Währung') : 'Euro'}`}
@@ -1041,6 +1183,19 @@ export default function BewirtungsbelegForm() {
           </Stack>
         </form>
       </Paper>
+    </Grid.Col>
+    
+    {selectedImage && (
+      <Grid.Col span={{ base: 12, md: 5 }}>
+        <ImageEditor 
+          file={selectedImage} 
+          onImageUpdate={(processedUrl) => {
+            console.log('Image updated:', processedUrl);
+          }}
+        />
+      </Grid.Col>
+    )}
+  </Grid>
 
       <Modal
         opened={showConfirm}
