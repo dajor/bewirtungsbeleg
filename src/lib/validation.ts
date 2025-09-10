@@ -111,6 +111,21 @@ export const bewirtungsbelegSchema = z.object({
 // PDF generation request schema
 export const generatePdfSchema = bewirtungsbelegSchema.extend({
   // All fields from bewirtungsbeleg plus potential additional PDF-specific fields
+  generateZugferd: z.boolean().optional(), // Enable ZUGFeRD generation
+  
+  // Additional fields for ZUGFeRD if needed
+  unternehmen: z.string().max(200).optional(),
+  unternehmenAnschrift: z.string().max(500).optional(),
+  unternehmenPlz: z.string().max(10).optional(),
+  unternehmenOrt: z.string().max(100).optional(),
+  restaurantPlz: z.string().max(10).optional(),
+  restaurantOrt: z.string().max(100).optional(),
+  
+  // Split amounts for VAT calculation
+  speisen: optionalGermanDecimalString.optional(),
+  getraenke: optionalGermanDecimalString.optional(),
+  betragBrutto: optionalGermanDecimalString.optional(),
+  bewirtetePersonen: z.string().max(1000).optional(),
 });
 
 // Sanitization function for user input

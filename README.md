@@ -4,22 +4,24 @@
 [![Coverage Status](https://github.com/dajor/bewirtungsbeleg/actions/workflows/coverage.yml/badge.svg)](https://github.com/dajor/bewirtungsbeleg/actions/workflows/coverage.yml)
 [![Coverage](https://codecov.io/gh/dajor/bewirtungsbeleg/branch/main/graph/badge.svg)](https://codecov.io/gh/dajor/bewirtungsbeleg)
 
-Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatischer Datenextraktion aus Fotos/Scans.
+Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit KI-gestützter automatischer Datenextraktion und intelligenter Dokumentenklassifizierung.
 
 ## Features
 
 - 📝 Einfache Erfassung von Bewirtungsbelegen
-- 📸 Automatische Datenextraktion aus Fotos/Scans mittels OCR
-- 🏷️ Automatische Dokumentenklassifizierung (Rechnung vs Kreditkartenbeleg)
+- 📸 Automatische Datenextraktion aus Fotos/Scans mittels OpenAI Vision API
+- 🏷️ KI-basierte Dokumentenklassifizierung (Rechnung vs Kreditkartenbeleg)
 - 💳 Intelligente Feldausfüllung basierend auf Dokumenttyp
-- 💶 Unterstützung für deutsches Zahlenformat
-- 📅 Datumseingabe im deutschen Format
-- 📄 PDF-Export mit allen Details
-- 🖼️ Automatisches Anhängen des Original-Belegs im PDF
-- 🔒 Benutzer-Authentifizierung mit NextAuth.js
-- 👥 Rollenbasierte Zugriffskontrolle
-- 🚦 API Rate Limiting mit Upstash Redis
-- 🛡️ Input-Validierung und Sanitierung mit Zod
+- 📄 PDF-Unterstützung mit automatischer Konvertierung zu Bildern für OCR
+- 💶 Unterstützung für deutsches Zahlenformat (Komma-Dezimaltrenner)
+- 📅 Datumseingabe im deutschen Format (DD.MM.YYYY)
+- 📄 PDF-Export mit allen Details und Original-Beleg-Anhang
+- 🔒 Sichere Benutzer-Authentifizierung mit NextAuth.js
+- 👥 Rollenbasierte Zugriffskontrolle (Admin/User)
+- 🚦 Intelligentes API Rate Limiting mit Upstash Redis
+- 🛡️ Umfassende Input-Validierung und Sanitierung mit Zod
+- ✅ Vollständige Testsuite (Unit-, Integration- und E2E-Tests)
+- 🎯 Fallback-Klassifizierung für unbekannte Dokumenttypen
 
 ## Voraussetzungen
 
@@ -72,13 +74,48 @@ Eine moderne Web-Anwendung zur Erstellung von Bewirtungsbelegen mit automatische
    - Admin: `admin@docbits.com` / `admin123`
    - Benutzer: `user@docbits.com` / `user123`
 
+## Tests ausführen
+
+Das Projekt verfügt über eine umfassende Testsuite:
+
+```bash
+# Alle Tests ausführen
+yarn test
+
+# Tests im Watch-Modus ausführen
+yarn test:watch
+
+# CI-Tests (kritische Tests für Deployment)
+yarn test:ci
+
+# End-to-End Tests mit Playwright
+yarn test:e2e
+```
+
 ## Verwendete Technologien
 
-- Next.js 14
-- TypeScript
-- Mantine UI
-- OpenAI Vision API für OCR
-- jsPDF für PDF-Generierung
+### Frontend
+- **Next.js 14** - React Framework mit App Router
+- **TypeScript** - Typisierung für bessere Codequalität
+- **Mantine UI** - Moderne React Component Library
+- **Tailwind CSS** - Utility-first CSS Framework
+
+### Backend & APIs
+- **OpenAI Vision API** - KI-basierte OCR und Dokumentenklassifizierung
+- **NextAuth.js** - Authentifizierung und Session-Management
+- **Upstash Redis** - Rate Limiting und Caching
+
+### PDF & Bildverarbeitung
+- **jsPDF** - PDF-Generierung im Browser
+- **pdf2pic** - PDF zu Bild-Konvertierung für OCR
+- **Jimp** - Bildverarbeitung und -optimierung
+- **Canvas** - Bildmanipulation
+
+### Testing & Qualität
+- **Jest** - Unit Testing Framework
+- **React Testing Library** - Component Testing
+- **Playwright** - End-to-End Testing
+- **Zod** - Runtime Type Validation
 
 ## Projektstruktur
 

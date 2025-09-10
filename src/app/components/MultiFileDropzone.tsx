@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Group, Text, rem, Stack, Image, ActionIcon, Paper, Badge, Center, Loader } from '@mantine/core';
+import { Group, Text, rem, Stack, Image, ActionIcon, Paper, Badge, Center, Loader, Select } from '@mantine/core';
 import { IconUpload, IconPhoto, IconX, IconFile } from '@tabler/icons-react';
 import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
 import classes from './MultiFileDropzone.module.css';
@@ -15,6 +15,7 @@ export interface FileWithPreview {
     type: string;
     confidence: number;
     isProcessing?: boolean;
+    manualOverride?: boolean;
   };
 }
 
@@ -22,6 +23,9 @@ interface MultiFileDropzoneProps {
   files: FileWithPreview[];
   onDrop: (files: File[]) => void;
   onRemove: (id: string) => void;
+  onFileClick?: (file: File) => void;
+  onClassificationChange?: (fileId: string, newType: string) => void;
+  selectedFile?: File | null;
   maxSize?: number;
   maxFiles?: number;
   loading?: boolean;
@@ -31,12 +35,16 @@ export function MultiFileDropzone({
   files,
   onDrop,
   onRemove,
+  onFileClick,
+  onClassificationChange,
+  selectedFile,
   maxSize = 10 * 1024 ** 2, // 10MB
   maxFiles = 5,
   loading = false
 }: MultiFileDropzoneProps) {
   const previews = files.map((fileData) => {
     const isPdf = fileData.file.type === 'application/pdf';
+    const isSelected = selectedFile === fileData.file;
     
     return (
       <Paper
@@ -45,9 +53,13 @@ export function MultiFileDropzone({
         p="sm"
         radius="md"
         withBorder
+        onClick={() => onFileClick?.(fileData.file)}
+        data-testid="file-preview"
         style={{ 
           position: 'relative',
           width: rem(180),
+          cursor: onFileClick ? 'pointer' : 'default',
+          border: isSelected ? '2px solid var(--mantine-color-blue-5)' : undefined,
           backgroundColor: 'white'
         }}
       >
@@ -101,31 +113,55 @@ export function MultiFileDropzone({
           {fileData.file.name}
         </Text>
         
-        <Group gap="xs" mt="xs">
-          {fileData.classification && !fileData.classification.isProcessing && (
-            <Badge 
-              size="xs" 
-              variant="filled" 
-              color={fileData.classification.type === 'Kreditkartenbeleg' ? 'blue' : 'green'}
-            >
-              {fileData.classification.type}
-            </Badge>
-          )}
-          {fileData.classification?.isProcessing && (
+        <Stack gap="xs" mt="xs">
+          <Group gap="xs">
+            {fileData.classification && !fileData.classification.isProcessing && (
+              <Badge 
+                size="xs" 
+                variant={fileData.classification.manualOverride ? "light" : "filled"}
+                color={fileData.classification.type === 'Kreditkartenbeleg' ? 'blue' : 'green'}
+              >
+                {fileData.classification.manualOverride && '✏️ '}{fileData.classification.type}
+              </Badge>
+            )}
+            {fileData.classification?.isProcessing && (
+              <Badge size="xs" variant="light" color="gray">
+                <Group gap={4}>
+                  <Loader size={10} />
+                  <span>Analysiere...</span>
+                </Group>
+              </Badge>
+            )}
             <Badge size="xs" variant="light" color="gray">
-              <Group gap={4}>
-                <Loader size={10} />
-                <span>Analysiere...</span>
-              </Group>
+              {fileData.file.size > 1024 * 1024 
+                ? `${(fileData.file.size / (1024 * 1024)).toFixed(1)} MB`
+                : `${(fileData.file.size / 1024).toFixed(1)} KB`
+              }
             </Badge>
+          </Group>
+          
+          {fileData.classification && !fileData.classification.isProcessing && onClassificationChange && (
+            <Select
+              size="xs"
+              placeholder="Klassifizierung"
+              value={fileData.classification.type}
+              onChange={(value) => value && onClassificationChange(fileData.id, value)}
+              data={[
+                { value: 'Rechnung', label: 'Rechnung' },
+                { value: 'Kreditkartenbeleg', label: 'Kreditkartenbeleg' },
+                { value: 'Unbekannt', label: 'Unbekannt' }
+              ]}
+              comboboxProps={{ withinPortal: false }}
+              styles={{
+                input: {
+                  fontSize: rem(10),
+                  height: rem(20),
+                  minHeight: rem(20)
+                }
+              }}
+            />
           )}
-          <Badge size="xs" variant="light" color="gray">
-            {fileData.file.size > 1024 * 1024 
-              ? `${(fileData.file.size / (1024 * 1024)).toFixed(1)} MB`
-              : `${(fileData.file.size / 1024).toFixed(1)} KB`
-            }
-          </Badge>
-        </Group>
+        </Stack>
         
         <ActionIcon
           size="sm"

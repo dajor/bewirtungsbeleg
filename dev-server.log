@@ -5,35 +5,28 @@ $ next dev
   - Environments: .env
 
  ✓ Starting...
- ✓ Ready in 1388ms
+ ✓ Ready in 1283ms
  ✓ Compiled /src/middleware in 67ms (72 modules)
- ✓ Compiled /api/generate-pdf in 433ms (421 modules)
-PDF generation API called
-Starting test to modify an existing pdf file
-Test to modify an existing pdf file finished
-Validated data: {
-  "datum": "2025-05-09T00:00:00.000Z",
-  "restaurantName": "Test Restaurant",
-  "restaurantAnschrift": "Test Address",
-  "teilnehmer": "Test Person",
-  "anlass": "Test",
-  "gesamtbetrag": "100,00",
-  "gesamtbetragMwst": "19,00",
-  "gesamtbetragNetto": "81,00",
-  "trinkgeld": "10,00",
-  "trinkgeldMwst": "1,90",
-  "kreditkartenBetrag": "110,00",
-  "zahlungsart": "firma",
-  "bewirtungsart": "kunden"
-}
-Created new PDF document
-Loading logo from: /Users/daniel/dev/bewir/public/LOGO-192.png
-Logo added successfully
-Starting to add content to PDF
-Added title and line
-Added general information
-Added footer to all pages
-Converting PDF to buffer...
-PDF generated successfully, size: 8799
- POST /api/generate-pdf 200 in 615ms
+ ○ Compiling / ...
+ ✓ Compiled / in 3.5s (2371 modules)
+ GET / 200 in 3634ms
+ ✓ Compiled /api/convert-pdf in 496ms (1610 modules)
+PDF to image conversion API called
+Converting PDF: kundenbewirtung.pdf, size: 36363 bytes
+🔄 Converting all pages of PDF to images: kundenbewirtung.pdf
+📄 PDF has 1 page(s)
+📄 PDF written to temp file, starting conversion...
+🖼️ Converting all PDF pages to images with pdftoppm...
+Command: pdftoppm -jpeg -r 150 -scale-to-x 800 -scale-to-y -1 "/var/folders/gz/gdwfvxvj793gn6g0mrtfx31m0000gn/T/pdf-conversion/temp_1754496976299.pdf" "/var/folders/gz/gdwfvxvj793gn6g0mrtfx31m0000gn/T/pdf-conversion/page_1754496976299"
+📸 Reading converted image for page 1...
+✅ Page 1 successfully converted!
+✅ Successfully converted 1 page(s) from PDF
+🧹 Cleaned up temp PDF file
+🧹 Cleaned up 1 temp image file(s)
+Converted 1 page(s) from PDF
+ POST /api/convert-pdf 200 in 630ms
+ ○ Compiling /bewirtungsbeleg ...
+ ✓ Compiled /bewirtungsbeleg in 600ms (2898 modules)
+ GET /bewirtungsbeleg 200 in 732ms
 [?25h
+Done in 35.89s.

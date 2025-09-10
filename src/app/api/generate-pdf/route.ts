@@ -5,6 +5,7 @@ import { generatePdfSchema, sanitizeObject, parseGermanDecimal } from '@/lib/val
 import { sanitizeFilename } from '@/lib/sanitize';
 import { convertPdfToImage } from '@/lib/pdf-to-image';
 import { convertPdfToImagesAllPages } from '@/lib/pdf-to-image-multipage';
+import { ZugferdService } from '@/lib/zugferd-service';
 import { z } from 'zod';
 
 export async function POST(request: Request) {
@@ -427,6 +428,48 @@ export async function POST(request: Request) {
     const pdfBuffer = doc.output('arraybuffer');
     console.log('PDF generated successfully, size:', pdfBuffer.byteLength);
 
+    // Check if ZUGFeRD generation is requested
+    if (data.generateZugferd === true) {
+      console.log('Generating ZUGFeRD-compliant PDF...');
+      
+      try {
+        // Convert ArrayBuffer to Base64
+        const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
+        
+        // Create ZUGFeRD invoice data from form data
+        const invoiceData = ZugferdService.createInvoiceDataFromBewirtungsbeleg(data);
+        
+        // Generate ZUGFeRD PDF
+        const zugferdResult = await ZugferdService.generateZugferdPdf({
+          pdfBase64,
+          invoiceData,
+          format: 'BASIC'
+        });
+        
+        if (zugferdResult.success && zugferdResult.pdfBase64) {
+          console.log('ZUGFeRD PDF generated successfully');
+          // Return the ZUGFeRD-compliant PDF
+          const zugferdBuffer = Buffer.from(zugferdResult.pdfBase64, 'base64');
+          
+          return new NextResponse(zugferdBuffer, {
+            headers: {
+              'Content-Type': 'application/pdf',
+              'Content-Disposition': `attachment; filename=bewirtungsbeleg-zugferd-${new Date(data.datum).toISOString().split('T')[0]}.pdf`,
+              'X-ZUGFeRD': 'true',
+              'X-ZUGFeRD-Profile': 'BASIC'
+            },
+          });
+        } else {
+          console.error('ZUGFeRD generation failed:', zugferdResult.error);
+          // Fall back to regular PDF
+        }
+      } catch (zugferdError) {
+        console.error('ZUGFeRD generation error:', zugferdError);
+        // Fall back to regular PDF
+      }
+    }
+
+    // Return regular PDF
     return new NextResponse(pdfBuffer, {
       headers: {
         'Content-Type': 'application/pdf',
