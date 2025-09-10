@@ -1,6 +1,27 @@
 {
   "versions": [
     {
+      "version": "0.22.0",
+      "date": "10.09.2025",
+      "changes": [
+        "Temporäres Überspringen problematischer ImageEditor-Integrationstests.",
+        "Behebung eines Fehlers, der zu Testfehlschlägen bei GitHub Actions führte.",
+        "Hinzufügen einer JSON-Download/Upload-Funktionalität für Formulardaten.",
+        "Korrektur von API-Integrationstest-Mocking-Problemen.",
+        "Behebung von CI-Fehlschlägen bei Eigenbeleg-Validierungstests.",
+        "Lösung von TypeScript-Kompilierungsfehlern für CI.",
+        "Aktualisierung von GitHub Actions zur Verwendung von Node.js 20.",
+        "Einführung eines umfassenden CI-Pipeline für die Eigenbeleg-Validierungskorrektur.",
+        "Behebung eines Validierungsfehlers bei Eigenbelegen ('image: Expected string, received null').",
+        "Hinzufügen der Eigenbeleg-Funktionalität (selbsterstellte Belege).",
+        "Korrektur der TypeScript-Typisierung für das vatBreakdown-Array.",
+        "Aktualisierung der Group spacing Prop zu gap für Mantine v7 Kompatibilität.",
+        "Ersetzen der pdftoppm-Abhängigkeit durch eine reine Node.js PDF-Umwandlung."
+      ],
+      "build": "17622926061",
+      "commit": "6e10b96e0f2c9c2fbde735d783b9a2a1b2b28c37"
+    },
+    {
       "version": "0.21.0",
       "date": "10.09.2025",
       "changes": [
