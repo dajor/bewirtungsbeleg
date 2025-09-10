@@ -1,3 +1,16 @@
+# Version 0.17.3
+Datum: 10.09.2025
+
+## Änderungen
+- Aktualisierung des 'Group spacing' Proprietary auf 'gap' für Kompatibilität mit Mantine v7
+- Ersetzen der 'pdftoppm' Abhängigkeit durch eine reine Node.js PDF-Konvertierung
+
+## Technische Details
+- Build: 17614170109
+- Commit: a4b177a970bad0d6ff71e5a14eb4b7245e983b6b
+
+---
+
 # Version 0.17.1
 Datum: 10.09.2025
 

@@ -1,3 +1,5 @@
+fix: Update Group spacing prop to gap for Mantine v7 compatibility (Claude Assistant)
+Bump version to 0.17.1 #auto-release (dajor)
 Merge branch 'dev' (Claude Assistant)
 fix: Replace pdftoppm dependency with pure Node.js PDF conversion (Claude Assistant)
 docs: Update README with latest features and comprehensive testing info (Claude Assistant)
