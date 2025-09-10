@@ -217,7 +217,7 @@ export class ZugferdService {
     const vatAmount = bruttoAmount - netAmount;
     
     // Determine VAT breakdown based on items
-    const vatBreakdown = [];
+    const vatBreakdown: { rate: number; baseAmount: number; vatAmount: number; }[] = [];
     if (formData.speisen) {
       const speisenAmount = parseAmount(formData.speisen);
       const speisenNet = speisenAmount / 1.07;
