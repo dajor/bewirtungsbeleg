@@ -47,6 +47,29 @@ class ResizeObserver {
 
 global.ResizeObserver = ResizeObserver;
 
+// Mock NextResponse for Next.js API routes
+const NextResponseMock = jest.fn().mockImplementation((body, init) => ({
+  ok: init?.status ? init.status >= 200 && init.status < 300 : true,
+  status: init?.status || 200,
+  statusText: init?.statusText || 'OK',
+  headers: new Map(Object.entries(init?.headers || {})),
+  json: jest.fn().mockResolvedValue(body instanceof ArrayBuffer ? {} : body),
+  text: jest.fn().mockResolvedValue(body instanceof ArrayBuffer ? 'binary-data' : JSON.stringify(body)),
+}));
+
+NextResponseMock.json = jest.fn().mockImplementation((body, init) => ({
+  ok: init?.status ? init.status >= 200 && init.status < 300 : true,
+  status: init?.status || 200,
+  statusText: init?.statusText || 'OK',
+  headers: new Map(Object.entries(init?.headers || {})),
+  json: jest.fn().mockResolvedValue(body),
+  text: jest.fn().mockResolvedValue(JSON.stringify(body)),
+}));
+
+jest.mock('next/server', () => ({
+  NextResponse: NextResponseMock,
+}));
+
 // Mock window.matchMedia only if window is defined (jsdom environment)
 if (typeof window !== 'undefined') {
   Object.defineProperty(window, 'matchMedia', {
