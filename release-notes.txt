@@ -1,3 +1,19 @@
+# Version 0.20.0
+Datum: 10.09.2025
+
+## Änderungen
+- Neue Funktionalit"at f"ur JSON Download/Upload f"ur Formulardaten hinzugef"ugt.
+- Umfassende CI-Pipeline f"ur die Eigenbelegvalidierung implementiert.
+- Mehrere Fehler behoben, einschlie
+dlich GitHub Actions Testfehler, API-Integrationstest-Mockingprobleme, CI-Fehler f"ur Eigenbeleg-Validierungstests, TypeScript-Kompilierungsfehler f"ur CI und Aktualisierung von GitHub Actions zur Verwendung von Node.js 20.
+- Eigenbelegvalidierungsfehler 'image: Expected string, received null' behoben.
+
+## Technische Details
+- Build: 17622734250
+- Commit: 3c2736e14f65d1966ef1dbfc1c6cfa75dd26d362
+
+---
+
 # Version 0.19.0
 Datum: 10.09.2025
 

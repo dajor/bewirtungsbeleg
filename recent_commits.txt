@@ -1,3 +1,5 @@
+fix: Resolve GitHub Actions test failures (Claude Assistant)
+Bump version to 0.19.0 #auto-release (dajor)
 feat: Add JSON Download/Upload functionality for form data (Claude Assistant)
 fix: Fix API integration test mocking issues (Claude Assistant)
 fix: Resolve CI failures for Eigenbeleg validation tests (Claude Assistant)

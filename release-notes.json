@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.20.0",
+      "date": "10.09.2025",
+      "changes": [
+        "Neue Funktionalit\"at f\"ur JSON Download/Upload f\"ur Formulardaten hinzugef\"ugt.",
+        "Umfassende CI-Pipeline f\"ur die Eigenbelegvalidierung implementiert.",
+        "Mehrere Fehler behoben, einschlie\ndlich GitHub Actions Testfehler, API-Integrationstest-Mockingprobleme, CI-Fehler f\"ur Eigenbeleg-Validierungstests, TypeScript-Kompilierungsfehler f\"ur CI und Aktualisierung von GitHub Actions zur Verwendung von Node.js 20.",
+        "Eigenbelegvalidierungsfehler 'image: Expected string, received null' behoben."
+      ],
+      "build": "17622734250",
+      "commit": "3c2736e14f65d1966ef1dbfc1c6cfa75dd26d362"
+    },
+    {
       "version": "0.19.0",
       "date": "10.09.2025",
       "changes": [
