@@ -1,3 +1,5 @@
+feat: Add Eigenbeleg (self-created receipt) feature (Claude Assistant)
+Bump version to 0.17.4 #auto-release (dajor)
 fix: Add proper TypeScript typing for vatBreakdown array (Claude Assistant)
 Bump version to 0.17.3 #auto-release (dajor)
 fix: Update Group spacing prop to gap for Mantine v7 compatibility (Claude Assistant)

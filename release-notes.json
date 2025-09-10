@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.18.0",
+      "date": "10.09.2025",
+      "changes": [
+        "Ein neues Feature wurde hinzugef&#252;gt: Eigenbeleg (self-created receipt).",
+        "TypeScript Typisierung f&#252;r das vatBreakdown Array wurde korrigiert, um eine pr&#228;zisere Typensicherheit zu gew&#228;hrleisten.",
+        "Die Gruppierungsabstands-Eigenschaft wurde auf 'gap' aktualisiert, um mit Mantine Version 7 kompatibel zu sein.",
+        "Die Abh&#228;ngigkeit von 'pdftoppm' wurde durch eine reine Node.js-basierte PDF-Konvertierung ersetzt, um Abh&#228;ngigkeiten von externen Bin&#228;rdateien zu reduzieren."
+      ],
+      "build": "17615434530",
+      "commit": "3dfc132f8d28cae6fd6b2069950c73a6246708c9"
+    },
+    {
       "version": "0.17.4",
       "date": "10.09.2025",
       "changes": [
