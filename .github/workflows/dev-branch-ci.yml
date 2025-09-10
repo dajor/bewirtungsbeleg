@@ -63,10 +63,10 @@ jobs:
       - name: Run all unit tests
         run: |
           # Core validation tests
-          yarn test src/lib/validation.test.ts
+          yarn test src/lib/validation.test.ts --coverage=false
           
           # NEW: Eigenbeleg-specific validation tests
-          yarn test src/lib/eigenbeleg-validation.test.ts
+          yarn test src/lib/eigenbeleg-validation.test.ts --coverage=false
           
           # API integration tests for the fix
           yarn test src/app/api/generate-pdf/eigenbeleg-fix.test.ts --coverage=false
