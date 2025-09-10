@@ -31,7 +31,7 @@ import {
   Checkbox,
   Alert,
 } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconDownload, IconUpload } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
@@ -127,7 +127,7 @@ export default function BewirtungsbelegForm() {
   };
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState<string | boolean>(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -805,6 +805,81 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  // JSON Download functionality
+  const handleJsonDownload = () => {
+    try {
+      // Prepare form data for export
+      const exportData = {
+        ...form.values,
+        // Convert date to ISO string for JSON serialization
+        datum: form.values.datum?.toISOString() || null,
+        // Include metadata
+        exportTimestamp: new Date().toISOString(),
+        version: '1.0'
+      };
+
+      // Create JSON blob
+      const jsonBlob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json'
+      });
+
+      // Create download link
+      const url = URL.createObjectURL(jsonBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Generate filename with current date
+      const today = new Date().toISOString().split('T')[0];
+      link.download = `bewirtungsbeleg-${today}.json`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      setSuccess('JSON-Datei wurde heruntergeladen!');
+    } catch (error) {
+      console.error('JSON Download Error:', error);
+      setError('Fehler beim Herunterladen der JSON-Datei');
+    }
+  };
+
+  // JSON Upload functionality
+  const handleJsonUpload = (file: File) => {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+        
+        // Validate basic structure
+        if (typeof jsonData !== 'object' || jsonData === null) {
+          throw new Error('Invalid JSON structure');
+        }
+
+        // Convert date string back to Date object if present
+        if (jsonData.datum && typeof jsonData.datum === 'string') {
+          jsonData.datum = new Date(jsonData.datum);
+        }
+
+        // Remove metadata fields that shouldn't be imported
+        const { exportTimestamp, version, ...importData } = jsonData;
+
+        // Set form values
+        form.setValues(importData);
+        
+        setSuccess('Formulardaten wurden erfolgreich importiert!');
+      } catch (error) {
+        console.error('JSON Upload Error:', error);
+        setError('Fehler beim Importieren der JSON-Datei. Bitte überprüfen Sie das Dateiformat.');
+      }
+    };
+    
+    reader.readAsText(file);
+  };
+
   return (
     <Container size="lg" py="xs">
       {error && (
@@ -825,7 +900,7 @@ export default function BewirtungsbelegForm() {
           onClose={() => setSuccess(false)}
           mb="xs"
         >
-          Bewirtungsbeleg wurde erfolgreich als PDF erstellt!
+          {typeof success === 'string' ? success : 'Bewirtungsbeleg wurde erfolgreich als PDF erstellt!'}
         </Notification>
       )}
 
@@ -1211,6 +1286,27 @@ export default function BewirtungsbelegForm() {
                 )}
               </Stack>
             </Box>
+
+            {/* JSON Download/Upload Buttons */}
+            <Group grow mb="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                leftSection={<IconDownload size={16} />}
+                onClick={handleJsonDownload}
+              >
+                JSON Download
+              </Button>
+              
+              <FileInput
+                placeholder="JSON Upload"
+                size="sm"
+                leftSection={<IconUpload size={16} />}
+                accept=".json"
+                onChange={(file) => file && handleJsonUpload(file)}
+                clearable
+              />
+            </Group>
 
             <Button 
               type="submit" 
