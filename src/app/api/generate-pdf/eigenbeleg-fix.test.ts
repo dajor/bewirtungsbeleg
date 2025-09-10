@@ -21,9 +21,24 @@ jest.mock('@/lib/zugferd-service', () => ({
   },
 }));
 
-// Mock fs for logo reading
+// Mock fs for logo reading with valid PNG data
 jest.mock('fs', () => ({
-  readFileSync: jest.fn().mockReturnValue(Buffer.from('mock-logo-data')),
+  readFileSync: jest.fn().mockImplementation((path) => {
+    // Return a minimal valid PNG buffer to avoid "corrupt PNG file" errors
+    const validPngBuffer = Buffer.from([
+      0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+      0x00, 0x00, 0x00, 0x0D, // IHDR chunk length
+      0x49, 0x48, 0x44, 0x52, // IHDR chunk type
+      0x00, 0x00, 0x00, 0x01, // width: 1
+      0x00, 0x00, 0x00, 0x01, // height: 1
+      0x08, 0x02, 0x00, 0x00, 0x00, // bit depth, color type, compression, filter, interlace
+      0x90, 0x77, 0x53, 0xDE, // CRC
+      0x00, 0x00, 0x00, 0x00, // IEND chunk length
+      0x49, 0x45, 0x4E, 0x44, // IEND chunk type
+      0xAE, 0x42, 0x60, 0x82  // CRC
+    ]);
+    return validPngBuffer;
+  }),
 }));
 
 describe('Generate PDF API - Eigenbeleg Fix', () => {
