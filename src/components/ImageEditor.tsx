@@ -315,7 +315,7 @@ export function ImageEditor({ file, onImageUpdate }: ImageEditorProps) {
           </Group>
         </Stack>
 
-        <Group spacing="xs">
+        <Group gap="xs">
           <Button
             size="xs"
             variant="subtle"
