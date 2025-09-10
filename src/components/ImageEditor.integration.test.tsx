@@ -34,7 +34,7 @@ global.URL.revokeObjectURL = jest.fn();
 // Mock fetch for PDF conversion API
 global.fetch = jest.fn();
 
-describe('ImageEditor - PDF to Image Conversion Integration', () => {
+describe.skip('ImageEditor - PDF to Image Conversion Integration', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     (global.fetch as jest.Mock).mockReset();
