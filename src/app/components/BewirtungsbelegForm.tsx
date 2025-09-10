@@ -644,7 +644,7 @@ export default function BewirtungsbelegForm() {
       });
       
       // For backward compatibility, keep the first image as the main image
-      const imageData = attachments.length > 0 ? attachments[0].data : null;
+      const imageData = attachments.length > 0 ? attachments[0].data : undefined;
 
       // Formatiere das Datum
       if (!form.values.datum) {

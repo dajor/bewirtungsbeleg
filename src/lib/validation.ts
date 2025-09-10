@@ -98,8 +98,8 @@ export const bewirtungsbelegSchema = z.object({
   // Eigenbeleg (self-created receipt)
   istEigenbeleg: z.boolean().optional(),
   
-  // Image attachment
-  image: z.string().optional(),
+  // Image attachment - allow string, undefined, or null for backward compatibility
+  image: z.string().optional().nullable(),
   imageData: z.string().optional(),
   imageName: z.string().max(255).optional(),
   
