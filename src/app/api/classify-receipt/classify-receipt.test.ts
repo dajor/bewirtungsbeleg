@@ -107,7 +107,8 @@ describe('POST /api/classify-receipt', () => {
           content: expect.stringContaining('Restaurant_Rechnung_2024.jpg')
         })
       ]),
-      response_format: { type: 'json_object' }
+      response_format: { type: 'json_object' },
+      max_tokens: 500
     });
   });
 
@@ -197,8 +198,17 @@ describe('POST /api/classify-receipt', () => {
     const response = await POST(mockRequest);
     const data = await response.json();
 
-    expect(response.status).toBe(500);
-    expect(data).toEqual({ error: 'Fehler bei der Klassifizierung' });
+    // API returns success with default classification to avoid breaking the flow
+    expect(response.status).toBe(200);
+    expect(data).toEqual({
+      type: 'Rechnung',
+      confidence: 0.3,
+      reason: 'Fehler bei der Klassifizierung - Standard: Rechnung',
+      details: {
+        rechnungProbability: 0.7,
+        kreditkartenbelegProbability: 0.3
+      }
+    });
   });
 
   it('should handle invalid JSON response from OpenAI', async () => {
@@ -223,8 +233,17 @@ describe('POST /api/classify-receipt', () => {
     const response = await POST(mockRequest);
     const data = await response.json();
 
-    expect(response.status).toBe(500);
-    expect(data).toEqual({ error: 'Fehler bei der Klassifizierung' });
+    // API returns success with default classification to avoid breaking the flow
+    expect(response.status).toBe(200);
+    expect(data).toEqual({
+      type: 'Rechnung',
+      confidence: 0.3,
+      reason: 'Fehler bei der Klassifizierung - Standard: Rechnung',
+      details: {
+        rechnungProbability: 0.7,
+        kreditkartenbelegProbability: 0.3
+      }
+    });
   });
 
   it('should handle empty or null OpenAI response', async () => {

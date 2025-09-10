@@ -63,31 +63,37 @@ describe('ImageEditor - PDF to Image Conversion Integration', () => {
 
       const onImageUpdate = jest.fn();
       
-      renderWithMantine(
-        <ImageEditor file={pdfFile} onImageUpdate={onImageUpdate} />
-      );
+      await act(async () => {
+        renderWithMantine(
+          <ImageEditor file={pdfFile} onImageUpdate={onImageUpdate} />
+        );
+      });
 
       // Initially should show converting message
       expect(screen.getByText('Converting PDF...')).toBeInTheDocument();
       expect(screen.getByText('07042025_RISTORANTE.pdf')).toBeInTheDocument();
 
       // Wait for conversion to complete
-      await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          '/api/convert-pdf',
-          expect.objectContaining({
-            method: 'POST',
-            body: expect.any(FormData)
-          })
-        );
-      }, { timeout: 3000 });
+      await act(async () => {
+        await waitFor(() => {
+          expect(global.fetch).toHaveBeenCalledWith(
+            '/api/convert-pdf',
+            expect.objectContaining({
+              method: 'POST',
+              body: expect.any(FormData)
+            })
+          );
+        }, { timeout: 3000 });
+      });
 
       // After conversion, image should be displayed
-      await waitFor(() => {
-        const image = screen.getByAltText('Receipt preview');
-        expect(image).toBeInTheDocument();
-        expect(image).toHaveAttribute('src', expect.stringContaining('data:image/png;base64,'));
-      }, { timeout: 3000 });
+      await act(async () => {
+        await waitFor(() => {
+          const image = screen.getByAltText('Receipt preview');
+          expect(image).toBeInTheDocument();
+          expect(image).toHaveAttribute('src', expect.stringContaining('data:image/png;base64,'));
+        }, { timeout: 3000 });
+      });
 
       // Converting message should be gone
       expect(screen.queryByText('Converting PDF...')).not.toBeInTheDocument();
@@ -111,7 +117,9 @@ describe('ImageEditor - PDF to Image Conversion Integration', () => {
         })
       });
 
-      renderWithMantine(<ImageEditor file={pdfFile} />);
+      await act(async () => {
+        renderWithMantine(<ImageEditor file={pdfFile} />);
+      });
 
       // Initially rotation controls should be disabled (no originalUrl yet)
       expect(screen.getByTestId('rotate-left-90')).toBeDisabled();
@@ -123,9 +131,11 @@ describe('ImageEditor - PDF to Image Conversion Integration', () => {
       expect(slider).toHaveAttribute('tabindex', '-1'); // Mantine's way of showing disabled
 
       // Wait for conversion to complete
-      await waitFor(() => {
-        expect(screen.queryByText('Converting PDF...')).not.toBeInTheDocument();
-      }, { timeout: 3000 });
+      await act(async () => {
+        await waitFor(() => {
+          expect(screen.queryByText('Converting PDF...')).not.toBeInTheDocument();
+        }, { timeout: 3000 });
+      });
 
       // After conversion, rotation controls should be enabled
       expect(screen.getByTestId('rotate-left-90')).not.toBeDisabled();
