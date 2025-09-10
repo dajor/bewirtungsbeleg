@@ -95,6 +95,9 @@ export const bewirtungsbelegSchema = z.object({
   fremdwaehrung: z.string().max(3).optional(),
   wechselkurs: germanDecimalString.optional(),
   
+  // Eigenbeleg (self-created receipt)
+  istEigenbeleg: z.boolean().optional(),
+  
   // Image attachment
   image: z.string().optional(),
   imageData: z.string().optional(),

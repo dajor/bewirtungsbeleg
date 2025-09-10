@@ -29,7 +29,9 @@ import {
   TableTh,
   TableTr,
   Checkbox,
+  Alert,
 } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
@@ -55,6 +57,7 @@ interface BewirtungsbelegFormData {
   istAuslaendischeRechnung: boolean;
   auslaendischeWaehrung: string;
   generateZugferd: boolean;
+  istEigenbeleg: boolean;
   // Additional fields for ZUGFeRD
   restaurantPlz: string;
   restaurantOrt: string;
@@ -149,6 +152,7 @@ export default function BewirtungsbelegForm() {
       istAuslaendischeRechnung: false,
       auslaendischeWaehrung: '',
       generateZugferd: false,
+      istEigenbeleg: false,
       restaurantPlz: '',
       restaurantOrt: '',
       unternehmen: '',
@@ -843,25 +847,45 @@ export default function BewirtungsbelegForm() {
                 <Title order={1} size="h6">
                   Bewirtungsbeleg
                 </Title>
+
+                <Checkbox
+                  label="Eigenbeleg (ohne Originalbeleg)"
+                  description="Aktivieren Sie diese Option, wenn Sie keinen Originalbeleg haben. Hinweis: Bei Eigenbelegen kann die Vorsteuer (MwSt.) nicht geltend gemacht werden."
+                  checked={form.values.istEigenbeleg}
+                  onChange={(event) => form.setFieldValue('istEigenbeleg', event.currentTarget.checked)}
+                  mb="md"
+                />
                 
                 <Box>
                   <Title order={2} size="h6">Allgemeine Angaben</Title>
                   <Stack gap="xs">
-                    <Box>
-                      <Text size="sm" fw={500} mb="xs">Foto/Scan der Rechnung</Text>
-                      <Text size="xs" c="dimmed" mb="sm">
-                        Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
-                      </Text>
-                      <MultiFileDropzone
-                        files={attachedFiles}
-                        onDrop={handleFileDrop}
-                        onRemove={handleFileRemove}
-                        onFileClick={handleImageChange}
-                        onClassificationChange={handleClassificationChange}
-                        selectedFile={selectedImage}
-                        loading={isProcessing}
-                      />
-                    </Box>
+                    {!form.values.istEigenbeleg && (
+                      <Box>
+                        <Text size="sm" fw={500} mb="xs">Foto/Scan der Rechnung</Text>
+                        <Text size="xs" c="dimmed" mb="sm">
+                          Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
+                        </Text>
+                        <MultiFileDropzone
+                          files={attachedFiles}
+                          onDrop={handleFileDrop}
+                          onRemove={handleFileRemove}
+                          onFileClick={handleImageChange}
+                          onClassificationChange={handleClassificationChange}
+                          selectedFile={selectedImage}
+                          loading={isProcessing}
+                        />
+                      </Box>
+                    )}
+                    {form.values.istEigenbeleg && (
+                      <Alert color="yellow" variant="light" icon={<IconAlertCircle size="1rem" />}>
+                        <Text size="sm" fw={500}>Hinweis zur Eigenbeleg-Erstellung</Text>
+                        <Text size="xs" mt="xs">
+                          Da Sie einen Eigenbeleg ohne Originalrechnung erstellen, kann die Vorsteuer (MwSt.) 
+                          steuerlich nicht geltend gemacht werden. Bitte füllen Sie alle erforderlichen Felder 
+                          manuell aus.
+                        </Text>
+                      </Alert>
+                    )}
                 <DateInput
                   label="Datum der Bewirtung"
                   placeholder="Wählen Sie ein Datum"

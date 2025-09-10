@@ -65,7 +65,8 @@ export async function POST(request: Request) {
     
     // Titel mit Linie
     doc.setFontSize(16);
-    doc.text('Bewirtungsbeleg', 105, 20, { align: 'center' });
+    const mainTitle = data.istEigenbeleg ? 'Bewirtungsbeleg - EIGENBELEG' : 'Bewirtungsbeleg';
+    doc.text(mainTitle, 105, 20, { align: 'center' });
 
     // Füge die Art der Bewirtung hinzu
     doc.setFontSize(12);
@@ -73,10 +74,18 @@ export async function POST(request: Request) {
       ? 'Kundenbewirtung (70% abzugsfähig)' 
       : 'Mitarbeiterbewirtung (100% abzugsfähig)';
     doc.text(bewirtungsart, 105, 30, { align: 'center' });
+
+    // Eigenbeleg-Hinweis hinzufügen
+    if (data.istEigenbeleg) {
+      doc.setFontSize(10);
+      doc.setTextColor(200, 0, 0); // Rote Farbe für den Hinweis
+      doc.text('Hinweis: Vorsteuer (MwSt.) kann bei Eigenbelegen nicht geltend gemacht werden', 105, 40, { align: 'center' });
+      doc.setTextColor(0, 0, 0); // Zurück zu schwarz
+    }
     
     // Titel mit Linie
     doc.setLineWidth(0.5);
-    yPosition += 5;
+    yPosition += data.istEigenbeleg ? 15 : 5; // Mehr Platz wenn Eigenbeleg-Hinweis vorhanden
     doc.line(20, yPosition, 190, yPosition);
     console.log('Added title and line');
     
