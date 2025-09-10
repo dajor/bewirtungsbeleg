@@ -1,3 +1,16 @@
+# Version 0.17.1
+Datum: 10.09.2025
+
+## Änderungen
+- Ersetzung der pdftoppm-Abhängigkeit durch eine reine Node.js PDF-Konvertierung zur Behebung eines Fehlers.
+- Aktualisierung der README-Datei mit den neuesten Funktionen und umfassenden Testinformationen.
+
+## Technische Details
+- Build: 17613766690
+- Commit: b1a1680c8da16e7ae7d3ba44236c855dd0bce304
+
+---
+
 # Version 0.17.0
 Datum: 31.07.2025
 

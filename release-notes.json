@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.17.1",
+      "date": "10.09.2025",
+      "changes": [
+        "Ersetzung der pdftoppm-Abhängigkeit durch eine reine Node.js PDF-Konvertierung zur Behebung eines Fehlers.",
+        "Aktualisierung der README-Datei mit den neuesten Funktionen und umfassenden Testinformationen."
+      ],
+      "build": "17613766690",
+      "commit": "b1a1680c8da16e7ae7d3ba44236c855dd0bce304"
+    },
+    {
       "version": "0.17.0",
       "date": "31.07.2025",
       "changes": [
