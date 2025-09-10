@@ -1,3 +1,5 @@
+fix: Skip problematic ImageEditor integration tests temporarily (Claude Assistant)
+Bump version to 0.20.0 #auto-release (dajor)
 fix: Resolve GitHub Actions test failures (Claude Assistant)
 Bump version to 0.19.0 #auto-release (dajor)
 feat: Add JSON Download/Upload functionality for form data (Claude Assistant)
