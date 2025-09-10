@@ -22,7 +22,7 @@ const config = {
       statements: 60,
     },
   },
-  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/test/'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/', '/test/', '/e2e/'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   testMatch: [
     '**/__tests__/**/*.[jt]s?(x)',
