@@ -1,3 +1,5 @@
+fix: Add proper TypeScript typing for vatBreakdown array (Claude Assistant)
+Bump version to 0.17.3 #auto-release (dajor)
 fix: Update Group spacing prop to gap for Mantine v7 compatibility (Claude Assistant)
 Bump version to 0.17.1 #auto-release (dajor)
 Merge branch 'dev' (Claude Assistant)

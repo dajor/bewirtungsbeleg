@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.17.4",
+      "date": "10.09.2025",
+      "changes": [
+        "Verbessertes TypeScript Typing für das vatBreakdown Array hinzugefügt, um die Typsicherheit zu erhöhen.",
+        "Aktualisierung der Group spacing Eigenschaft zu gap, um Kompatibilität mit Mantine v7 sicherzustellen.",
+        "Ersetzung der pdftoppm Abhängigkeit durch eine reine Node.js PDF Konvertierung, um die Abhängigkeiten zu reduzieren und die Performance zu verbessern."
+      ],
+      "build": "17614411511",
+      "commit": "0ff8477bda40ac58a4f7395e69325b3ba148212e"
+    },
+    {
       "version": "0.17.3",
       "date": "10.09.2025",
       "changes": [
