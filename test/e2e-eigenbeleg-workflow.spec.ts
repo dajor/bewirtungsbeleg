@@ -16,8 +16,17 @@ class EigenbelegWorkflow {
   }
 
   async checkEigenbelegOption() {
-    // Check the Eigenbeleg checkbox - look for the label text
-    const eigenbelegCheckbox = this.page.locator('label:has-text("Eigenbeleg (ohne Originalbeleg)") input[type="checkbox"]');
+    // Check the Eigenbeleg checkbox - try multiple selector strategies
+    const eigenbelegCheckbox = this.page.locator(
+      'label:has-text("Eigenbeleg") input[type="checkbox"]'
+    ).or(
+      this.page.locator('input[type="checkbox"]').filter({ 
+        has: this.page.locator('text=Eigenbeleg') 
+      })
+    ).or(
+      this.page.locator('[data-testid="eigenbeleg-checkbox"]')
+    ).first();
+    
     await eigenbelegCheckbox.check();
     await this.page.waitForTimeout(500); // Wait for UI state change
   }

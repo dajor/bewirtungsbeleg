@@ -10,7 +10,8 @@ export default defineConfig({
     '**/e2e-critical-scenarios.spec.ts',
     '**/image-preview-real.spec.ts',
     '**/e2e-zugferd.spec.ts',
-    '**/e2e-eigenbeleg-workflow.spec.ts'
+    '**/e2e-eigenbeleg-workflow.spec.ts',
+    '**/eigenbeleg-validation-simple.spec.ts'
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
