@@ -1,3 +1,25 @@
+# Version 0.19.0
+Datum: 10.09.2025
+
+## Änderungen
+- Neue Funktion: JSON Download/Upload Funktionalit&auml;t f&uuml;r Formulardaten hinzugef&uuml;gt.
+- Neue Funktion: Umfassende CI-Pipeline f&uuml;r Eigenbeleg-Validierung hinzugef&uuml;gt.
+- Neue Funktion: Eigenbeleg (selbsterstellte Quittung) Funktion hinzugef&uuml;gt.
+- Fehlerbehebung: API-Integrationstest Mocking-Probleme behoben.
+- Fehlerbehebung: CI-Fehler bei Eigenbeleg-Validierungstests behoben.
+- Fehlerbehebung: TypeScript-Kompilierungsfehler f&uuml;r CI behoben.
+- Fehlerbehebung: GitHub Actions aktualisiert, um Node.js 20 zu verwenden.
+- Fehlerbehebung: Eigenbeleg-Validierungsfehler 'image: Expected string, received null' behoben.
+- Fehlerbehebung: Korrekte TypeScript-Typisierung f&uuml;r vatBreakdown-Array hinzugef&uuml;gt.
+- Fehlerbehebung: 'Group spacing' Eigenschaft auf 'gap' f&uuml;r Mantine v7 Kompatibilit&auml;t aktualisiert.
+- Fehlerbehebung: Abh&auml;ngigkeit von pdftoppm durch reine Node.js PDF-Konversion ersetzt.
+
+## Technische Details
+- Build: 17622507264
+- Commit: 37355e313f1d1008b6aa2b6c0a4abd3623e31b1d
+
+---
+
 # Version 0.18.0
 Datum: 10.09.2025
 
