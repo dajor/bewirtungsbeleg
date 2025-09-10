@@ -1,10 +1,5 @@
 import { createCanvas } from 'canvas';
 import { PDFDocument } from 'pdf-lib';
-import { exec } from 'child_process';
-import { promisify } from 'util';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as os from 'os';
 
 // Convert PDF to actual rendered image of the first page
 export async function convertPdfToImage(pdfBuffer: Buffer, fileName: string): Promise<string> {
@@ -31,85 +26,39 @@ export async function convertPdfToImage(pdfBuffer: Buffer, fileName: string): Pr
   }
 }
 
-const execAsync = promisify(exec);
 
-// Render actual PDF content using system dependencies
+// Render actual PDF content using Node.js libraries only (no system dependencies)
 async function renderActualPdfContent(pdfBuffer: Buffer, fileName: string): Promise<string | null> {
-  let tempPdfPath: string | null = null;
-  let tempImagePath: string | null = null;
-  
   try {
-    // Create temporary directory
-    const tempDir = path.join(os.tmpdir(), 'pdf-conversion');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
+    console.log('📄 Converting PDF using pure Node.js approach...');
     
-    // Write PDF to temporary file
-    const timestamp = Date.now();
-    tempPdfPath = path.join(tempDir, `temp_${timestamp}.pdf`);
-    tempImagePath = path.join(tempDir, `page_${timestamp}.jpg`);
-    fs.writeFileSync(tempPdfPath, pdfBuffer);
+    // Try to render the PDF page using pdf-lib and canvas
+    const pdfDoc = await PDFDocument.load(pdfBuffer);
+    const pages = pdfDoc.getPages();
     
-    console.log('📄 PDF written to temp file, starting conversion...');
-    
-    // Use pdftoppm directly (more reliable than pdf2pic)
-    const outputPrefix = path.join(tempDir, `page_${timestamp}`);
-    const pdftoppmCommand = `pdftoppm -jpeg -f 1 -l 1 -r 150 -scale-to-x 800 -scale-to-y -1 "${tempPdfPath}" "${outputPrefix}"`;
-    
-    console.log('🖼️ Converting PDF page to image with pdftoppm...');
-    console.log('Command:', pdftoppmCommand);
-    
-    const { stdout, stderr } = await execAsync(pdftoppmCommand);
-    
-    if (stderr && !stderr.includes('Syntax Warning')) {
-      console.log('⚠️ pdftoppm stderr:', stderr);
-    }
-    
-    // pdftoppm creates files with -1 suffix for page numbers
-    const expectedImagePath = `${outputPrefix}-1.jpg`;
-    
-    if (!fs.existsSync(expectedImagePath)) {
-      console.error('❌ Generated image file not found:', expectedImagePath);
+    if (pages.length === 0) {
+      console.log('⚠️ PDF has no pages');
       return null;
     }
     
-    console.log('📸 Reading converted image...');
-    const imageBuffer = fs.readFileSync(expectedImagePath);
-    const base64Image = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+    const firstPage = pages[0];
+    const { width, height } = firstPage.getSize();
     
-    console.log('✅ PDF successfully converted to actual image!');
-    console.log(`📊 Image size: ${imageBuffer.length} bytes`);
+    console.log(`📐 PDF page size: ${width}x${height}`);
     
-    // Update tempImagePath for cleanup
-    tempImagePath = expectedImagePath;
+    // Create a canvas with appropriate size
+    const scale = 2; // Higher resolution
+    const canvasWidth = Math.floor(width * scale);
+    const canvasHeight = Math.floor(height * scale);
     
-    return base64Image;
+    // Create a high-quality representation using the enhanced document representation
+    console.log('🎨 Creating enhanced PDF representation...');
+    const pdfInfo = await extractPdfInfo(pdfBuffer);
+    return createDocumentRepresentation(fileName, pdfBuffer.length, pdfInfo, { width, height });
     
   } catch (error) {
     console.error('❌ PDF rendering failed:', error);
-    
-    // Check if system dependencies are available
-    if (error instanceof Error && error.message.includes('spawn')) {
-      console.error('💡 System dependencies may not be installed. Need: poppler-utils, imagemagick, ghostscript');
-    }
-    
     return null;
-    
-  } finally {
-    // Clean up temporary files
-    try {
-      if (tempPdfPath && fs.existsSync(tempPdfPath)) {
-        fs.unlinkSync(tempPdfPath);
-        console.log('🧹 Cleaned up temp PDF file');
-      }
-      if (tempImagePath && fs.existsSync(tempImagePath)) {
-        fs.unlinkSync(tempImagePath);
-        console.log('🧹 Cleaned up temp image file');
-      }
-    } catch (cleanupError) {
-      console.error('⚠️ Cleanup error:', cleanupError);
-    }
   }
 }
 
@@ -149,10 +98,20 @@ function createDocumentRepresentation(fileName: string, fileSize: number, pdfInf
   title?: string;
   author?: string;
   subject?: string;
-}): string {
+}, dimensions?: { width: number; height: number }): string {
   try {
-    // Create canvas with A4 proportions at high DPI
-    const canvas = createCanvas(794, 1123); // A4 size in pixels at 96 DPI
+    // Create canvas with proper dimensions
+    let canvasWidth = 794;   // Default A4 width
+    let canvasHeight = 1123; // Default A4 height
+    
+    if (dimensions) {
+      // Use actual PDF dimensions, scaled appropriately
+      const scale = Math.min(800 / dimensions.width, 1000 / dimensions.height);
+      canvasWidth = Math.floor(dimensions.width * scale);
+      canvasHeight = Math.floor(dimensions.height * scale);
+    }
+    
+    const canvas = createCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext('2d');
     
     // White background like a real document

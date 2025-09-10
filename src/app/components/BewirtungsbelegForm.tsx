@@ -571,6 +571,21 @@ export default function BewirtungsbelegForm() {
     });
   }, [selectedImage]);
 
+  const handleClassificationChange = useCallback((fileId: string, newType: string) => {
+    setAttachedFiles(prev => prev.map(file => 
+      file.id === fileId 
+        ? {
+            ...file,
+            classification: {
+              ...file.classification!,
+              type: newType,
+              manualOverride: true
+            }
+          }
+        : file
+    ));
+  }, []);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log('Form submitted with values:', form.values);
@@ -842,6 +857,7 @@ export default function BewirtungsbelegForm() {
                         onDrop={handleFileDrop}
                         onRemove={handleFileRemove}
                         onFileClick={handleImageChange}
+                        onClassificationChange={handleClassificationChange}
                         selectedFile={selectedImage}
                         loading={isProcessing}
                       />
