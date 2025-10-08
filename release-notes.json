@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.25.0",
+      "date": "08.10.2025",
+      "changes": [
+        "Ein neues Feature wurde hinzugefuegt: Vitest Testing und verbesserte PDF-Konvertierungs-Zuverlaessigkeit.",
+        "Ein Bug wurde behoben: Entfernung der Canvas-Abhaengigkeit, die Modulladefehler verursachte.",
+        "Ein Bug wurde behoben: Korrektur eines Fehlers bei der Ablehnung von OpenAI-Bildformaten fuer PDF-Klassifizierungen.",
+        "Dokumentation aktualisiert: Umfassende Zusammenfassung der Testergebnisse hinzugefuegt."
+      ],
+      "build": "18353586981",
+      "commit": "65d37eb5da0dac6859d3f9fe00af138a8906011c"
+    },
+    {
       "version": "0.24.0",
       "date": "08.10.2025",
       "changes": [
