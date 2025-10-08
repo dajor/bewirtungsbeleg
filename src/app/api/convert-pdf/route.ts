@@ -5,33 +5,38 @@ import { withTimeout } from '../timeout-middleware';
 async function handlePOST(request: Request) {
   try {
     console.log('PDF to image conversion API called');
-    
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
-    
+    const formatParam = formData.get('format') as string | null;
+
     if (!file) {
       return NextResponse.json(
         { error: 'Keine Datei hochgeladen' },
         { status: 400 }
       );
     }
-    
+
     if (file.type !== 'application/pdf') {
       return NextResponse.json(
         { error: 'Nur PDF-Dateien werden unterstützt' },
         { status: 400 }
       );
     }
-    
+
     console.log(`Converting PDF: ${file.name}, size: ${file.size} bytes`);
-    
+
+    // Determine format (default to JPEG, but allow PNG via parameter)
+    const format = (formatParam === 'png' ? 'png' : 'jpeg') as 'jpeg' | 'png';
+    console.log(`Using format: ${format.toUpperCase()}`);
+
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    
+
     try {
-      // Try to convert PDF to images (all pages)
-      const convertedPages = await convertPdfToImagesAllPages(buffer, file.name);
+      // Try to convert PDF to images (all pages) with specified format
+      const convertedPages = await convertPdfToImagesAllPages(buffer, file.name, { format });
       
       console.log(`Converted ${convertedPages.length} page(s) from PDF`);
       

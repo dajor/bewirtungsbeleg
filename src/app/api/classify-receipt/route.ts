@@ -4,6 +4,7 @@ import { env } from '@/lib/env';
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
 import { classifyReceiptSchema, sanitizeObject } from '@/lib/validation';
 import { z } from 'zod';
+import { validateImageDataUrl, reencodeImageDataUrl, getBase64ImageSize } from '@/lib/image-validation';
 
 let openai: OpenAI | null = null;
 
@@ -58,14 +59,14 @@ export async function POST(request: Request) {
     const messages: any[] = [
       {
         role: "system",
-        content: `Du bist ein Experte für die Klassifizierung von Belegen. 
+        content: `Du bist ein Experte für die Klassifizierung von Belegen.
         Eine Rechnung enthält typischerweise:
         - Restaurantname und Adresse
         - Datum
         - Positionen mit Preisen
         - Gesamtbetrag
         - Mehrwertsteuer
-        
+
         Ein Kreditkartenbeleg enthält typischerweise:
         - Kreditkartennummer (teilweise maskiert)
         - Datum und Uhrzeit
@@ -73,12 +74,43 @@ export async function POST(request: Request) {
         - Transaktionsnummer
         - Händlername
         - Oft kompakter und schmaler als eine Rechnung
-        
+
         Analysiere den Beleg und bestimme den Typ basierend auf diesen Merkmalen.`
       }
     ];
 
     if (image) {
+      // Validate and re-encode the image to ensure proper formatting
+      console.log('Validating image data for OpenAI...');
+      const validation = validateImageDataUrl(image);
+
+      if (!validation.valid) {
+        console.error('Image validation failed:', validation.error);
+        return NextResponse.json({
+          type: 'Rechnung',
+          confidence: 0.5,
+          reason: 'Bildvalidierung fehlgeschlagen - Standard: Rechnung',
+          details: {
+            rechnungProbability: 0.7,
+            kreditkartenbelegProbability: 0.3
+          }
+        });
+      }
+
+      // Log image details for debugging
+      const imageSize = getBase64ImageSize(validation.base64Data!);
+      console.log(`Image validated: format=${validation.format}, size=${Math.round(imageSize / 1024)}KB`);
+
+      // Re-encode the image to ensure proper formatting
+      let validatedImageUrl: string;
+      try {
+        validatedImageUrl = reencodeImageDataUrl(image);
+        console.log('Image successfully re-encoded for OpenAI');
+      } catch (error) {
+        console.error('Image re-encoding failed:', error);
+        validatedImageUrl = image; // Use original if re-encoding fails
+      }
+
       // If we have an image, analyze its content
       messages.push({
         role: "user",
@@ -86,7 +118,7 @@ export async function POST(request: Request) {
           {
             type: "text",
             text: `Analysiere dieses Dokument und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
-            
+
             Antworte nur mit einem JSON-Objekt im folgenden Format:
             {
               "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
@@ -101,7 +133,7 @@ export async function POST(request: Request) {
           {
             type: "image_url",
             image_url: {
-              url: image
+              url: validatedImageUrl
             }
           }
         ]
@@ -141,7 +173,19 @@ export async function POST(request: Request) {
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error in classify-receipt:', error);
-    
+
+    // Log specific error details for debugging
+    if (error instanceof Error) {
+      console.error('Error name:', error.name);
+      console.error('Error message:', error.message);
+      if ('code' in error) {
+        console.error('Error code:', (error as any).code);
+      }
+      if ('status' in error) {
+        console.error('Error status:', (error as any).status);
+      }
+    }
+
     // Return a default classification instead of error to avoid breaking the flow
     return NextResponse.json({
       type: 'Rechnung',
