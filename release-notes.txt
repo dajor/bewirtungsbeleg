@@ -1,3 +1,16 @@
+# Version 0.23.0
+Datum: 08.10.2025
+
+## Änderungen
+- Hinzugefügt: Vitest Testing-Framework zur Verbesserung der Code-Qualität und Zuverlässigkeit der PDF-Konvertierung.
+- Behoben: Ein Problem, das dazu führte, dass Bilder im OpenAI-Format für die PDF-Klassifizierung abgelehnt wurden.
+
+## Technische Details
+- Build: 18353130786
+- Commit: 83d25e5ac490327dfbd14d5178f4c0a3cf2ca00b
+
+---
+
 # Version 0.22.0
 Datum: 10.09.2025
 

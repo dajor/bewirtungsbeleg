@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.23.0",
+      "date": "08.10.2025",
+      "changes": [
+        "Hinzugefügt: Vitest Testing-Framework zur Verbesserung der Code-Qualität und Zuverlässigkeit der PDF-Konvertierung.",
+        "Behoben: Ein Problem, das dazu führte, dass Bilder im OpenAI-Format für die PDF-Klassifizierung abgelehnt wurden."
+      ],
+      "build": "18353130786",
+      "commit": "83d25e5ac490327dfbd14d5178f4c0a3cf2ca00b"
+    },
+    {
       "version": "0.22.0",
       "date": "10.09.2025",
       "changes": [
