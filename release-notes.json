@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.24.0",
+      "date": "08.10.2025",
+      "changes": [
+        "Entfernung der Canvas-Abhängigkeit, die Modulladefehler verursachte, um die Stabilität zu verbessern.",
+        "Einführung von Vitest-Tests und Verbesserung der Zuverlässigkeit der PDF-Konvertierung.",
+        "Behebung eines Fehlers bezüglich der Zurückweisung von OpenAI-Bildformaten für die PDF-Klassifizierung."
+      ],
+      "build": "18353512253",
+      "commit": "8f96e41818fd7361d27df1c4b32d33fb051a5f52"
+    },
+    {
       "version": "0.23.0",
       "date": "08.10.2025",
       "changes": [

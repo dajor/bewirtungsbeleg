@@ -1,3 +1,17 @@
+# Version 0.24.0
+Datum: 08.10.2025
+
+## Änderungen
+- Entfernung der Canvas-Abhängigkeit, die Modulladefehler verursachte, um die Stabilität zu verbessern.
+- Einführung von Vitest-Tests und Verbesserung der Zuverlässigkeit der PDF-Konvertierung.
+- Behebung eines Fehlers bezüglich der Zurückweisung von OpenAI-Bildformaten für die PDF-Klassifizierung.
+
+## Technische Details
+- Build: 18353512253
+- Commit: 8f96e41818fd7361d27df1c4b32d33fb051a5f52
+
+---
+
 # Version 0.23.0
 Datum: 08.10.2025
 
