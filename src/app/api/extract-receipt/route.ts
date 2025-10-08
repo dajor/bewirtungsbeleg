@@ -4,7 +4,7 @@ import { env } from '@/lib/env';
 // import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit'; // Temporarily disabled
 import { fileValidation, extractReceiptResponseSchema, sanitizeObject } from '@/lib/validation';
 import { sanitizeFilename } from '@/lib/sanitize';
-import { convertPdfToImage, isPdfFile } from '@/lib/pdf-to-image';
+import { isPdfFile } from '@/lib/pdf-to-image';
 import { checkOpenAIKey } from '@/lib/check-openai';
 
 // Initialize OpenAI client and check key validity on startup

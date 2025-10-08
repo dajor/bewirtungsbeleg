@@ -55,22 +55,19 @@ async function handlePOST(request: Request) {
         );
       }
     } catch (pdfError) {
-      console.error('Multi-page PDF conversion failed, trying single page fallback:', pdfError);
-      
-      // Fallback to single page conversion
-      const { convertPdfToImage } = await import('@/lib/pdf-to-image');
-      const singlePageImage = await convertPdfToImage(buffer, file.name);
-      
-      if (singlePageImage) {
-        return NextResponse.json({
-          success: true,
-          image: singlePageImage,
-          pageCount: 1,
-          allPages: [{ pageNumber: 1, data: singlePageImage, name: file.name }]
+      console.error('PDF conversion failed:', pdfError);
+
+      // Log detailed error for debugging
+      if (pdfError instanceof Error) {
+        console.error('Error details:', {
+          name: pdfError.name,
+          message: pdfError.message,
+          stack: pdfError.stack?.split('\n').slice(0, 3).join('\n')
         });
-      } else {
-        throw new Error('Beide PDF-Konvertierungsmethoden sind fehlgeschlagen');
       }
+
+      // Re-throw the error for proper error handling
+      throw new Error(`PDF conversion failed: ${pdfError instanceof Error ? pdfError.message : 'Unknown error'}`);
     }
     
   } catch (error) {

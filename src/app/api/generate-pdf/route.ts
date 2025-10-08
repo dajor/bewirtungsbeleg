@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 import { generatePdfSchema, sanitizeObject, parseGermanDecimal } from '@/lib/validation';
 import { sanitizeFilename } from '@/lib/sanitize';
-import { convertPdfToImage } from '@/lib/pdf-to-image';
 import { convertPdfToImagesAllPages } from '@/lib/pdf-to-image-multipage';
 import { ZugferdService } from '@/lib/zugferd-service';
 import { z } from 'zod';
