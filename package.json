@@ -52,6 +52,7 @@
     "openai": "^4.87.3",
     "pdf-lib": "^1.17.1",
     "pdf2pic": "^3.2.0",
+    "pdfjs-dist": "^5.4.149",
     "postcss": "^8.4.35",
     "react": "^18.2.0",
     "react-chrono": "^2.6.1",
@@ -71,6 +72,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/bcryptjs": "^3.0.0",
     "@types/supertest": "^6.0.3",
+    "@vitest/ui": "^3.2.4",
     "dotenv": "^17.0.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -78,6 +80,8 @@
     "node-mocks-http": "^1.17.2",
     "playwright": "^1.52.0",
     "supertest": "^7.1.1",
+    "vite": "^7.1.9",
+    "vitest": "^3.2.4",
     "whatwg-fetch": "^3.6.20"
   }
 }

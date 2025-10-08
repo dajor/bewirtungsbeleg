@@ -36,6 +36,8 @@ import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 import { ImageEditor } from '@/components/ImageEditor';
+import { convertPdfPageToImage, isClientSidePdfConversionSupported } from '@/lib/client-pdf-converter';
+import PDFToImageConverter from '@/lib/pdf-to-image-converter';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -324,6 +326,25 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  // PDF to image conversion using server-side API
+  const convertPdfToImage = async (file: File): Promise<string> => {
+    console.log('🔄 Starting PDF conversion for:', file.name);
+
+    try {
+      // Use server-side conversion (more reliable than client-side)
+      const imageData = await PDFToImageConverter.convert(file, {
+        method: 'local', // Use local server-side conversion
+        page: 1
+      });
+
+      console.log('✅ PDF conversion successful via server-side API');
+      return imageData;
+    } catch (error) {
+      console.error('❌ PDF conversion failed:', error);
+      throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  };
+
   const classifyDocument = async (fileId: string, file: File) => {
     try {
       let imageData: string | undefined;
@@ -331,18 +352,12 @@ export default function BewirtungsbelegForm() {
       // For images and PDFs, prepare image data for classification
       if (file.type.startsWith('image/') || file.type === 'application/pdf') {
         if (file.type === 'application/pdf') {
-          // Convert PDF to image first
-          const formData = new FormData();
-          formData.append('file', file);
-          
-          const convertResponse = await fetch('/api/convert-pdf', {
-            method: 'POST',
-            body: formData
-          });
-          
-          if (convertResponse.ok) {
-            const result = await convertResponse.json();
-            imageData = result.image;
+          // Convert PDF to image using improved conversion with fallback
+          try {
+            imageData = await convertPdfToImage(file);
+          } catch (error) {
+            console.error('PDF conversion failed for classification:', error);
+            // Continue without image data - classification might still work based on filename
           }
         } else {
           // For images, convert to base64
@@ -475,39 +490,12 @@ export default function BewirtungsbelegForm() {
         ));
         
         try {
-          console.log('Starting PDF conversion for:', firstFile.name);
-          
-          // Convert PDF to image
-          const formData = new FormData();
-          formData.append('file', firstFile);
-          
-          // Add timeout to fetch request (25 seconds)
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 25000);
-          
-          const response = await fetch('/api/convert-pdf', {
-            method: 'POST',
-            body: formData,
-            signal: controller.signal
-          }).finally(() => clearTimeout(timeoutId));
-          
-          console.log('PDF conversion response status:', response.status);
-          
-          if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'PDF-Konvertierung fehlgeschlagen');
-          }
-          
-          const result = await response.json();
-          console.log('PDF conversion result:', result);
-          
-          if (!result.success || !result.image) {
-            throw new Error('PDF-Konvertierung fehlgeschlagen - keine Bilddaten erhalten');
-          }
-          
+          // Convert PDF to image using improved conversion with fallback
+          const imageData = await convertPdfToImage(firstFile);
+
           // Create a temporary file object with the converted image
           console.log('Creating blob from base64 image...');
-          const convertedImageBlob = await fetch(result.image).then(r => r.blob());
+          const convertedImageBlob = await fetch(imageData).then(r => r.blob());
           const convertedImageFile = new File([convertedImageBlob], firstFile.name.replace('.pdf', '.jpg'), {
             type: 'image/jpeg'
           });

@@ -26,6 +26,8 @@ import {
   IconFile,
 } from '@tabler/icons-react';
 import { ImageProcessor } from '@/lib/image-processor';
+import { convertPdfPageToImage, isClientSidePdfConversionSupported } from '@/lib/client-pdf-converter';
+import PDFToImageConverter from '@/lib/pdf-to-image-converter';
 
 // Helper function to convert data URL to Blob
 function dataURLToBlob(dataURL: string): Promise<Blob> {
@@ -67,34 +69,17 @@ export function ImageEditor({ file, onImageUpdate }: ImageEditorProps) {
         setLoading(true);
         setError(null);
         
-        // Convert PDF to image using the existing API
+        // Convert PDF to image using bewirt-func
         const convertPdf = async () => {
           try {
-            const formData = new FormData();
-            formData.append('file', file);
-            
-            const response = await fetch('/api/convert-pdf', {
-              method: 'POST',
-              body: formData
+            // Use PDFToImageConverter with DigitalOcean method (PDF.js + bewirt-func)
+            const imageUrl = await PDFToImageConverter.convert(file, {
+              method: 'digitalocean',
+              page: 1
             });
-            
-            if (response.ok) {
-              const result = await response.json();
-              
-              if (result.image) {
-                // Handle both formats: with and without data URL prefix
-                let imageUrl = result.image;
-                if (!imageUrl.startsWith('data:')) {
-                  imageUrl = `data:image/png;base64,${result.image}`;
-                }
-                setOriginalUrl(imageUrl);
-                setError(null);
-              } else {
-                throw new Error('No image data received');
-              }
-            } else {
-              throw new Error(`PDF conversion failed: ${response.status}`);
-            }
+
+            setOriginalUrl(imageUrl);
+            setError(null);
           } catch (err) {
             console.error('PDF conversion error:', err);
             setError('Failed to convert PDF. Please try with an image file.');
