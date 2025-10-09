@@ -30,12 +30,15 @@ import {
   TableTr,
   Checkbox,
   Alert,
+  ActionIcon,
+  Tooltip,
 } from '@mantine/core';
-import { IconAlertCircle, IconDownload, IconUpload } from '@tabler/icons-react';
+import { IconAlertCircle, IconDownload, IconUpload, IconSearch } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 import { ImageEditor } from '@/components/ImageEditor';
+import { GooglePlacesSearch, PlaceDetails } from '@/components/GooglePlacesSearch';
 import { convertPdfPageToImage, isClientSidePdfConversionSupported } from '@/lib/client-pdf-converter';
 import PDFToImageConverter from '@/lib/pdf-to-image-converter';
 
@@ -130,6 +133,7 @@ export default function BewirtungsbelegForm() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | boolean>(false);
+  const [showPlacesSearch, setShowPlacesSearch] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -806,6 +810,31 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  // Handle Google Places selection
+  const handlePlaceSelect = useCallback((place: PlaceDetails) => {
+    console.log('Selected place:', place);
+
+    // Update restaurant name
+    form.setFieldValue('restaurantName', place.name);
+
+    // Update restaurant address
+    form.setFieldValue('restaurantAnschrift', place.fullAddress || place.address);
+
+    // If ZUGFeRD is enabled, also update PLZ and Ort
+    if (form.values.generateZugferd) {
+      if (place.postalCode) {
+        form.setFieldValue('restaurantPlz', place.postalCode);
+      }
+      if (place.city) {
+        form.setFieldValue('restaurantOrt', place.city);
+      }
+    }
+
+    // Show success message
+    setSuccess(`Restaurant "${place.name}" ausgewählt`);
+    setTimeout(() => setSuccess(false), 3000);
+  }, [form]);
+
   // JSON Download functionality
   const handleJsonDownload = () => {
     try {
@@ -976,6 +1005,19 @@ export default function BewirtungsbelegForm() {
                   required
                   size="sm"
                   {...form.getInputProps('restaurantName')}
+                  rightSection={
+                    <Tooltip label="Google Places suchen" position="left">
+                      <ActionIcon
+                        variant="subtle"
+                        color="blue"
+                        onClick={() => setShowPlacesSearch(true)}
+                        aria-label="Restaurant suchen"
+                        data-testid="places-search-button"
+                      >
+                        <IconSearch size={18} />
+                      </ActionIcon>
+                    </Tooltip>
+                  }
                 />
                 <TextInput
                   label="Anschrift"
@@ -1415,6 +1457,13 @@ export default function BewirtungsbelegForm() {
           </Group>
         </Stack>
       </Modal>
+
+      {/* Google Places Search Modal */}
+      <GooglePlacesSearch
+        opened={showPlacesSearch}
+        onClose={() => setShowPlacesSearch(false)}
+        onSelect={handlePlaceSelect}
+      />
     </Container>
   );
 } 
