@@ -1,6 +1,21 @@
 {
   "versions": [
     {
+      "version": "0.34.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Entfernung des Google Places API-Testtools nach Abschluss der Tests.",
+        "Verbesserung des API-Testtools zur Erkennung und Erklärung von ApiNotActivatedMapError.",
+        "Verschiebung des API-Testtools in den öffentlichen Ordner für die Bereitstellung durch Next.js.",
+        "Hinzufügung umfassender Vitest-Tests für GooglePlacesSearchClient.",
+        "Vorabfüllung der Google Places-Suche mit vorhandenem Restaurantnamen als neues Feature.",
+        "Entfernung der Restauranttyp-Beschränkung aus der Google Places-Suche.",
+        "Hinzufügung von Konsolenprotokollierung zum Debugging im GooglePlacesSearchClient."
+      ],
+      "build": "18368275970",
+      "commit": "365697913b664b961c5d4bec5dac81fcefd0053c"
+    },
+    {
       "version": "0.33.0",
       "date": "09.10.2025",
       "changes": [
