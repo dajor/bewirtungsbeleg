@@ -113,11 +113,12 @@ export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey }: 
 
     const request: google.maps.places.TextSearchRequest = {
       query,
-      type: 'restaurant',
       language: 'de',
+      // Add location bias for Germany to improve results
+      region: 'de',
     };
 
-    console.log('🔍 Searching for:', query);
+    console.log('🔍 Searching for:', query, 'with request:', request);
 
     serviceRef.current.textSearch(request, (results, status) => {
       console.log('📍 Search results:', { status, resultsCount: results?.length });
@@ -127,7 +128,15 @@ export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey }: 
         console.log('✅ Found places:', results.map(r => r.name));
         setResults(results.slice(0, 5));
       } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
-        console.log('ℹ️ No results found');
+        console.log('ℹ️ No results found for query:', query);
+        setResults([]);
+      } else if (status === google.maps.places.PlacesServiceStatus.REQUEST_DENIED) {
+        console.error('❌ API REQUEST_DENIED - Check API key and restrictions');
+        setError('API-Schlüssel abgelehnt. Bitte Konfiguration prüfen.');
+        setResults([]);
+      } else if (status === google.maps.places.PlacesServiceStatus.OVER_QUERY_LIMIT) {
+        console.error('❌ API OVER_QUERY_LIMIT - Quota exceeded');
+        setError('API-Limit überschritten. Bitte später erneut versuchen.');
         setResults([]);
       } else {
         console.error('❌ Places search error:', status);
