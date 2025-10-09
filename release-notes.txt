@@ -1,3 +1,17 @@
+# Version 0.31.0
+Datum: 09.10.2025
+
+## Änderungen
+- Neue Funktion: Vorab-Ausf&uuml;llung der Google Places-Suche mit vorhandenem Restaurantnamen zur Vereinfachung der Suche.
+- Fehlerbehebung: Entfernung der Restauranttyp-Beschr&auml;nkung aus der Google Places-Suche, um eine umfangreichere Suchm&ouml;glichkeit zu bieten.
+- Fehlerbehebung: Wechsel zur clientseitigen Google Places API f&uuml;r eine bessere Kompatibilit&auml;t mit Referrer-Einschr&auml;nkungen.
+
+## Technische Details
+- Build: 18368128994
+- Commit: 5242927ae9b9f7b742293e3f6b7575aedf8024fd
+
+---
+
 # Version 0.30.0
 Datum: 09.10.2025
 

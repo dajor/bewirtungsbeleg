@@ -1,3 +1,5 @@
+feat: Pre-fill Google Places search with existing restaurant name (Claude Assistant)
+Bump version to 0.30.0 #auto-release (dajor)
 fix: Remove restaurant type restriction from Google Places search (Claude Assistant)
 Bump version to 0.29.0 #auto-release (dajor)
 debug: Add console logging to GooglePlacesSearchClient (Claude Assistant)

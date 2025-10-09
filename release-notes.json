@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.31.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Neue Funktion: Vorab-Ausf&uuml;llung der Google Places-Suche mit vorhandenem Restaurantnamen zur Vereinfachung der Suche.",
+        "Fehlerbehebung: Entfernung der Restauranttyp-Beschr&auml;nkung aus der Google Places-Suche, um eine umfangreichere Suchm&ouml;glichkeit zu bieten.",
+        "Fehlerbehebung: Wechsel zur clientseitigen Google Places API f&uuml;r eine bessere Kompatibilit&auml;t mit Referrer-Einschr&auml;nkungen."
+      ],
+      "build": "18368128994",
+      "commit": "5242927ae9b9f7b742293e3f6b7575aedf8024fd"
+    },
+    {
       "version": "0.30.0",
       "date": "09.10.2025",
       "changes": [
