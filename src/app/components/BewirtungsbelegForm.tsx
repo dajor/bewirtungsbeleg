@@ -304,31 +304,22 @@ export default function BewirtungsbelegForm() {
 
         const tipToUse = calculatedTip || trinkgeld;
 
-        // For credit card receipts: ONLY update card-specific fields, keep all invoice data
-        const updates: any = {
-          restaurantName: data.restaurantName || form.values.restaurantName,
-          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-        };
-
-        // Only update kreditkartenBetrag and trinkgeld from credit card receipt
-        // DO NOT update gesamtbetrag, mwst, netto - keep them from the invoice
+        // For credit card receipts: ONLY update card-specific fields, DO NOT touch invoice data
+        // Update ONLY the fields we want to change, don't touch the rest
+        if (data.restaurantName) {
+          form.setFieldValue('restaurantName', data.restaurantName);
+        }
+        if (data.datum) {
+          form.setFieldValue('datum', new Date(data.datum.split('.').reverse().join('-')));
+        }
         if (kreditkartenbetrag) {
-          updates.kreditkartenBetrag = kreditkartenbetrag;
+          form.setFieldValue('kreditkartenBetrag', kreditkartenbetrag);
         }
         if (tipToUse) {
-          updates.trinkgeld = tipToUse;
+          form.setFieldValue('trinkgeld', tipToUse);
         }
 
-        form.setValues({
-          ...form.values,
-          ...updates,
-          // Explicitly preserve invoice fields
-          gesamtbetrag: form.values.gesamtbetrag,
-          gesamtbetragMwst: form.values.gesamtbetragMwst,
-          gesamtbetragNetto: form.values.gesamtbetragNetto,
-        });
-
-        console.log('✅ Credit card data added (preserving invoice fields):', {
+        console.log('✅ Credit card data added (invoice fields untouched):', {
           kreditkartenBetrag: kreditkartenbetrag,
           trinkgeld: tipToUse,
           preservedInvoice: {
