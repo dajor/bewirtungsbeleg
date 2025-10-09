@@ -68,6 +68,7 @@
     </div>
 
     <button onclick="testAPI()">Test API</button>
+    <button onclick="testKnownPlace()" style="background: #28a745; margin-left: 10px;">Test with Known Place (McDonald's München)</button>
 
     <div id="results"></div>
 
@@ -99,9 +100,41 @@
             resultsDiv.innerHTML = '<div class="result">Loading Google Maps API...</div>';
 
             try {
+                // Check for API errors in console
+                const originalConsoleError = console.error;
+                const apiErrors = [];
+                console.error = function(...args) {
+                    const message = args.join(' ');
+                    if (message.includes('ApiNotActivatedMapError') || message.includes('API')) {
+                        apiErrors.push(message);
+                    }
+                    originalConsoleError.apply(console, args);
+                };
+
                 // Load Google Maps API
                 await loadGoogleMapsScript(apiKey);
 
+                // Wait a bit to see if API errors appear
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                if (apiErrors.length > 0) {
+                    resultsDiv.innerHTML = '<div class="result error"><strong>❌ API Configuration Error</strong><br>' +
+                        '<p>The Google Maps JavaScript API is not enabled in your Google Cloud project.</p>' +
+                        '<p><strong>Fix:</strong></p>' +
+                        '<ol>' +
+                        '<li>Go to <a href="https://console.cloud.google.com" target="_blank">Google Cloud Console</a></li>' +
+                        '<li>Select your project</li>' +
+                        '<li>Go to "APIs & Services" → "Library"</li>' +
+                        '<li>Search for "Maps JavaScript API"</li>' +
+                        '<li>Click "Enable"</li>' +
+                        '</ol>' +
+                        '<details><summary>Error details</summary><pre>' + apiErrors.join('\n') + '</pre></details>' +
+                        '</div>';
+                    console.error = originalConsoleError;
+                    return;
+                }
+
+                console.error = originalConsoleError;
                 resultsDiv.innerHTML = '<div class="result success">✓ Google Maps API loaded successfully</div>';
 
                 // Create service
@@ -121,7 +154,16 @@
 
                 console.log('🔍 Search request:', request);
 
+                // Add timeout to detect if API never responds
+                let responded = false;
+                setTimeout(() => {
+                    if (!responded) {
+                        resultsDiv.innerHTML += '<div class="result error">⚠️ API is taking too long to respond (>10s). Check console for errors.</div>';
+                    }
+                }, 10000);
+
                 service.textSearch(request, (results, status) => {
+                    responded = true;
                     console.log('📍 Search response:', { status, resultsCount: results?.length, results });
 
                     if (status === google.maps.places.PlacesServiceStatus.OK && results) {
@@ -155,6 +197,11 @@
                 console.error('Error:', err);
                 resultsDiv.innerHTML = '<div class="result error"><strong>Error loading Google Maps:</strong> ' + err.message + '</div>';
             }
+        }
+
+        function testKnownPlace() {
+            document.getElementById('searchQuery').value = 'McDonald\'s München';
+            testAPI();
         }
 
         // Auto-test on page load
