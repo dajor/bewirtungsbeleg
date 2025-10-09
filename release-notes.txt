@@ -1,3 +1,19 @@
+# Version 0.39.0
+Datum: 09.10.2025
+
+## Änderungen
+- Professionelles PDF-Design mit jspdf-autotable und Behebung von Emoji-Kodierungsproblemen eingeführt.
+- Ein Rennzustand bei der OCR-Trinkgeldberechnung wurde durch Verwendung von useRef behoben.
+- Verwendung von setFieldValue, um das Auslösen von onChange-Handlern zu vermeiden.
+- Beibehaltung von Rechnungsfeldern beim Extrahieren von Kreditkartenbelegdaten.
+- Verbesserte OCR-Extraktion für deutsche Belege und Kreditkartenbelege.
+
+## Technische Details
+- Build: 18376583313
+- Commit: cca6e57ed34fc6331205cdbec25bc0995083a466
+
+---
+
 # Version 0.38.0
 Datum: 09.10.2025
 
