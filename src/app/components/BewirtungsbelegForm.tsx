@@ -1464,6 +1464,7 @@ export default function BewirtungsbelegForm() {
         onClose={() => setShowPlacesSearch(false)}
         onSelect={handlePlaceSelect}
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || ''}
+        initialSearchQuery={form.values.restaurantName}
       />
     </Container>
   );

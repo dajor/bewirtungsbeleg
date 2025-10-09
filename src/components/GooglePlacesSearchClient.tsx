@@ -33,6 +33,7 @@ interface GooglePlacesSearchClientProps {
   onClose: () => void;
   onSelect: (place: PlaceDetails) => void;
   apiKey: string;
+  initialSearchQuery?: string;
 }
 
 // Load Google Maps API script
@@ -66,7 +67,7 @@ const loadGoogleMapsScript = (apiKey: string): Promise<void> => {
   });
 };
 
-export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey }: GooglePlacesSearchClientProps) {
+export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey, initialSearchQuery = '' }: GooglePlacesSearchClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<google.maps.places.PlaceResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -258,15 +259,19 @@ export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey }: 
     }
   };
 
-  // Reset state when modal closes
+  // Set initial search query and reset state when modal opens/closes
   useEffect(() => {
-    if (!opened) {
+    if (opened) {
+      // Set initial search query when modal opens
+      setSearchQuery(initialSearchQuery);
+    } else {
+      // Reset state when modal closes
       setSearchQuery('');
       setResults([]);
       setError(null);
       setSelectedIndex(0);
     }
-  }, [opened]);
+  }, [opened, initialSearchQuery]);
 
   // Reset selected index when results change
   useEffect(() => {
