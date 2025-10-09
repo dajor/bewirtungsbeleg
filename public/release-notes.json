@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.30.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Entfernung der Restauranttyp-Beschränkung aus der Google Places Suche für eine flexiblere Suche.",
+        "Hinzufügen von Konsolenprotokollierung zum GooglePlacesSearchClient für verbesserte Debugging-Möglichkeiten.",
+        "Wechsel zur clientseitigen Google Places API für Kompatibilität mit Referrer-Einschränkungen, um die Integration von Google Places zu verbessern.",
+        "Hinzufügen von Google Places Autocomplete für die Restaurantsuche, um Benutzererlebnis durch Vorschläge bei der Eingabe zu verbessern."
+      ],
+      "build": "18368080803",
+      "commit": "16225626e1eb96e202fdb7d2507c83e77aecfd5d"
+    },
+    {
       "version": "0.29.0",
       "date": "09.10.2025",
       "changes": [
