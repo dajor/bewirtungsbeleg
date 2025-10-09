@@ -1,3 +1,18 @@
+# Version 0.35.0
+Datum: 09.10.2025
+
+## Änderungen
+- Integrationstest für PDF OCR-Extraktion hinzugefügt, um die Qualitätssicherung zu verbessern.
+- OCR-Extraktion für deutsche Belege und Kreditkartenbelege verbessert, was die Genauigkeit und Nützlichkeit des Tools für Benutzer im deutschsprachigen Raum erheblich steigert.
+- Entfernung des Google Places API-Testtools nach Abschluss der Tests, was auf Aufräumarbeiten im Code hinweist.
+- Verbesserung des API-Testtools zur Erkennung und Erläuterung von ApiNotActivatedMapError, wodurch die Fehlersuche für Entwickler vereinfacht wird.
+
+## Technische Details
+- Build: 18368559553
+- Commit: 23f00bdb5206a914aefb05691e09fcb06fa376e7
+
+---
+
 # Version 0.34.0
 Datum: 09.10.2025
 
