@@ -6,6 +6,156 @@ import { sanitizeFilename } from '@/lib/sanitize';
 import { convertPdfToImagesAllPages } from '@/lib/pdf-to-image-multipage';
 import { ZugferdService } from '@/lib/zugferd-service';
 import { z } from 'zod';
+import autoTable from 'jspdf-autotable';
+
+// Design System Constants
+const COLORS = {
+  primary: '#1A4E80',      // DocBits blue
+  primaryLight: '#E8F0F7', // Light blue for section backgrounds
+  textDark: '#2C3E50',     // Dark gray for headings
+  textMedium: '#5A6C7D',   // Medium gray for body text
+  textLight: '#8B9DAF',    // Light gray for labels
+  border: '#D5DCE3',       // Border color
+  white: '#FFFFFF',
+  success: '#28A745',      // Green for positive amounts
+};
+
+const FONTS = {
+  heading: { size: 14, style: 'bold' as const },
+  subheading: { size: 12, style: 'bold' as const },
+  body: { size: 10, style: 'normal' as const },
+  small: { size: 9, style: 'normal' as const },
+  label: { size: 9, style: 'bold' as const },
+};
+
+const SPACING = {
+  margin: 20,
+  sectionGap: 8,  // Reduced from 12 to 8
+  lineHeight: 6,  // Reduced from 7 to 6
+  indent: 10,
+};
+
+// Helper function to convert hex color to RGB array
+function hexToRgb(hex: string): [number, number, number] {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result
+    ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)]
+    : [0, 0, 0];
+}
+
+// Helper: Add section header with colored background
+function addSectionHeader(doc: any, title: string, yPos: number): number {
+  const [r, g, b] = hexToRgb(COLORS.primaryLight);
+
+  // Background rectangle
+  doc.setFillColor(r, g, b);
+  doc.rect(SPACING.margin, yPos - 6, 170, 8, 'F');
+
+  // Section title
+  doc.setFontSize(FONTS.subheading.size);
+  doc.setFont('helvetica', FONTS.subheading.style);
+  const [tr, tg, tb] = hexToRgb(COLORS.textDark);
+  doc.setTextColor(tr, tg, tb);
+
+  // Use a simple bullet point instead of emoji
+  doc.text(`> ${title}`, SPACING.margin + 3, yPos);
+
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
+
+  return yPos + SPACING.sectionGap;
+}
+
+// Helper: Add label-value pair
+function addLabelValuePair(doc: any, label: string, value: string, x: number, y: number, valueColor?: string): void {
+  doc.setFontSize(FONTS.body.size);
+
+  // Label
+  doc.setFont('helvetica', FONTS.label.style);
+  const [lr, lg, lb] = hexToRgb(COLORS.textLight);
+  doc.setTextColor(lr, lg, lb);
+  doc.text(label, x, y);
+
+  // Value
+  doc.setFont('helvetica', FONTS.body.style);
+  if (valueColor) {
+    const [vr, vg, vb] = hexToRgb(valueColor);
+    doc.setTextColor(vr, vg, vb);
+  } else {
+    const [vr, vg, vb] = hexToRgb(COLORS.textMedium);
+    doc.setTextColor(vr, vg, vb);
+  }
+  doc.text(value, x + 50, y);
+
+  // Reset
+  doc.setTextColor(0, 0, 0);
+}
+
+// Helper: Add summary box (top-right)
+function addSummaryBox(doc: any, data: any, x: number, y: number): void {
+  const boxWidth = 60;
+  const boxHeight = 35;
+
+  // Border
+  const [br, bg, bb] = hexToRgb(COLORS.border);
+  doc.setDrawColor(br, bg, bb);
+  doc.setLineWidth(0.5);
+  doc.rect(x, y, boxWidth, boxHeight);
+
+  // Background for header
+  const [hr, hg, hb] = hexToRgb(COLORS.primary);
+  doc.setFillColor(hr, hg, hb);
+  doc.rect(x, y, boxWidth, 8, 'F');
+
+  // Header text
+  doc.setFontSize(FONTS.label.size);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(255, 255, 255);
+  doc.text('Zusammenfassung', x + boxWidth / 2, y + 5, { align: 'center' });
+
+  // Reset text color
+  doc.setTextColor(0, 0, 0);
+
+  // Content
+  let contentY = y + 13;
+  doc.setFontSize(FONTS.small.size);
+  doc.setFont('helvetica', 'normal');
+
+  // Gesamtbetrag
+  doc.setFont('helvetica', 'bold');
+  const [tr, tg, tb] = hexToRgb(COLORS.textMedium);
+  doc.setTextColor(tr, tg, tb);
+  doc.text('Gesamtbetrag:', x + 3, contentY);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(FONTS.body.size);
+  const [sr, sg, sb] = hexToRgb(COLORS.primary);
+  doc.setTextColor(sr, sg, sb);
+  doc.text(`${data.gesamtbetrag} €`, x + boxWidth - 3, contentY, { align: 'right' });
+
+  contentY += 6;
+
+  // Datum
+  doc.setFontSize(FONTS.small.size);
+  const [dr, dg, db] = hexToRgb(COLORS.textLight);
+  doc.setTextColor(dr, dg, db);
+  doc.setFont('helvetica', 'normal');
+  doc.text(new Date(data.datum).toLocaleDateString('de-DE'), x + 3, contentY);
+
+  contentY += 5;
+
+  // Zahlungsart
+  const zahlungsart = data.zahlungsart === 'Bargeld' ? 'Bargeld' : 'Kreditkarte';
+  doc.text(zahlungsart, x + 3, contentY);
+
+  contentY += 5;
+
+  // Bewirtungsart
+  const bewirtungsart = data.bewirtungsart === 'kunden' ? 'Kunden (70%)' : 'Mitarbeiter (100%)';
+  doc.text(bewirtungsart, x + 3, contentY);
+
+  // Reset
+  doc.setTextColor(0, 0, 0);
+}
 
 export async function POST(request: Request) {
   try {
@@ -45,177 +195,224 @@ export async function POST(request: Request) {
 
     const doc = new jsPDF();
     console.log('Created new PDF document');
-    
-    // Logo hinzufügen
+
+    // ========================================
+    // PROFESSIONAL HEADER WITH BLUE BRANDING BAR
+    // ========================================
+
+    // Blue header bar (full width)
+    const [hr, hg, hb] = hexToRgb(COLORS.primary);
+    doc.setFillColor(hr, hg, hb);
+    doc.rect(0, 0, 210, 25, 'F'); // Full width (A4 = 210mm)
+
+    // Logo in header bar (white background circle for contrast)
     try {
       const logoPath = path.join(process.cwd(), 'public', 'LOGO-192.png');
       console.log('Loading logo from:', logoPath);
       const logoBuffer = fs.readFileSync(logoPath);
       const base64Logo = logoBuffer.toString('base64');
-      doc.addImage(`data:image/png;base64,${base64Logo}`, 'PNG', 20, 10, 20, 20);
+
+      // White circle background for logo
+      doc.setFillColor(255, 255, 255);
+      doc.circle(30, 12.5, 9, 'F');
+
+      // Logo
+      doc.addImage(`data:image/png;base64,${base64Logo}`, 'PNG', 23, 6, 14, 14);
       console.log('Logo added successfully');
     } catch (logoError) {
       console.error('Error adding logo:', logoError);
       // Continue without logo
     }
-    
-    let yPosition = 35;
-    console.log('Starting to add content to PDF');
-    
-    // Titel mit Linie
-    doc.setFontSize(16);
+
+    // Main title in header bar
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(255, 255, 255);
     const mainTitle = data.istEigenbeleg ? 'Bewirtungsbeleg - EIGENBELEG' : 'Bewirtungsbeleg';
-    doc.text(mainTitle, 105, 20, { align: 'center' });
+    doc.text(mainTitle, 105, 13, { align: 'center' });
 
-    // Füge die Art der Bewirtung hinzu
-    doc.setFontSize(12);
-    const bewirtungsart = data.bewirtungsart === 'kunden' 
-      ? 'Kundenbewirtung (70% abzugsfähig)' 
+    // Subtitle in header bar
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    const bewirtungsart = data.bewirtungsart === 'kunden'
+      ? 'Kundenbewirtung (70% abzugsfähig)'
       : 'Mitarbeiterbewirtung (100% abzugsfähig)';
-    doc.text(bewirtungsart, 105, 30, { align: 'center' });
+    doc.text(bewirtungsart, 105, 19, { align: 'center' });
 
-    // Eigenbeleg-Hinweis hinzufügen
+    // Reset text color
+    doc.setTextColor(0, 0, 0);
+
+    // Add DocBits branding on the right side of header
+    doc.setFontSize(8);
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'normal');
+    doc.text('powered by DocBits', 185, 20, { align: 'right' });
+    doc.setTextColor(0, 0, 0);
+
+    let yPosition = 30;  // Reduced from 35 to 30
+    console.log('Starting to add content to PDF');
+
+    // Eigenbeleg warning banner (if applicable)
     if (data.istEigenbeleg) {
-      doc.setFontSize(10);
-      doc.setTextColor(200, 0, 0); // Rote Farbe für den Hinweis
-      doc.text('Hinweis: Vorsteuer (MwSt.) kann bei Eigenbelegen nicht geltend gemacht werden', 105, 40, { align: 'center' });
-      doc.setTextColor(0, 0, 0); // Zurück zu schwarz
-    }
-    
-    // Titel mit Linie
-    doc.setLineWidth(0.5);
-    yPosition += data.istEigenbeleg ? 15 : 5; // Mehr Platz wenn Eigenbeleg-Hinweis vorhanden
-    doc.line(20, yPosition, 190, yPosition);
-    console.log('Added title and line');
-    
-    // Allgemeine Angaben
-    yPosition += 15;
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Allgemeine Angaben:', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    
-    yPosition += 10;
-    doc.text(`Datum: ${new Date(data.datum).toLocaleDateString('de-DE')}`, 20, yPosition);
-    yPosition += 10;
-    doc.text(`Restaurant: ${data.restaurantName}`, 20, yPosition);
-    
-    if (data.restaurantAnschrift) {
-      yPosition += 10;
-      doc.text(`Anschrift: ${data.restaurantAnschrift}`, 20, yPosition);
-    }
-    console.log('Added general information');
-    
-    // Geschäftlicher Anlass
-    yPosition += 20;
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${data.bewirtungsart === 'kunden' ? 'Geschäftlicher Anlass:' : 'Anlass:'}`, 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    
-    yPosition += 15;
-    doc.text(`Teilnehmer: ${data.teilnehmer}`, 20, yPosition);
-    yPosition += 15;
-    doc.text(`Anlass: ${data.anlass || 'Projektbesprechung'}`, 20, yPosition);
-
-    // Finanzielle Details
-    yPosition += 20;
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Finanzielle Details:', 20, yPosition);
-    doc.setFont('helvetica', 'normal');
-    yPosition += 15;
-
-    // Create table for financial details
-    doc.setFontSize(9);
-    const tableX = 20;
-    const col1Width = 100;
-    const col2X = tableX + col1Width;
-    
-    if (data.istAuslaendischeRechnung) {
-      // Row 1
-      doc.text('Gesamtbetrag (Brutto):', tableX, yPosition);
-      doc.text(`${data.gesamtbetrag}${data.auslaendischeWaehrung || '$'}`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 2
-      doc.text('Trinkgeld:', tableX, yPosition);
-      doc.text(`${data.trinkgeld}${data.auslaendischeWaehrung || '$'}`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 3
-      doc.text('Betrag auf Kreditkarte/Bar:', tableX, yPosition);
-      doc.text(`${data.kreditkartenBetrag}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 4
-      doc.text('Zahlungsart:', tableX, yPosition);
-      doc.text(`${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, col2X, yPosition);
-      yPosition += 8;
-      
-      if (data.auslaendischeWaehrung) {
-        doc.text('Währung:', tableX, yPosition);
-        doc.text(`${data.auslaendischeWaehrung}`, col2X, yPosition);
-        yPosition += 8;
-      }
-      yPosition += 2;
-    } else {
-      // Row 1
-      doc.text('Gesamtbetrag (Brutto):', tableX, yPosition);
-      doc.text(`${data.gesamtbetrag}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 2
-      doc.text('MwSt. Gesamtbetrag:', tableX, yPosition);
-      doc.text(`${data.gesamtbetragMwst}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 3
-      doc.text('Netto Gesamtbetrag:', tableX, yPosition);
-      doc.text(`${data.gesamtbetragNetto}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Add separator line
-      doc.setLineWidth(0.3);
-      doc.line(tableX, yPosition - 3, col2X + 40, yPosition - 3);
-      yPosition += 5;
-      
-      // Row 4
-      doc.text('Betrag auf Kreditkarte/Bar:', tableX, yPosition);
-      doc.text(`${data.kreditkartenBetrag}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 5
-      doc.text('Trinkgeld:', tableX, yPosition);
-      doc.text(`${data.trinkgeld}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 6
-      doc.text('MwSt. Trinkgeld:', tableX, yPosition);
-      doc.text(`${data.trinkgeldMwst}€`, col2X, yPosition);
-      yPosition += 8;
-      
-      // Row 7
-      doc.text('Zahlungsart:', tableX, yPosition);
-      doc.text(`${data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}`, col2X, yPosition);
-      yPosition += 10;
-    }
-
-    // Geschäftspartner (nur bei Kundenbewirtung)
-    if (data.bewirtungsart === 'kunden') {
-      yPosition += 20; // Mehr Abstand vor dem Abschnitt
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Geschäftspartner:', 20, yPosition);
-      doc.setFont('helvetica', 'normal');
-      yPosition += 10;
+      const [wr, wg, wb] = hexToRgb('#FFF3CD'); // Light yellow warning background
+      doc.setFillColor(wr, wg, wb);
+      doc.rect(SPACING.margin, yPosition, 170, 8, 'F');
 
       doc.setFontSize(9);
-      doc.text(`Namen: ${data.geschaeftspartnerNamen}`, 20, yPosition);
-      yPosition += 7;
-      doc.text(`Firma: ${data.geschaeftspartnerFirma}`, 20, yPosition);
-      yPosition += 10;
+      doc.setFont('helvetica', 'bold');
+      const [tr, tg, tb] = hexToRgb('#856404'); // Dark yellow/brown text
+      doc.setTextColor(tr, tg, tb);
+      doc.text('Hinweis: Vorsteuer (MwSt.) kann bei Eigenbelegen nicht geltend gemacht werden', 105, yPosition + 5, { align: 'center' });
+      doc.setTextColor(0, 0, 0);
+
+      yPosition += 10;  // Reduced from 13 to 10
+    }
+
+    // Add summary box (top-right)
+    addSummaryBox(doc, data, 130, yPosition);
+    console.log('Added professional header with branding');
+    
+    // ========================================
+    // SECTION 1: ALLGEMEINE ANGABEN
+    // ========================================
+    yPosition += 8;  // Reduced from 15 to 8
+    yPosition = addSectionHeader(doc, 'Allgemeine Angaben', yPosition);
+
+    addLabelValuePair(doc, 'Datum:', new Date(data.datum).toLocaleDateString('de-DE'), SPACING.margin, yPosition);
+    yPosition += SPACING.lineHeight;
+
+    addLabelValuePair(doc, 'Restaurant:', data.restaurantName, SPACING.margin, yPosition);
+    yPosition += SPACING.lineHeight;
+
+    if (data.restaurantAnschrift) {
+      addLabelValuePair(doc, 'Anschrift:', data.restaurantAnschrift, SPACING.margin, yPosition);
+      yPosition += SPACING.lineHeight;
+    }
+
+    console.log('Added general information with professional formatting');
+
+    // ========================================
+    // SECTION 2: GESCHÄFTLICHER ANLASS
+    // ========================================
+    yPosition += 5;  // Reduced from 8 to 5
+    yPosition = addSectionHeader(
+      doc,
+      data.bewirtungsart === 'kunden' ? 'Geschäftlicher Anlass' : 'Anlass',
+      yPosition
+    );
+
+    addLabelValuePair(doc, 'Teilnehmer:', data.teilnehmer, SPACING.margin, yPosition);
+    yPosition += SPACING.lineHeight;
+
+    addLabelValuePair(doc, 'Anlass:', data.anlass || 'Projektbesprechung', SPACING.margin, yPosition);
+    yPosition += SPACING.lineHeight;
+
+    // ========================================
+    // SECTION 3: FINANZIELLE DETAILS (PROFESSIONAL TABLE)
+    // ========================================
+    yPosition += 5;  // Reduced from 8 to 5
+    yPosition = addSectionHeader(doc, 'Finanzielle Details', yPosition);
+
+    const [borderR, borderG, borderB] = hexToRgb(COLORS.border);
+    const [primaryR, primaryG, primaryB] = hexToRgb(COLORS.primary);
+    const [lightBgR, lightBgG, lightBgB] = hexToRgb(COLORS.primaryLight);
+
+    if (data.istAuslaendischeRechnung) {
+      // Foreign currency table
+      const foreignTableData = [
+        ['Gesamtbetrag (Brutto)', `${data.gesamtbetrag}${data.auslaendischeWaehrung || '$'}`],
+        ['Trinkgeld', `${data.trinkgeld}${data.auslaendischeWaehrung || '$'}`],
+        ['Betrag auf Kreditkarte/Bar', `${data.kreditkartenBetrag}€`],
+        ['Zahlungsart', data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'],
+      ];
+
+      if (data.auslaendischeWaehrung) {
+        foreignTableData.push(['Währung', data.auslaendischeWaehrung]);
+      }
+
+      const [textLightR, textLightG, textLightB] = hexToRgb(COLORS.textLight);
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [],
+        body: foreignTableData,
+        theme: 'grid',
+        styles: {
+          fontSize: 10,
+          cellPadding: 4,
+          lineColor: [borderR, borderG, borderB],
+          lineWidth: 0.5,
+        },
+        columnStyles: {
+          0: { fontStyle: 'bold', textColor: [textLightR, textLightG, textLightB], cellWidth: 100 },
+          1: { halign: 'right', textColor: [primaryR, primaryG, primaryB], fontStyle: 'bold' },
+        },
+        margin: { left: SPACING.margin, right: SPACING.margin },
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 5;
+    } else {
+      // Domestic currency table with sections
+      const invoiceSection = [
+        ['Gesamtbetrag (Brutto)', `${data.gesamtbetrag}€`],
+        ['MwSt. Gesamtbetrag', `${data.gesamtbetragMwst}€`],
+        ['Netto Gesamtbetrag', `${data.gesamtbetragNetto}€`],
+      ];
+
+      const tipSection = [
+        ['Betrag auf Kreditkarte/Bar', `${data.kreditkartenBetrag}€`],
+        ['Trinkgeld', `${data.trinkgeld}€`],
+        ['MwSt. Trinkgeld', `${data.trinkgeldMwst}€`],
+        ['Zahlungsart', data.zahlungsart === 'firma' ? 'Firmenkreditkarte' : data.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'],
+      ];
+
+      autoTable(doc, {
+        startY: yPosition,
+        head: [['Beschreibung', 'Betrag']],
+        body: [...invoiceSection, ...tipSection],
+        theme: 'striped',
+        headStyles: {
+          fillColor: [primaryR, primaryG, primaryB],
+          textColor: [255, 255, 255],
+          fontSize: 11,
+          fontStyle: 'bold',
+          halign: 'left',
+        },
+        styles: {
+          fontSize: 10,
+          cellPadding: 5,
+          lineColor: [borderR, borderG, borderB],
+          lineWidth: 0.5,
+        },
+        columnStyles: {
+          0: { fontStyle: 'bold', cellWidth: 100 },
+          1: { halign: 'right', textColor: [primaryR, primaryG, primaryB], fontStyle: 'bold' },
+        },
+        margin: { left: SPACING.margin, right: SPACING.margin },
+        didParseCell: (data: any) => {
+          // Add separator line after invoice section (row 2)
+          if (data.row.index === 2 && data.section === 'body') {
+            data.cell.styles.lineWidth = { bottom: 1.5 };
+            data.cell.styles.lineColor = [primaryR, primaryG, primaryB];
+          }
+        },
+      });
+
+      yPosition = (doc as any).lastAutoTable.finalY + 5;
+    }
+
+    // ========================================
+    // SECTION 4: GESCHÄFTSPARTNER (nur bei Kundenbewirtung)
+    // ========================================
+    if (data.bewirtungsart === 'kunden') {
+      yPosition += 5;  // Reduced from 8 to 5
+      yPosition = addSectionHeader(doc, 'Geschäftspartner', yPosition);
+
+      addLabelValuePair(doc, 'Namen:', data.geschaeftspartnerNamen, SPACING.margin, yPosition);
+      yPosition += SPACING.lineHeight;
+
+      addLabelValuePair(doc, 'Firma:', data.geschaeftspartnerFirma, SPACING.margin, yPosition);
+      yPosition += SPACING.lineHeight;
     }
 
     // Ensure we have enough space for signature (check if we need a new page)
@@ -223,38 +420,75 @@ export async function POST(request: Request) {
       doc.addPage();
       yPosition = 20;
     }
-    
-    // Add some space before signature section
-    yPosition += 20;
 
-    // Unterschrift Section with better layout
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Unterschrift:', 20, yPosition);
-    yPosition += 15;
+    // ========================================
+    // SECTION 5: UNTERSCHRIFT
+    // ========================================
+    yPosition += 8;  // Reduced from 15 to 8
+    yPosition = addSectionHeader(doc, 'Unterschrift', yPosition);
 
-    // Signature line
+    // Signature box with border
+    const [sigBorderR, sigBorderG, sigBorderB] = hexToRgb(COLORS.border);
+    doc.setDrawColor(sigBorderR, sigBorderG, sigBorderB);
     doc.setLineWidth(0.5);
-    doc.line(20, yPosition, 120, yPosition);
-    yPosition += 15;
+    doc.rect(SPACING.margin, yPosition, 100, 16);  // Reduced height from 20 to 16
 
-    // Footer text
-    doc.setFontSize(8);
+    // Signature line inside box
+    doc.setLineWidth(0.3);
+    const [primaryR2, primaryG2, primaryB2] = hexToRgb(COLORS.primary);
+    doc.setDrawColor(primaryR2, primaryG2, primaryB2);
+    doc.line(SPACING.margin + 5, yPosition + 12, SPACING.margin + 95, yPosition + 12);  // Adjusted
+
+    // Label below signature line
+    doc.setFontSize(7);  // Reduced from 8 to 7
     doc.setFont('helvetica', 'normal');
-    doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
-    yPosition += 5;
+    const [textLightR, textLightG, textLightB] = hexToRgb(COLORS.textLight);
+    doc.setTextColor(textLightR, textLightG, textLightB);
+    doc.text('Unterschrift des Bewirtenden', SPACING.margin + 50, yPosition + 14, { align: 'center' });  // Adjusted
+    doc.setTextColor(0, 0, 0);
 
-    // Footer auf jeder Seite
+    yPosition += 20;  // Reduced from 25 to 20
+
+    // Important notice
+    doc.setFontSize(7);  // Reduced from 8 to 7
+    doc.setFont('helvetica', 'italic');
+    const [noticeR, noticeG, noticeB] = hexToRgb(COLORS.textLight);
+    doc.setTextColor(noticeR, noticeG, noticeB);
+    doc.text('Dieser Bewirtungsbeleg wurde automatisch erstellt und muss unterschrieben werden.', 20, yPosition);
+    doc.setTextColor(0, 0, 0);
+    yPosition += 3;  // Reduced from 5 to 3
+
+    // Professional footer on every page
     const pageCount = (doc as any).internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
+
+      // Footer separator line
+      const [footerLineR, footerLineG, footerLineB] = hexToRgb(COLORS.border);
+      doc.setDrawColor(footerLineR, footerLineG, footerLineB);
       doc.setLineWidth(0.5);
-      doc.line(20, 280, 190, 280);
+      doc.line(SPACING.margin, 280, 190, 280);
+
+      // Footer text
       doc.setFontSize(8);
-      doc.text('Bewirtungsbeleg App', 105, 285, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      const [footerTextR, footerTextG, footerTextB] = hexToRgb(COLORS.textLight);
+      doc.setTextColor(footerTextR, footerTextG, footerTextB);
+      doc.text('Bewirtungsbeleg App · powered by DocBits', 105, 285, { align: 'center' });
+
+      // Footer link
+      const [linkR, linkG, linkB] = hexToRgb(COLORS.primary);
+      doc.setTextColor(linkR, linkG, linkB);
       doc.text('https://bewirtungsbeleg.docbits.com/', 105, 290, { align: 'center' });
+
+      // Page number
+      doc.setTextColor(footerTextR, footerTextG, footerTextB);
+      doc.text(`Seite ${i} von ${pageCount}`, 190, 290, { align: 'right' });
+
+      // Reset
+      doc.setTextColor(0, 0, 0);
     }
-    console.log('Added footer to all pages');
+    console.log('Added professional footer to all pages');
 
     // Handle attachments - prioritize new attachments array over legacy single image
     const attachmentsToAdd: Array<{ data: string; name: string; type: string }> = [];
@@ -308,9 +542,18 @@ export async function POST(request: Request) {
             // Add each page as a separate attachment
             for (const page of convertedPages) {
               doc.addPage();
+
+              // Professional attachment header
+              const [attachHeaderR, attachHeaderG, attachHeaderB] = hexToRgb(COLORS.primaryLight);
+              doc.setFillColor(attachHeaderR, attachHeaderG, attachHeaderB);
+              doc.rect(SPACING.margin, 10, 170, 12, 'F');
+
               doc.setFontSize(12);
               doc.setFont('helvetica', 'bold');
-              doc.text(`Anlage ${i + 1}: ${page.name}`, 20, 20);
+              const [attachTextR, attachTextG, attachTextB] = hexToRgb(COLORS.textDark);
+              doc.setTextColor(attachTextR, attachTextG, attachTextB);
+              doc.text(`Anlage ${i + 1}: ${page.name}`, SPACING.margin + 3, 17);
+              doc.setTextColor(0, 0, 0);
               doc.setFont('helvetica', 'normal');
               doc.setFontSize(10);
               
@@ -394,9 +637,18 @@ export async function POST(request: Request) {
           // If we reach here, attachment processing was successful
           // NOW create the page and add the content
           doc.addPage();
+
+          // Professional attachment header (consistent with PDF pages)
+          const [attachHeaderR, attachHeaderG, attachHeaderB] = hexToRgb(COLORS.primaryLight);
+          doc.setFillColor(attachHeaderR, attachHeaderG, attachHeaderB);
+          doc.rect(SPACING.margin, 10, 170, 12, 'F');
+
           doc.setFontSize(12);
           doc.setFont('helvetica', 'bold');
-          doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, 20, 20);
+          const [attachTextR, attachTextG, attachTextB] = hexToRgb(COLORS.textDark);
+          doc.setTextColor(attachTextR, attachTextG, attachTextB);
+          doc.text(`Anlage ${i + 1}: ${attachment.name || 'Original-Rechnung'}`, SPACING.margin + 3, 17);
+          doc.setTextColor(0, 0, 0);
           doc.setFont('helvetica', 'normal');
           doc.setFontSize(10);
           

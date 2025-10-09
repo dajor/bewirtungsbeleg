@@ -3,9 +3,11 @@
  *
  * These tests verify the core file removal and image preview management logic
  * without requiring full component rendering or Mantine providers.
+ *
+ * @jest-environment node
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from '@jest/globals';
 
 describe('BewirtungsbelegForm - File Removal State Management', () => {
   it('should clear selectedImage when last file is removed', () => {
