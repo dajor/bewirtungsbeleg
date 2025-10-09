@@ -117,16 +117,21 @@ export function GooglePlacesSearchClient({ opened, onClose, onSelect, apiKey }: 
       language: 'de',
     };
 
+    console.log('🔍 Searching for:', query);
+
     serviceRef.current.textSearch(request, (results, status) => {
+      console.log('📍 Search results:', { status, resultsCount: results?.length });
       setLoading(false);
 
       if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+        console.log('✅ Found places:', results.map(r => r.name));
         setResults(results.slice(0, 5));
       } else if (status === google.maps.places.PlacesServiceStatus.ZERO_RESULTS) {
+        console.log('ℹ️ No results found');
         setResults([]);
       } else {
-        console.error('Places search error:', status);
-        setError('Fehler bei der Suche. Bitte versuchen Sie es erneut.');
+        console.error('❌ Places search error:', status);
+        setError(`Fehler bei der Suche: ${status}`);
         setResults([]);
       }
     });
