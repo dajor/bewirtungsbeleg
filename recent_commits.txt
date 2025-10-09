@@ -1,3 +1,5 @@
+fix: Process ALL PDFs for OCR when multiple files uploaded (Claude Assistant)
+Bump version to 0.25.0 #auto-release (dajor)
 docs: Add comprehensive test results summary (Claude Assistant)
 Bump version to 0.24.0 #auto-release (dajor)
 fix: Remove canvas dependency causing module load errors (Claude Assistant)

@@ -1,3 +1,19 @@
+# Version 0.26.0
+Datum: 09.10.2025
+
+## Änderungen
+- Bugfix: Jetzt werden alle PDFs für OCR verarbeitet, wenn mehrere Dateien hochgeladen werden.
+- Dokumentation: Eine umfassende Zusammenfassung der Testergebnisse wurde hinzugefügt.
+- Bugfix: Entfernung der Canvas-Abhängigkeit, die Modulladefehler verursachte.
+- Neues Feature: Vitest-Testing wurde hinzugefügt und die Zuverlässigkeit der PDF-Konvertierung verbessert.
+- Bugfix: Ablehnung von OpenAI-Bildformaten für die PDF-Klassifizierung wurde behoben.
+
+## Technische Details
+- Build: 18367304949
+- Commit: 2543768b604f217e3b333f8ef2b71a49ebf66cff
+
+---
+
 # Version 0.25.0
 Datum: 08.10.2025
 
