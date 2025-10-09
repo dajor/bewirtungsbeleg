@@ -38,7 +38,7 @@ import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 import { ImageEditor } from '@/components/ImageEditor';
-import { GooglePlacesSearch, PlaceDetails } from '@/components/GooglePlacesSearch';
+import { GooglePlacesSearchClient, PlaceDetails } from '@/components/GooglePlacesSearchClient';
 import { convertPdfPageToImage, isClientSidePdfConversionSupported } from '@/lib/client-pdf-converter';
 import PDFToImageConverter from '@/lib/pdf-to-image-converter';
 
@@ -1459,10 +1459,11 @@ export default function BewirtungsbelegForm() {
       </Modal>
 
       {/* Google Places Search Modal */}
-      <GooglePlacesSearch
+      <GooglePlacesSearchClient
         opened={showPlacesSearch}
         onClose={() => setShowPlacesSearch(false)}
         onSelect={handlePlaceSelect}
+        apiKey={process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY || ''}
       />
     </Container>
   );
