@@ -433,7 +433,7 @@ export default function BewirtungsbelegForm() {
 
   const handleFileDrop = useCallback(async (files: File[]) => {
     const newFiles: FileWithPreview[] = [];
-    
+
     for (const file of files) {
       const fileData: FileWithPreview = {
         file,
@@ -446,7 +446,7 @@ export default function BewirtungsbelegForm() {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          setAttachedFiles(prev => prev.map(f => 
+          setAttachedFiles(prev => prev.map(f =>
             f.id === fileData.id ? { ...f, preview: e.target?.result as string } : f
           ));
         };
@@ -455,7 +455,7 @@ export default function BewirtungsbelegForm() {
         // For PDFs, we'll create a generic PDF thumbnail
         // You could also use pdf.js or similar to generate actual thumbnails
         const pdfThumbnail = createPdfThumbnail();
-        setAttachedFiles(prev => prev.map(f => 
+        setAttachedFiles(prev => prev.map(f =>
           f.id === fileData.id ? { ...f, preview: pdfThumbnail } : f
         ));
       }
@@ -464,60 +464,70 @@ export default function BewirtungsbelegForm() {
     }
 
     setAttachedFiles(prev => [...prev, ...newFiles]);
-    
+
     // Start classification for all files and get results
     const classificationResults = await Promise.all(
       newFiles.map(async (fileData, index) => {
         const type = await classifyDocument(fileData.id, fileData.file);
-        return { index, type };
+        return { fileId: fileData.id, index, type, file: fileData.file };
       })
     );
 
-    // Process the first file for OCR if no file has been processed yet
-    if (!selectedImage && files.length > 0) {
-      const firstFile = files[0];
-      setSelectedImage(firstFile);
-      
+    // Sort files by classification priority: Rechnung first, then Kreditkartenbeleg
+    const sortedResults = [...classificationResults].sort((a, b) => {
+      if (a.type === 'Rechnung' && b.type !== 'Rechnung') return -1;
+      if (a.type !== 'Rechnung' && b.type === 'Rechnung') return 1;
+      return 0;
+    });
+
+    // Process ALL files for OCR (not just the first one)
+    for (const result of sortedResults) {
+      const fileToProcess = result.file;
+
+      // Set as selected image if this is the first file being processed
+      if (!selectedImage && result === sortedResults[0]) {
+        setSelectedImage(fileToProcess);
+      }
+
       // If it's a PDF, convert it to image first for OCR
-      if (firstFile.type === 'application/pdf') {
+      if (fileToProcess.type === 'application/pdf') {
         setError(null);
         setSuccess(false);
-        
+
         // Show converting message
-        const fileId = newFiles[0].id;
-        setAttachedFiles(prev => prev.map(f => 
-          f.id === fileId ? { ...f, isConverting: true } : f
+        setAttachedFiles(prev => prev.map(f =>
+          f.id === result.fileId ? { ...f, isConverting: true } : f
         ));
-        
+
         try {
+          console.log(`Converting PDF: ${fileToProcess.name} (${result.type})`);
+
           // Convert PDF to image using improved conversion with fallback
-          const imageData = await convertPdfToImage(firstFile);
+          const imageData = await convertPdfToImage(fileToProcess);
 
           // Create a temporary file object with the converted image
           console.log('Creating blob from base64 image...');
           const convertedImageBlob = await fetch(imageData).then(r => r.blob());
-          const convertedImageFile = new File([convertedImageBlob], firstFile.name.replace('.pdf', '.jpg'), {
+          const convertedImageFile = new File([convertedImageBlob], fileToProcess.name.replace('.pdf', '.jpg'), {
             type: 'image/jpeg'
           });
           console.log('Converted image file created:', convertedImageFile.size, 'bytes');
-          
-          // Get classification for the first file
-          const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
-          console.log('PDF Classification:', firstFileClassification);
-          
-          // Extract data from the converted image
-          await extractDataFromImage(convertedImageFile, firstFileClassification);
-          
+
+          console.log('PDF Classification:', result.type);
+
+          // Extract data from the converted image with proper classification
+          await extractDataFromImage(convertedImageFile, result.type);
+
           // Update the file status
-          setAttachedFiles(prev => prev.map(f => 
-            f.id === fileId ? { ...f, isConverting: false } : f
+          setAttachedFiles(prev => prev.map(f =>
+            f.id === result.fileId ? { ...f, isConverting: false } : f
           ));
-          
+
         } catch (error) {
           console.error('PDF conversion error:', error);
-          
+
           let errorMessage = 'Fehler bei der PDF-Konvertierung. Bitte füllen Sie die Felder manuell aus.';
-          
+
           if (error instanceof Error) {
             if (error.name === 'AbortError') {
               errorMessage = 'PDF-Konvertierung abgebrochen: Zeitüberschreitung. Die Datei ist möglicherweise zu groß.';
@@ -525,40 +535,43 @@ export default function BewirtungsbelegForm() {
               errorMessage = 'PDF-Konvertierung dauerte zu lange. Bitte versuchen Sie eine kleinere Datei.';
             }
           }
-          
+
           setError(errorMessage);
-          
+
           // Mark as not converting
-          setAttachedFiles(prev => prev.map(f => 
-            f.id === fileId ? { ...f, isConverting: false } : f
+          setAttachedFiles(prev => prev.map(f =>
+            f.id === result.fileId ? { ...f, isConverting: false } : f
           ));
         }
       } else {
-        // Get classification for the first file
-        const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
-        
-        // Process image files directly  
-        await extractDataFromImage(firstFile, firstFileClassification);
+        // Process image files directly with proper classification
+        await extractDataFromImage(fileToProcess, result.type);
       }
     }
   }, [selectedImage, attachedFiles]);
 
   const handleFileRemove = useCallback((id: string) => {
     setAttachedFiles(prev => {
-      const newFiles = prev.filter(f => f.id !== id);
-      
-      // If we removed the selected image, clear it
       const removedFile = prev.find(f => f.id === id);
+      const newFiles = prev.filter(f => f.id !== id);
+
+      // If we removed the selected image, clear it and select another image if available
       if (removedFile && selectedImage === removedFile.file) {
-        setSelectedImage(null);
+        if (newFiles.length > 0) {
+          // Select the first remaining file
+          setSelectedImage(newFiles[0].file);
+        } else {
+          // No files left, clear the selection
+          setSelectedImage(null);
+        }
       }
-      
+
       // Clear error when all files are removed
       if (newFiles.length === 0) {
         setError(null);
         setSuccess(false);
       }
-      
+
       return newFiles;
     });
   }, [selectedImage]);
