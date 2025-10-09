@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "0.32.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Verschiebung des API-Test-Tools in den öffentlichen Ordner für die Next.js-Bereitstellung zur Verbesserung der Zugänglichkeit.",
+        "Hinzufügen umfassender Vitest-Tests für den GooglePlacesSearchClient zur Verbesserung der Codequalität und Zuverlässigkeit.",
+        "Implementierung einer Funktion zum Vorab-Füllen der Google-Places-Suche mit dem vorhandenen Restaurantnamen zur Verbesserung der Benutzerfreundlichkeit.",
+        "Entfernung der Restauranttyp-Einschränkung aus der Google-Places-Suche, um die Suche flexibler zu gestalten.",
+        "Wechsel zur clientseitigen Google Places API für die Kompatibilität mit der Referrer-Beschränkung, um die Zuverlässigkeit und Sicherheit zu erhöhen."
+      ],
+      "build": "18368201674",
+      "commit": "97b38ffc5e42a9192d33eba08753392c2efc67bf"
+    },
+    {
       "version": "0.31.0",
       "date": "09.10.2025",
       "changes": [
