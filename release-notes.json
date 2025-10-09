@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.29.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Hinzufügen der Google Places-Autocomplete-Funktion für die Restaurantsuche.",
+        "Wechsel zur clientseitigen Google Places API für die Kompatibilität von Referer-Einschränkungen.",
+        "Debugging: Hinzufügen von Konsolenprotokollierung zum GooglePlacesSearchClient.",
+        "Test: Hinzufügen von Vitest-Unit-Tests für Dateilöschung und Voransicht-Löschung."
+      ],
+      "build": "18368016887",
+      "commit": "1bd8ba3b95545f74bfa90cdaa7f6ffd218bb7965"
+    },
+    {
       "version": "0.28.0",
       "date": "09.10.2025",
       "changes": [

@@ -1,3 +1,18 @@
+# Version 0.29.0
+Datum: 09.10.2025
+
+## Änderungen
+- Hinzufügen der Google Places-Autocomplete-Funktion für die Restaurantsuche.
+- Wechsel zur clientseitigen Google Places API für die Kompatibilität von Referer-Einschränkungen.
+- Debugging: Hinzufügen von Konsolenprotokollierung zum GooglePlacesSearchClient.
+- Test: Hinzufügen von Vitest-Unit-Tests für Dateilöschung und Voransicht-Löschung.
+
+## Technische Details
+- Build: 18368016887
+- Commit: 1bd8ba3b95545f74bfa90cdaa7f6ffd218bb7965
+
+---
+
 # Version 0.28.0
 Datum: 09.10.2025
 

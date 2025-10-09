@@ -1,3 +1,6 @@
+debug: Add console logging to GooglePlacesSearchClient (Claude Assistant)
+fix: Switch to client-side Google Places API for referer restriction compatibility (Claude Assistant)
+Bump version to 0.28.0 #auto-release (dajor)
 feat: Add Google Places autocomplete for restaurant search (Claude Assistant)
 Bump version to 0.27.0 #auto-release (dajor)
 test: Add Vitest unit tests for file deletion and preview clearing (Claude Assistant)
