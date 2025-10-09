@@ -1,3 +1,18 @@
+# Version 0.33.0
+Datum: 09.10.2025
+
+## Änderungen
+- Verbesserung des API-Testtools zur Erkennung und Erklärung von ApiNotActivatedMapError
+- Verschiebung des API-Testtools in den öffentlichen Ordner für die Auslieferung durch Next.js
+- Einführung umfassender Vitest-Tests für GooglePlacesSearchClient
+- Neue Funktion, um die Google Places-Suche mit dem vorhandenen Restaurantnamen vorzufüllen
+
+## Technische Details
+- Build: 18368248418
+- Commit: cf469370a9bbc57f56c406cca3c38d7cb9bb4410
+
+---
+
 # Version 0.32.0
 Datum: 09.10.2025
 

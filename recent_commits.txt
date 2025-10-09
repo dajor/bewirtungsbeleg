@@ -1,3 +1,5 @@
+fix: Improve API test tool to detect and explain ApiNotActivatedMapError (Claude Assistant)
+Bump version to 0.32.0 #auto-release (dajor)
 fix: Move API test tool to public folder for Next.js serving (Claude Assistant)
 test: Add comprehensive Vitest tests for GooglePlacesSearchClient (Claude Assistant)
 Bump version to 0.31.0 #auto-release (dajor)
