@@ -1,6 +1,53 @@
-# Release Notes: PDF Classification & Conversion Improvements
+# Release Notes
 
 ## Version: Latest
+**Date:** 2025-10-09
+
+---
+
+## 🐛 Critical Bug Fix: OCR Tip Calculation
+
+### Fixed Automatic Tip Calculation with OCR
+
+**Problem:**
+When uploading invoice and credit card PDFs for OCR extraction, the tip (Trinkgeld) was not automatically calculated, even though both amounts were correctly extracted:
+- Invoice: €29.90
+- Credit Card: €35.00
+- Expected Tip: €5.10 (automatically calculated)
+- Actual Result: Tip field remained empty ❌
+
+Manual entry worked correctly - typing the credit card amount would calculate the tip. Only OCR extraction failed.
+
+**Root Cause:**
+React's asynchronous state updates caused a race condition:
+1. Invoice PDF processed first → sets `gesamtbetrag: 29.90` in form state
+2. Credit card PDF processed immediately after → tries to read `form.values.gesamtbetrag`
+3. Form state hasn't finished updating yet → `form.values.gesamtbetrag` is empty
+4. Tip calculation fails because invoice amount is missing
+
+**Solution:**
+- Added `useRef` to track invoice amount across async operations (`lastInvoiceAmountRef`)
+- Store invoice amount in ref when processing Rechnung (persists independently of form state)
+- Use ref value for tip calculation in credit card handler (guaranteed to have value)
+- Added 1-second delay between processing files for UI synchronization
+- Calculate both tip amount and tip VAT (19%) during OCR extraction
+
+**Files Modified:**
+- `src/app/components/BewirtungsbelegForm.tsx`
+
+**Testing:**
+- ✅ Tested with real PDFs: `29092025_(Vendor).pdf` (invoice) and `08102025_Bezahlung MASTERCARD.pdf` (credit card)
+- ✅ Verified automatic calculation: €35.00 - €29.90 = €5.10 tip + €0.97 VAT
+- ✅ Added comprehensive debug logging (🔍 and 💰 emojis) for troubleshooting
+- ✅ Manual entry still works as before
+
+**Impact:**
+Users can now upload both invoice and credit card receipts, click "Daten extrahieren", and have the tip automatically calculated without manual intervention.
+
+---
+
+## Previous Release: PDF Classification & Conversion Improvements
+
 **Date:** 2025-10-08
 
 ---

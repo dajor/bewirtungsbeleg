@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useForm } from '@mantine/form';
 import {
   TextInput,
@@ -77,6 +77,10 @@ interface BewirtungsbelegFormData {
 export default function BewirtungsbelegForm() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<FileWithPreview[]>([]);
+
+  // Track the last extracted invoice amount for tip calculation
+  // This persists across async state updates
+  const lastInvoiceAmountRef = useRef<string>('');
 
   // Helper function to create a PDF thumbnail
   const createPdfThumbnail = () => {
@@ -292,17 +296,47 @@ export default function BewirtungsbelegForm() {
         const kreditkartenbetrag = data.kreditkartenbetrag ? data.kreditkartenbetrag.replace(',', '.') : '';
 
         // Calculate tip if we have both amounts
+        // Use lastInvoiceAmountRef (from invoice) since credit card receipt won't have bill amount
+        // This ref persists across async state updates, unlike form.values.gesamtbetrag
         let calculatedTip = '';
-        if (kreditkartenbetrag && finalGesamtbetrag) {
+        console.log('🔍 OCR: Attempting to calculate tip...');
+        console.log('🔍 OCR: kreditkartenbetrag =', kreditkartenbetrag, 'type:', typeof kreditkartenbetrag);
+        console.log('🔍 OCR: lastInvoiceAmountRef.current =', lastInvoiceAmountRef.current, 'type:', typeof lastInvoiceAmountRef.current);
+        console.log('🔍 OCR: form.values.gesamtbetrag (for comparison) =', form.values.gesamtbetrag);
+
+        // Try ref first, fallback to form.values (for manual entry after OCR)
+        const invoiceAmount = lastInvoiceAmountRef.current || form.values.gesamtbetrag;
+
+        if (kreditkartenbetrag && invoiceAmount) {
+          console.log('🔍 OCR: Both values present, calculating...');
           const paid = Number(kreditkartenbetrag);
-          const bill = Number(finalGesamtbetrag);
+          const bill = Number(String(invoiceAmount).replace(',', '.'));
+          console.log('🔍 OCR: paid =', paid, 'bill =', bill);
+          console.log('🔍 OCR: paid > bill?', paid > bill);
+
           if (paid > bill) {
             calculatedTip = (paid - bill).toFixed(2);
-            console.log('💰 Calculated tip:', calculatedTip, '=', paid, '-', bill);
+            console.log('💰 Calculated tip from OCR:', calculatedTip, '=', paid, '-', bill);
+
+            // Also calculate MwSt for the tip
+            const tipMwst = (Number(calculatedTip) * 0.19).toFixed(2);
+            console.log('💰 Calculated tip MwSt:', tipMwst);
+          } else {
+            console.log('🔍 OCR: NOT calculating tip because paid <= bill');
           }
+        } else {
+          console.log('🔍 OCR: Cannot calculate tip - missing values');
+          console.log('🔍 OCR: kreditkartenbetrag present?', !!kreditkartenbetrag);
+          console.log('🔍 OCR: invoiceAmount present?', !!invoiceAmount);
         }
 
         const tipToUse = calculatedTip || trinkgeld;
+
+        // Calculate tip MwSt if we have a tip
+        let tipMwstToUse = '';
+        if (tipToUse) {
+          tipMwstToUse = (Number(tipToUse) * 0.19).toFixed(2);
+        }
 
         // For credit card receipts: ONLY update card-specific fields, DO NOT touch invoice data
         // Update ONLY the fields we want to change, don't touch the rest
@@ -318,10 +352,14 @@ export default function BewirtungsbelegForm() {
         if (tipToUse) {
           form.setFieldValue('trinkgeld', tipToUse);
         }
+        if (tipMwstToUse) {
+          form.setFieldValue('trinkgeldMwst', tipMwstToUse);
+        }
 
         console.log('✅ Credit card data added (invoice fields untouched):', {
           kreditkartenBetrag: kreditkartenbetrag,
           trinkgeld: tipToUse,
+          trinkgeldMwst: tipMwstToUse,
           preservedInvoice: {
             gesamtbetrag: form.values.gesamtbetrag,
             mwst: form.values.gesamtbetragMwst,
@@ -330,6 +368,12 @@ export default function BewirtungsbelegForm() {
         });
       } else {
         // For Rechnung, update all financial fields
+        // Store invoice amount in ref for later tip calculation
+        if (finalGesamtbetrag) {
+          lastInvoiceAmountRef.current = finalGesamtbetrag;
+          console.log('💾 Stored invoice amount in ref:', finalGesamtbetrag);
+        }
+
         form.setValues({
           ...form.values,
           restaurantName: data.restaurantName || form.values.restaurantName,
@@ -521,8 +565,17 @@ export default function BewirtungsbelegForm() {
     });
 
     // Process ALL files for OCR (not just the first one)
-    for (const result of sortedResults) {
+    for (let i = 0; i < sortedResults.length; i++) {
+      const result = sortedResults[i];
       const fileToProcess = result.file;
+
+      // Add delay between files to ensure form state updates
+      if (i > 0) {
+        console.log(`⏳ Waiting 1 second before processing file ${i + 1} to allow form state to update...`);
+        console.log(`📋 Current form.values.gesamtbetrag BEFORE delay:`, form.values.gesamtbetrag);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`✅ Delay complete. form.values.gesamtbetrag AFTER delay:`, form.values.gesamtbetrag);
+      }
 
       // Set as selected image if this is the first file being processed
       if (!selectedImage && result === sortedResults[0]) {
@@ -781,17 +834,39 @@ export default function BewirtungsbelegForm() {
   };
 
   const handleKreditkartenBetragChange = (value: string | number) => {
+    console.log('🔍 handleKreditkartenBetragChange CALLED with value:', value, 'type:', typeof value);
+    console.log('🔍 Current form.values.gesamtbetrag:', form.values.gesamtbetrag, 'type:', typeof form.values.gesamtbetrag);
+
     const kkBetrag = String(value).replace(',', '.');
+    console.log('🔍 kkBetrag after conversion:', kkBetrag);
+
     form.setFieldValue('kreditkartenBetrag', kkBetrag);
 
     if (kkBetrag && form.values.gesamtbetrag) {
-      const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
+      console.log('🔍 Condition passed: kkBetrag && form.values.gesamtbetrag');
+
+      // Handle both string and number values from form (NumberInput can return either)
+      const gesamtbetrag = Number(String(form.values.gesamtbetrag).replace(',', '.'));
       const kkBetragNum = Number(kkBetrag);
-      
+
+      console.log('🔍 Parsed values - gesamtbetrag:', gesamtbetrag, 'kkBetragNum:', kkBetragNum);
+      console.log('🔍 Checking if', kkBetragNum, '>', gesamtbetrag, '=', kkBetragNum > gesamtbetrag);
+
       if (kkBetragNum > gesamtbetrag) {
         const trinkgeld = (kkBetragNum - gesamtbetrag).toFixed(2);
         form.setFieldValue('trinkgeld', trinkgeld);
+
+        // Also calculate MwSt for Trinkgeld
+        const { mwst } = calculateMwst(Number(trinkgeld));
+        form.setFieldValue('trinkgeldMwst', mwst);
+
+        console.log('💰 Auto-calculated tip:', trinkgeld, '=', kkBetragNum, '-', gesamtbetrag);
+        console.log('💰 Auto-calculated tip MwSt:', mwst);
+      } else {
+        console.log('🔍 Tip NOT calculated: kkBetragNum <= gesamtbetrag');
       }
+    } else {
+      console.log('🔍 Condition FAILED: kkBetrag:', !!kkBetrag, 'form.values.gesamtbetrag:', !!form.values.gesamtbetrag);
     }
   };
 
@@ -827,7 +902,8 @@ export default function BewirtungsbelegForm() {
     }
 
     if (trinkgeld && form.values.gesamtbetrag) {
-      const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
+      // Handle both string and number values from form (NumberInput can return either)
+      const gesamtbetrag = Number(String(form.values.gesamtbetrag).replace(',', '.'));
       const trinkgeldNum = Number(trinkgeld);
       const kkBetrag = (gesamtbetrag + trinkgeldNum).toFixed(2);
       form.setFieldValue('kreditkartenBetrag', kkBetrag);
