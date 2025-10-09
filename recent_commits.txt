@@ -1,3 +1,5 @@
+fix: Resolve OCR tip calculation race condition with useRef (Claude Assistant)
+Bump version to 0.37.0 #auto-release (dajor)
 fix: Use setFieldValue to avoid triggering onChange handlers (Claude Assistant)
 Bump version to 0.36.0 #auto-release (dajor)
 fix: Preserve invoice fields when extracting credit card receipt data (Claude Assistant)

@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.38.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Behoben: Rennbedingung bei der OCR-Trinkgeldberechnung mithilfe von useRef.",
+        "Behoben: Verwendung von setFieldValue, um das Auslösen von onChange-Handlern zu vermeiden.",
+        "Behoben: Erhaltung von Rechnungsfeldern beim Extrahieren von Daten aus Kreditkartenbelegen.",
+        "Verbessert: OCR-Extraktion für deutsche Quittungen und Kreditkartenbelege."
+      ],
+      "build": "18372917718",
+      "commit": "a89d3229c950e57747acf3128850b4e6d077126d"
+    },
+    {
       "version": "0.37.0",
       "date": "09.10.2025",
       "changes": [
