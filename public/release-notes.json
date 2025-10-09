@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "0.27.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Hinzugefügt: Vitest-Unit-Tests für Dateilöschung und Vorschaubereinigung zur Verbesserung der Codequalität.",
+        "Behoben: Verarbeitung aller PDFs für OCR bei Mehrfachuploads, um die Dokumentenerkennung zu verbessern.",
+        "Behoben: Entfernung der Canvas-Abhängigkeit, die Modulladefehler verursachte, um die Stabilität zu erhöhen.",
+        "Hinzugefügt: Vitest-Testing-Framework und Verbesserungen der PDF-Konvertierungszuverlässigkeit.",
+        "Behoben: Problem mit der Zurückweisung von OpenAI-Bildformaten bei der PDF-Klassifizierung."
+      ],
+      "build": "18367408697",
+      "commit": "91c87076e5127b9047aeca62aed7dd5ab8dda957"
+    },
+    {
       "version": "0.26.0",
       "date": "09.10.2025",
       "changes": [

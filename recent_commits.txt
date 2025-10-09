@@ -1,3 +1,5 @@
+test: Add Vitest unit tests for file deletion and preview clearing (Claude Assistant)
+Bump version to 0.26.0 #auto-release (dajor)
 fix: Process ALL PDFs for OCR when multiple files uploaded (Claude Assistant)
 Bump version to 0.25.0 #auto-release (dajor)
 docs: Add comprehensive test results summary (Claude Assistant)
