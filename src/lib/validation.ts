@@ -53,6 +53,8 @@ export const extractReceiptResponseSchema = z.object({
   mwst: z.string().optional(),
   netto: z.string().optional(),
   datum: z.string().optional(),
+  trinkgeld: z.string().optional(),
+  kreditkartenbetrag: z.string().optional(), // For credit card receipts: the paid amount
 });
 
 // Bewirtungsbeleg form schema

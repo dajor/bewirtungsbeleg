@@ -281,16 +281,42 @@ export default function BewirtungsbelegForm() {
       
       // Handle tip if present
       let trinkgeld = data.trinkgeld ? data.trinkgeld.replace(',', '.') : '';
-      
+
+      console.log('=== Frontend Processing ===');
+      console.log('Classification:', classificationType);
+      console.log('Extracted data:', { gesamtbetrag: finalGesamtbetrag, kreditkartenbetrag: data.kreditkartenbetrag, trinkgeld });
+
       // Handle Kreditkartenbeleg vs Rechnung differently
       if (classificationType === 'Kreditkartenbeleg') {
-        // For Kreditkartenbeleg, only update kreditkartenBetrag and keep other fields from existing form
+        // For credit card receipts: extract both bill amount and paid amount
+        const kreditkartenbetrag = data.kreditkartenbetrag ? data.kreditkartenbetrag.replace(',', '.') : '';
+
+        // Calculate tip if we have both amounts
+        let calculatedTip = '';
+        if (kreditkartenbetrag && finalGesamtbetrag) {
+          const paid = Number(kreditkartenbetrag);
+          const bill = Number(finalGesamtbetrag);
+          if (paid > bill) {
+            calculatedTip = (paid - bill).toFixed(2);
+            console.log('💰 Calculated tip:', calculatedTip, '=', paid, '-', bill);
+          }
+        }
+
+        const tipToUse = calculatedTip || trinkgeld;
+
         form.setValues({
           ...form.values,
           restaurantName: data.restaurantName || form.values.restaurantName,
           datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-          kreditkartenBetrag: finalGesamtbetrag || form.values.kreditkartenBetrag,
-          // Don't update gesamtbetrag, mwst, netto for Kreditkartenbeleg
+          gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag, // Bill amount (smaller)
+          kreditkartenBetrag: kreditkartenbetrag || form.values.kreditkartenBetrag, // Paid amount (larger)
+          trinkgeld: tipToUse || form.values.trinkgeld, // Calculated or extracted tip
+        });
+
+        console.log('✅ Set values:', {
+          gesamtbetrag: finalGesamtbetrag,
+          kreditkartenBetrag: kreditkartenbetrag,
+          trinkgeld: tipToUse
         });
       } else {
         // For Rechnung, update all financial fields
