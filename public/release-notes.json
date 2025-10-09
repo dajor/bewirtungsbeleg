@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.28.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Neues Feature: Google Places Autocomplete für Restaurantsuche hinzugefügt.",
+        "Test: Vitest-Einheitstests für Dateilöschung und Vorschaulöschung hinzugefügt.",
+        "Bugfix: Verarbeitung ALLER PDFs für OCR, wenn mehrere Dateien hochgeladen werden.",
+        "Bugfix: Entfernung der Canvas-Abhängigkeit, die Modulladefehler verursachte."
+      ],
+      "build": "18367842094",
+      "commit": "aa973ddac9e0d8429f9d4a31a48c7b7d65b2ca0a"
+    },
+    {
       "version": "0.27.0",
       "date": "09.10.2025",
       "changes": [
