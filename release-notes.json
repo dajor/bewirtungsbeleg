@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.36.0",
+      "date": "09.10.2025",
+      "changes": [
+        "Verbesserte OCR-Extraktion für deutsche Quittungen und Kreditkartenbelege hinzugefügt.",
+        "Fehler behoben, der dazu führte, dass Rechnungsfelder beim Extrahieren von Kreditkartenbelegdaten nicht erhalten blieben.",
+        "Integrationstest für PDF OCR-Extraktion hinzugefügt."
+      ],
+      "build": "18368648374",
+      "commit": "fff1642b7edfa5a1956b9ba3eacc48374b445b49"
+    },
+    {
       "version": "0.35.0",
       "date": "09.10.2025",
       "changes": [

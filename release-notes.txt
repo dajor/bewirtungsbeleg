@@ -1,3 +1,17 @@
+# Version 0.36.0
+Datum: 09.10.2025
+
+## Änderungen
+- Verbesserte OCR-Extraktion für deutsche Quittungen und Kreditkartenbelege hinzugefügt.
+- Fehler behoben, der dazu führte, dass Rechnungsfelder beim Extrahieren von Kreditkartenbelegdaten nicht erhalten blieben.
+- Integrationstest für PDF OCR-Extraktion hinzugefügt.
+
+## Technische Details
+- Build: 18368648374
+- Commit: fff1642b7edfa5a1956b9ba3eacc48374b445b49
+
+---
+
 # Version 0.35.0
 Datum: 09.10.2025
 
