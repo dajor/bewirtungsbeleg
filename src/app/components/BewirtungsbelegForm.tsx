@@ -304,19 +304,38 @@ export default function BewirtungsbelegForm() {
 
         const tipToUse = calculatedTip || trinkgeld;
 
-        form.setValues({
-          ...form.values,
+        // For credit card receipts: ONLY update card-specific fields, keep all invoice data
+        const updates: any = {
           restaurantName: data.restaurantName || form.values.restaurantName,
           datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-          gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag, // Bill amount (smaller)
-          kreditkartenBetrag: kreditkartenbetrag || form.values.kreditkartenBetrag, // Paid amount (larger)
-          trinkgeld: tipToUse || form.values.trinkgeld, // Calculated or extracted tip
+        };
+
+        // Only update kreditkartenBetrag and trinkgeld from credit card receipt
+        // DO NOT update gesamtbetrag, mwst, netto - keep them from the invoice
+        if (kreditkartenbetrag) {
+          updates.kreditkartenBetrag = kreditkartenbetrag;
+        }
+        if (tipToUse) {
+          updates.trinkgeld = tipToUse;
+        }
+
+        form.setValues({
+          ...form.values,
+          ...updates,
+          // Explicitly preserve invoice fields
+          gesamtbetrag: form.values.gesamtbetrag,
+          gesamtbetragMwst: form.values.gesamtbetragMwst,
+          gesamtbetragNetto: form.values.gesamtbetragNetto,
         });
 
-        console.log('✅ Set values:', {
-          gesamtbetrag: finalGesamtbetrag,
+        console.log('✅ Credit card data added (preserving invoice fields):', {
           kreditkartenBetrag: kreditkartenbetrag,
-          trinkgeld: tipToUse
+          trinkgeld: tipToUse,
+          preservedInvoice: {
+            gesamtbetrag: form.values.gesamtbetrag,
+            mwst: form.values.gesamtbetragMwst,
+            netto: form.values.gesamtbetragNetto,
+          }
         });
       } else {
         // For Rechnung, update all financial fields
