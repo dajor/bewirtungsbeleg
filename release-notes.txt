@@ -1,3 +1,17 @@
+# Version 0.37.0
+Datum: 09.10.2025
+
+## Änderungen
+- Verbesserte OCR-Extraktion für Belege und Kreditkartenbelege in deutscher Sprache.
+- Fehlerbehebung: Verwendung von setFieldValue, um das Auslösen von onChange-Handlern zu vermeiden.
+- Fehlerbehebung: Beibehaltung von Rechnungsfeldern beim Extrahieren von Daten aus Kreditkartenbelegen.
+
+## Technische Details
+- Build: 18369145952
+- Commit: e29d2fb411a57d8acf826415bda2af4f8a62fb01
+
+---
+
 # Version 0.36.0
 Datum: 09.10.2025
 

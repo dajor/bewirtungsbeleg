@@ -1,3 +1,5 @@
+fix: Use setFieldValue to avoid triggering onChange handlers (Claude Assistant)
+Bump version to 0.36.0 #auto-release (dajor)
 fix: Preserve invoice fields when extracting credit card receipt data (Claude Assistant)
 Bump version to 0.35.0 #auto-release (dajor)
 test: Add integration test for PDF OCR extraction (Claude Assistant)
