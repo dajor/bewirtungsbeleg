@@ -30,6 +30,7 @@ import {
   docbitsRegister,
   docbitsGetProfile,
   docbitsRefreshToken,
+  docbitsEmailExists,
   DocBitsAuthError,
 } from './docbits-auth';
 import { env } from './env';
@@ -393,6 +394,230 @@ describe('DocBits Authentication Functions', () => {
           }),
         })
       );
+    });
+  });
+
+  describe('docbitsEmailExists', () => {
+    describe('BDD: GIVEN email exists in DocBits', () => {
+      it('WHEN checking via /user/create THEN should return true on 409 Conflict', async () => {
+        // GIVEN: DocBits returns 409 Conflict for duplicate email
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 409,
+          ok: false,
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('existing@example.com');
+
+        // THEN: Should return true
+        expect(result).toBe(true);
+
+        // AND: Should call /user/create with dummy data
+        expect(global.fetch).toHaveBeenCalledWith(
+          'https://test.auth.docbits.com/user/create',
+          expect.objectContaining({
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: expect.stringContaining('existing@example.com'),
+          })
+        );
+
+        // Verify request contains dummy password
+        const requestBody = JSON.parse((global.fetch as any).mock.calls[0][1].body);
+        expect(requestBody.password).toBe('__CHECK_ONLY__');
+        expect(requestBody.first_name).toBe('__CHECK__');
+        expect(requestBody.last_name).toBe('__ONLY__');
+      });
+
+      it('WHEN checking via /user/create THEN should return true on 400 with USER_EXISTS code', async () => {
+        // GIVEN: DocBits returns 400 with USER_EXISTS code
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 400,
+          ok: false,
+          json: async () => ({
+            code: 'USER_EXISTS',
+            message: 'User already exists',
+          }),
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('existing@example.com');
+
+        // THEN: Should return true
+        expect(result).toBe(true);
+      });
+    });
+
+    describe('BDD: GIVEN email is available', () => {
+      it('WHEN checking via /user/create THEN should return false on 400 without USER_EXISTS', async () => {
+        // GIVEN: DocBits returns 400 for validation error (not user exists)
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 400,
+          ok: false,
+          json: async () => ({
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid request',
+          }),
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('available@example.com');
+
+        // THEN: Should return false (email available)
+        expect(result).toBe(false);
+      });
+
+      it('WHEN checking via /user/create THEN should return false on 200 OK', async () => {
+        // GIVEN: DocBits successfully creates user (shouldn't happen with dummy data)
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 200,
+          ok: true,
+          json: async () => ({
+            user_id: 'test',
+          }),
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('new@example.com');
+
+        // THEN: Should return false (fail open)
+        expect(result).toBe(false);
+      });
+
+      it('WHEN checking via /user/create THEN should return false on 500 error', async () => {
+        // GIVEN: DocBits returns 500 Internal Server Error
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 500,
+          ok: false,
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('test@example.com');
+
+        // THEN: Should return false (fail open to allow registrations)
+        expect(result).toBe(false);
+      });
+    });
+
+    describe('BDD: GIVEN network failure', () => {
+      it('WHEN network request fails THEN should return false (fail open)', async () => {
+        // GIVEN: Network error occurs
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        (global.fetch as any).mockRejectedValueOnce(new Error('Network timeout'));
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('test@example.com');
+
+        // THEN: Should return false (fail open)
+        expect(result).toBe(false);
+
+        // AND: Should log warning
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          '[DocBits] Email existence check failed:',
+          expect.any(Error)
+        );
+
+        consoleWarnSpy.mockRestore();
+      });
+
+      it('WHEN fetch throws error THEN should not throw but return false', async () => {
+        // GIVEN: Fetch throws unexpected error
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        (global.fetch as any).mockRejectedValueOnce(new TypeError('Failed to fetch'));
+
+        // WHEN: Checking if email exists
+        // THEN: Should not throw error
+        await expect(docbitsEmailExists('test@example.com')).resolves.toBe(false);
+
+        consoleWarnSpy.mockRestore();
+      });
+    });
+
+    describe('BDD: Edge Cases', () => {
+      it('should handle malformed JSON response gracefully', async () => {
+        // GIVEN: DocBits returns 400 with invalid JSON
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 400,
+          ok: false,
+          json: async () => {
+            throw new Error('Invalid JSON');
+          },
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('test@example.com');
+
+        // THEN: Should return false (json parse error treated as "email available")
+        expect(result).toBe(false);
+      });
+
+      it('should handle empty response body', async () => {
+        // GIVEN: DocBits returns 400 with empty body
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 400,
+          ok: false,
+          json: async () => ({}),
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists('test@example.com');
+
+        // THEN: Should return false (no USER_EXISTS code)
+        expect(result).toBe(false);
+      });
+
+      it('should handle special characters in email', async () => {
+        // GIVEN: Email with special characters
+        const specialEmail = 'test+tag@example.com';
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 409,
+          ok: false,
+        });
+
+        // WHEN: Checking if email exists
+        const result = await docbitsEmailExists(specialEmail);
+
+        // THEN: Should work correctly
+        expect(result).toBe(true);
+
+        // Verify email was properly sent
+        const requestBody = JSON.parse((global.fetch as any).mock.calls[0][1].body);
+        expect(requestBody.email).toBe(specialEmail);
+      });
+    });
+
+    describe('BDD: Fail-Open Architecture Rationale', () => {
+      it('SCENARIO: DocBits temporarily unavailable - should allow registration', async () => {
+        // GIVEN: DocBits service is down
+        const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        (global.fetch as any).mockRejectedValueOnce(new Error('Service unavailable'));
+
+        // WHEN: User tries to register
+        const result = await docbitsEmailExists('new-user@example.com');
+
+        // THEN: Should return false (allow registration)
+        // RATIONALE: Better to allow potential duplicate than block legitimate new users
+        // Secondary check will catch duplicates during account creation
+        expect(result).toBe(false);
+
+        consoleWarnSpy.mockRestore();
+      });
+
+      it('SCENARIO: Unexpected status code - should allow registration', async () => {
+        // GIVEN: DocBits returns unexpected 503 Service Unavailable
+        (global.fetch as any).mockResolvedValueOnce({
+          status: 503,
+          ok: false,
+        });
+
+        // WHEN: User tries to register
+        const result = await docbitsEmailExists('new-user@example.com');
+
+        // THEN: Should return false (fail open)
+        expect(result).toBe(false);
+      });
     });
   });
 });

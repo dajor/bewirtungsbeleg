@@ -162,6 +162,58 @@ export async function docbitsLogin(
 }
 
 /**
+ * Check if email already exists in DocBits
+ * Uses a temporary registration attempt to detect existing users
+ *
+ * @param email - Email address to check
+ * @returns true if email exists, false if available
+ */
+export async function docbitsEmailExists(email: string): Promise<boolean> {
+  try {
+    // Attempt to create user with invalid/temporary data
+    // If email exists, DocBits will return 409 Conflict
+    const response = await fetch(`${AUTH_SERVER}/user/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password: '__CHECK_ONLY__',  // Invalid password - won't actually create user
+        first_name: '__CHECK__',
+        last_name: '__ONLY__',
+        role: 'user',
+      }),
+    });
+
+    // If we get 409, user already exists
+    if (response.status === 409) {
+      return true;
+    }
+
+    // If we get 400, it might be validation error (email available but invalid request)
+    // In this case, we'll treat it as "email available" since we're just checking
+    if (response.status === 400) {
+      const errorData = await response.json().catch(() => ({}));
+      // If error specifically says user exists, return true
+      if (errorData.code === 'USER_EXISTS') {
+        return true;
+      }
+      // Otherwise, email is available (validation failed for other reasons)
+      return false;
+    }
+
+    // Any other status code: assume email is available (fail open)
+    return false;
+  } catch (error) {
+    console.warn('[DocBits] Email existence check failed:', error);
+    // On network error, fail open (assume email available)
+    // This prevents blocking registrations if DocBits is temporarily unavailable
+    return false;
+  }
+}
+
+/**
  * Register a new user
  */
 export async function docbitsRegister(

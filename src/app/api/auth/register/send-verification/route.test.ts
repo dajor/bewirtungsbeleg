@@ -66,7 +66,12 @@ vi.mock('@/lib/email/templates/verification', () => ({
 vi.mock('@/lib/env', () => ({
   env: {
     NEXTAUTH_URL: 'http://localhost:3000',
+    AUTH_SERVER: 'https://api.docbits.com',
   },
+}));
+
+vi.mock('@/lib/docbits-auth', () => ({
+  docbitsEmailExists: vi.fn(),
 }));
 
 describe('POST /api/auth/register/send-verification', () => {
@@ -151,6 +156,7 @@ describe('POST /api/auth/register/send-verification', () => {
 
     // THEN: Token stored with type 'email_verify' and user data
     expect(storeEmailToken).toHaveBeenCalledWith(mockToken.token, {
+      token: mockToken.token,
       email: mockToken.email,
       type: mockToken.type,
       createdAt: mockToken.createdAt,
@@ -529,14 +535,12 @@ describe('POST /api/auth/register/send-verification', () => {
    * - Saves email quota and prevents user confusion
    *
    * ERROR MESSAGE: "Ein Konto mit dieser E-Mail-Adresse existiert bereits.
-   *                 Bitte melden Sie sich an oder verwenden Sie 'Passwort vergessen'."
+   *                 Bitte melden Sie sich an oder verwenden Sie die Funktion 'Passwort vergessen'."
    */
   it('should reject registration if email already exists in DocBits', async () => {
-    // Mock fetch to simulate DocBits check-email endpoint
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      status: 200, // Email exists
-      json: async () => ({ exists: true }),
-    });
+    // Mock docbitsEmailExists to return true (email exists)
+    const { docbitsEmailExists } = await import('@/lib/docbits-auth');
+    vi.mocked(docbitsEmailExists).mockResolvedValueOnce(true);
 
     const request = createRequest(validRegistrationData);
     const response = await POST(request);
@@ -545,6 +549,10 @@ describe('POST /api/auth/register/send-verification', () => {
     expect(response.status).toBe(409);
     expect(data.error).toContain('Ein Konto mit dieser E-Mail-Adresse existiert bereits');
     expect(data.error).toContain('Passwort vergessen');
+    expect(data.code).toBe('EMAIL_EXISTS');
+
+    // Verify docbitsEmailExists was called with correct email
+    expect(docbitsEmailExists).toHaveBeenCalledWith('max.mustermann@example.com');
 
     // Verify no email was sent
     const { sendEmail } = await import('@/lib/email/mailer');
@@ -554,7 +562,7 @@ describe('POST /api/auth/register/send-verification', () => {
   /**
    * BDD: Duplicate Check Failure - Allow Registration
    *
-   * GIVEN: DocBits email check endpoint fails or doesn't exist
+   * GIVEN: DocBits email check fails due to network error
    * WHEN: Registration is attempted
    * THEN: Allow registration to proceed (fail open)
    * AND: Duplicate will be caught during actual user creation
@@ -569,13 +577,14 @@ describe('POST /api/auth/register/send-verification', () => {
    * - Second layer of duplicate detection in user creation
    */
   it('should allow registration if duplicate check fails', async () => {
+    const { docbitsEmailExists } = await import('@/lib/docbits-auth');
     const { createEmailVerificationToken } = await import('@/lib/email/utils');
     const { storeEmailToken, storeTokenByEmail } = await import('@/lib/email/token-storage');
     const { sendEmail } = await import('@/lib/email/mailer');
     const { generateEmailVerificationEmail } = await import('@/lib/email/templates/verification');
 
-    // Mock fetch to fail
-    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'));
+    // Mock docbitsEmailExists to return false (fails open on error)
+    vi.mocked(docbitsEmailExists).mockResolvedValueOnce(false);
 
     vi.mocked(createEmailVerificationToken).mockReturnValueOnce({
       token: 'test-token',
@@ -592,7 +601,7 @@ describe('POST /api/auth/register/send-verification', () => {
     const response = await POST(request);
     const data = await response.json();
 
-    // Should succeed despite check failure
+    // Should succeed with fail-open behavior
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
   });
@@ -602,25 +611,23 @@ describe('POST /api/auth/register/send-verification', () => {
    *
    * GIVEN: User registers with email that doesn't exist in DocBits
    * WHEN: Duplicate check runs
-   * THEN: Check returns 404 (email not found)
+   * THEN: Check returns false (email not found)
    * AND: Registration proceeds normally
    * AND: Verification email is sent
    *
    * WHY: Normal success case after duplicate check added
    * - Verifies duplicate check doesn't break normal flow
-   * - Confirms 404 is interpreted as "email available"
+   * - Confirms false is interpreted as "email available"
    */
   it('should proceed with registration if email does not exist', async () => {
+    const { docbitsEmailExists } = await import('@/lib/docbits-auth');
     const { createEmailVerificationToken } = await import('@/lib/email/utils');
     const { storeEmailToken, storeTokenByEmail } = await import('@/lib/email/token-storage');
     const { sendEmail } = await import('@/lib/email/mailer');
     const { generateEmailVerificationEmail } = await import('@/lib/email/templates/verification');
 
-    // Mock fetch to return 404 (email doesn't exist)
-    global.fetch = vi.fn().mockResolvedValueOnce({
-      status: 404, // Email not found - available
-      json: async () => ({ exists: false }),
-    });
+    // Mock docbitsEmailExists to return false (email available)
+    vi.mocked(docbitsEmailExists).mockResolvedValueOnce(false);
 
     vi.mocked(createEmailVerificationToken).mockReturnValueOnce({
       token: 'test-token',
@@ -639,6 +646,7 @@ describe('POST /api/auth/register/send-verification', () => {
 
     expect(response.status).toBe(200);
     expect(data.success).toBe(true);
+    expect(docbitsEmailExists).toHaveBeenCalledWith('newemail@example.com');
     expect(sendEmail).toHaveBeenCalledOnce();
   });
 });

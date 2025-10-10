@@ -27,6 +27,7 @@ import { storeEmailToken, storeTokenByEmail } from '@/lib/email/token-storage';
 import { sendEmail } from '@/lib/email/mailer';
 import { generateEmailVerificationEmail } from '@/lib/email/templates/verification';
 import { env } from '@/lib/env';
+import { docbitsEmailExists } from '@/lib/docbits-auth';
 
 // Request validation schema
 const sendVerificationSchema = z.object({
@@ -35,42 +36,6 @@ const sendVerificationSchema = z.object({
   email: z.string().email('Ungültige E-Mail-Adresse'),
 });
 
-/**
- * Check if email already exists in DocBits
- * Uses a temporary password attempt to check - if user exists, login will fail with specific error
- */
-async function checkEmailExists(email: string): Promise<boolean> {
-  try {
-    // Try to check if user exists by attempting to create with no credentials
-    // DocBits will return 409 if user already exists
-    const response = await fetch(`${env.AUTH_SERVER}/user/check-email`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email }),
-    });
-
-    // If endpoint returns 200, email exists
-    if (response.status === 200) {
-      return true;
-    }
-
-    // If endpoint returns 404, email doesn't exist
-    if (response.status === 404) {
-      return false;
-    }
-
-    // If check-email endpoint doesn't exist, fall back to false (allow registration)
-    // The actual duplicate check will happen during user creation in setup-password
-    return false;
-  } catch (error) {
-    console.warn('[Registration] Email existence check failed, allowing registration:', error);
-    // On error, allow registration to proceed
-    // Duplicate will be caught during actual user creation
-    return false;
-  }
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -89,14 +54,21 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, email } = result.data;
 
     // Check if email already exists in DocBits
-    const emailExists = await checkEmailExists(email);
+    console.log('[Registration] Checking if email exists:', email);
+    const emailExists = await docbitsEmailExists(email);
+
     if (emailExists) {
-      console.log('[Registration] Duplicate email attempt:', email);
+      console.log('[Registration] Duplicate email attempt blocked:', email);
       return NextResponse.json(
-        { error: 'Ein Konto mit dieser E-Mail-Adresse existiert bereits. Bitte melden Sie sich an oder verwenden Sie "Passwort vergessen".' },
+        {
+          error: 'Ein Konto mit dieser E-Mail-Adresse existiert bereits. Bitte melden Sie sich an oder verwenden Sie die Funktion "Passwort vergessen".',
+          code: 'EMAIL_EXISTS'
+        },
         { status: 409 }
       );
     }
+
+    console.log('[Registration] Email available, proceeding with registration:', email);
 
     // Generate email verification token
     const tokenData = createEmailVerificationToken(email);
