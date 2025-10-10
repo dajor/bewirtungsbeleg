@@ -1,5 +1,5 @@
 # Dockerfile for PDF processing with system dependencies
-FROM node:18-bullseye
+FROM node:20-bullseye
 
 # Install system dependencies for PDF processing
 RUN apt-get update && apt-get install -y \
