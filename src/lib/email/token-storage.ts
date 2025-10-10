@@ -40,7 +40,7 @@ async function initFileStore() {
 
     // Clean expired tokens on load
     const now = Date.now();
-    for (const [key, value] of fileStoreCache.entries()) {
+    for (const [key, value] of Array.from(fileStoreCache.entries())) {
       if (value.expiresAt < now) {
         fileStoreCache.delete(key);
       }
@@ -74,7 +74,7 @@ if (typeof setInterval !== 'undefined') {
     const now = Date.now();
     let changed = false;
 
-    for (const [key, value] of fileStoreCache.entries()) {
+    for (const [key, value] of Array.from(fileStoreCache.entries())) {
       if (value.expiresAt < now) {
         fileStoreCache.delete(key);
         changed = true;

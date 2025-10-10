@@ -39,6 +39,8 @@
     "**/test-utils.tsx",
     "**/jest.setup.*",
     "**/jest.config.*",
+    "**/vitest.setup.*",
+    "**/vitest.config.*",
     "**/tests/**/*"
   ]
 }

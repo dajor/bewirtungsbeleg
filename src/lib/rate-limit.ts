@@ -32,7 +32,7 @@ export const apiRatelimit = {
         prefix: 'ocr',
       })
     : null,
-  
+
   // PDF generation - moderate limit
   pdf: redis
     ? new Ratelimit({
@@ -42,7 +42,17 @@ export const apiRatelimit = {
         prefix: 'pdf',
       })
     : null,
-  
+
+  // Email endpoints - prevent abuse
+  email: redis
+    ? new Ratelimit({
+        redis,
+        limiter: Ratelimit.slidingWindow(3, '1 m'), // 3 requests per minute
+        analytics: true,
+        prefix: 'email',
+      })
+    : null,
+
   // General API - standard limit
   general: ratelimit,
 };

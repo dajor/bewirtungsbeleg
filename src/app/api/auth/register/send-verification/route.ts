@@ -104,9 +104,7 @@ export async function POST(request: NextRequest) {
     // Store token in storage (24 hour expiry) with user data
     // firstName and lastName are needed when creating the user account
     const stored = await storeEmailToken(tokenData.token, {
-      email: tokenData.email,
-      type: tokenData.type,
-      createdAt: tokenData.createdAt,
+      ...tokenData,
       firstName,
       lastName,
     });

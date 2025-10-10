@@ -10,6 +10,8 @@ export interface EmailToken {
   userId?: string;
   createdAt: number;
   type: 'email_verify' | 'password_reset' | 'magic_link';
+  firstName?: string;
+  lastName?: string;
 }
 
 /**

@@ -60,6 +60,23 @@ The application follows Next.js 14 App Router conventions with a clear separatio
 4. **File Uploads**: Limited to 10MB, specific image formats only
 5. **PDF Generation**: Uses jsPDF with custom templates from `pdf-template/`
 
+## DigitalOcean App Platform
+
+This application is deployed on DigitalOcean App Platform:
+
+- **Dev Environment** (branch: `dev`):
+  - App ID: `f75cb63f-d548-419f-95aa-c3b9a9ac53a3`
+  - URL: https://dev.bewirtungsbeleg.docbits.com/
+  - App Name: "whale-app"
+
+- **Production Environment** (branch: `main`):
+  - App ID: `35e0d2dd-82ab-4c1d-8da6-67057301433c`
+  - URL: https://bewirtungsbeleg.docbits.com/
+  - App Name: "bewirtungsbeleg"
+  - Autoscaling: 1-4 instances (70% CPU threshold)
+
+Use the DigitalOcean MCP tools to manage these apps.
+
 ## Development Guidelines
 
 1. Always validate user input with the existing Zod schemas

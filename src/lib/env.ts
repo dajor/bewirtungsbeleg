@@ -37,9 +37,12 @@ export const env = {
 
   // Authentication
   AUTH_SERVER: getEnvVariable('AUTH_SERVER', false) || 'https://api.docbits.com',
+  DOCBITS_CLIENT_ID: getEnvVariable('DOCBITS_CLIENT_ID', false),
+  DOCBITS_CLIENT_SECRET: getEnvVariable('DOCBITS_CLIENT_SECRET', false),
 
   // Email
   EMAIL_FROM: getEnvVariable('EMAIL_FROM', false) || 'noreply@example.com',
+  MAILERSEND_API_KEY: getEnvVariable('MAILERSEND_API_KEY', false),
   SMTP_HOST: getEnvVariable('SMTP_HOST', false),
   SMTP_PORT: getEnvVariable('SMTP_PORT', false),
   SMTP_USER: getEnvVariable('SMTP_USER', false),
