@@ -45,8 +45,8 @@ function SignInForm() {
     const errorParam = searchParams?.get('error');
     if (errorParam) {
       const errorMessages: Record<string, string> = {
-        'TokenAlreadyUsed': 'Dieser Magic Link wurde bereits verwendet. Bitte fordern Sie einen neuen Link an.',
-        'TokenExpired': 'Dieser Magic Link ist abgelaufen. Magic Links sind 10 Minuten gültig. Bitte fordern Sie einen neuen Link an.',
+        'TokenAlreadyUsed': 'Dieser magische Link wurde bereits verwendet. Bitte fordern Sie einen neuen Link an.',
+        'TokenExpired': 'Dieser magische Link ist abgelaufen. Magische Links sind 10 Minuten gültig. Bitte fordern Sie einen neuen Link an.',
         'MissingToken': 'Kein Anmelde-Token gefunden. Bitte verwenden Sie den vollständigen Link aus Ihrer E-Mail.',
         'InvalidToken': 'Ungültiger Anmelde-Link. Bitte fordern Sie einen neuen Link an.',
         'VerificationFailed': 'Die Verifizierung ist fehlgeschlagen. Bitte versuchen Sie es erneut.',
@@ -94,7 +94,7 @@ function SignInForm() {
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error || 'Fehler beim Senden des Magic Links');
+          setError(data.error || 'Fehler beim Senden des magischen Links');
           return;
         }
 
@@ -177,7 +177,7 @@ function SignInForm() {
             {magicLinkSent && (
               <Alert
                 icon={<IconCheck size={16} />}
-                title="Magic Link gesendet"
+                title="Magischer Link gesendet"
                 color="green"
                 variant="light"
               >
@@ -210,7 +210,7 @@ function SignInForm() {
                       label: (
                         <Group gap="xs" justify="center">
                           <IconMail size={16} />
-                          <span>Magic Link</span>
+                          <span>Magischer Link</span>
                         </Group>
                       ),
                       value: 'magic-link',
@@ -268,8 +268,8 @@ function SignInForm() {
                   {loginMode === 'password'
                     ? 'Anmelden'
                     : magicLinkSent
-                      ? 'Magic Link gesendet'
-                      : 'Magic Link senden'}
+                      ? 'Magischer Link gesendet'
+                      : 'Magischen Link senden'}
                 </Button>
               </Stack>
             </form>
