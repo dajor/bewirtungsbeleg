@@ -6,6 +6,7 @@ import { theme } from './theme';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
+import { AppLayout } from '@/components/AppLayout';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -42,7 +43,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <MantineProvider theme={theme}>
-            {children}
+            <AppLayout>
+              {children}
+            </AppLayout>
           </MantineProvider>
         </Providers>
       </body>
