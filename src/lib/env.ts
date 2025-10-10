@@ -34,4 +34,14 @@ export const env = {
   // Rate limiting
   UPSTASH_REDIS_REST_URL: getEnvVariable('UPSTASH_REDIS_REST_URL', false),
   UPSTASH_REDIS_REST_TOKEN: getEnvVariable('UPSTASH_REDIS_REST_TOKEN', false),
+
+  // Authentication
+  AUTH_SERVER: getEnvVariable('AUTH_SERVER', false) || 'https://api.docbits.com',
+
+  // Email
+  EMAIL_FROM: getEnvVariable('EMAIL_FROM', false) || 'noreply@example.com',
+  SMTP_HOST: getEnvVariable('SMTP_HOST', false),
+  SMTP_PORT: getEnvVariable('SMTP_PORT', false),
+  SMTP_USER: getEnvVariable('SMTP_USER', false),
+  SMTP_PASS: getEnvVariable('SMTP_PASS', false),
 };
