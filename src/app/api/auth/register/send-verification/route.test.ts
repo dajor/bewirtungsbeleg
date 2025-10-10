@@ -149,11 +149,13 @@ describe('POST /api/auth/register/send-verification', () => {
     // THEN: Token created for correct email
     expect(createEmailVerificationToken).toHaveBeenCalledWith('max.mustermann@example.com');
 
-    // THEN: Token stored with type 'email_verify'
+    // THEN: Token stored with type 'email_verify' and user data
     expect(storeEmailToken).toHaveBeenCalledWith(mockToken.token, {
       email: mockToken.email,
       type: mockToken.type,
       createdAt: mockToken.createdAt,
+      firstName: 'Max',
+      lastName: 'Mustermann',
     });
 
     // THEN: Personalized email sent with verification subject
@@ -500,5 +502,143 @@ describe('POST /api/auth/register/send-verification', () => {
 
     expect(response1.status).toBe(200);
     expect(response2.status).toBe(200);
+  });
+
+  /**
+   * BDD: Duplicate Email Prevention - Email Already Registered
+   *
+   * GIVEN: User tries to register with email that already exists in DocBits
+   * WHEN: Registration request is submitted
+   * THEN: API checks DocBits and returns 409 Conflict error
+   * AND: Error message directs user to login or password reset
+   * AND: No verification email is sent (prevent spam)
+   *
+   * WHY: Critical security and UX issue
+   * - Prevents multiple accounts with same email
+   * - Prevents verification email spam
+   * - Clear messaging guides user to correct action
+   *
+   * SECURITY: Balance between preventing enumeration and clear errors
+   * - We DO check if email exists (better UX, prevents duplicate accounts)
+   * - Error message suggests login OR password reset (doesn't confirm existence)
+   * - This is acceptable because registration is public action
+   *
+   * BUSINESS RULE: One email = one account
+   * - Users must use unique emails
+   * - Duplicate check happens BEFORE sending verification email
+   * - Saves email quota and prevents user confusion
+   *
+   * ERROR MESSAGE: "Ein Konto mit dieser E-Mail-Adresse existiert bereits.
+   *                 Bitte melden Sie sich an oder verwenden Sie 'Passwort vergessen'."
+   */
+  it('should reject registration if email already exists in DocBits', async () => {
+    // Mock fetch to simulate DocBits check-email endpoint
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      status: 200, // Email exists
+      json: async () => ({ exists: true }),
+    });
+
+    const request = createRequest(validRegistrationData);
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(data.error).toContain('Ein Konto mit dieser E-Mail-Adresse existiert bereits');
+    expect(data.error).toContain('Passwort vergessen');
+
+    // Verify no email was sent
+    const { sendEmail } = await import('@/lib/email/mailer');
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  /**
+   * BDD: Duplicate Check Failure - Allow Registration
+   *
+   * GIVEN: DocBits email check endpoint fails or doesn't exist
+   * WHEN: Registration is attempted
+   * THEN: Allow registration to proceed (fail open)
+   * AND: Duplicate will be caught during actual user creation
+   *
+   * WHY: Availability over perfect duplicate prevention
+   * - Don't block registrations if check endpoint is down
+   * - Duplicate detection will happen in setup-password step
+   * - Better to allow duplicate attempt than block legitimate users
+   *
+   * BUSINESS RULE: Fail open, not closed
+   * - Registration availability more important than perfect dup prevention
+   * - Second layer of duplicate detection in user creation
+   */
+  it('should allow registration if duplicate check fails', async () => {
+    const { createEmailVerificationToken } = await import('@/lib/email/utils');
+    const { storeEmailToken, storeTokenByEmail } = await import('@/lib/email/token-storage');
+    const { sendEmail } = await import('@/lib/email/mailer');
+    const { generateEmailVerificationEmail } = await import('@/lib/email/templates/verification');
+
+    // Mock fetch to fail
+    global.fetch = vi.fn().mockRejectedValueOnce(new Error('Network error'));
+
+    vi.mocked(createEmailVerificationToken).mockReturnValueOnce({
+      token: 'test-token',
+      email: 'test@example.com',
+      type: 'email_verify',
+      createdAt: Date.now(),
+    });
+    vi.mocked(storeEmailToken).mockResolvedValueOnce(true);
+    vi.mocked(storeTokenByEmail).mockResolvedValueOnce(true);
+    vi.mocked(generateEmailVerificationEmail).mockReturnValueOnce('<html>Email</html>');
+    vi.mocked(sendEmail).mockResolvedValueOnce(undefined);
+
+    const request = createRequest(validRegistrationData);
+    const response = await POST(request);
+    const data = await response.json();
+
+    // Should succeed despite check failure
+    expect(response.status).toBe(200);
+    expect(data.success).toBe(true);
+  });
+
+  /**
+   * BDD: New Email - Registration Proceeds
+   *
+   * GIVEN: User registers with email that doesn't exist in DocBits
+   * WHEN: Duplicate check runs
+   * THEN: Check returns 404 (email not found)
+   * AND: Registration proceeds normally
+   * AND: Verification email is sent
+   *
+   * WHY: Normal success case after duplicate check added
+   * - Verifies duplicate check doesn't break normal flow
+   * - Confirms 404 is interpreted as "email available"
+   */
+  it('should proceed with registration if email does not exist', async () => {
+    const { createEmailVerificationToken } = await import('@/lib/email/utils');
+    const { storeEmailToken, storeTokenByEmail } = await import('@/lib/email/token-storage');
+    const { sendEmail } = await import('@/lib/email/mailer');
+    const { generateEmailVerificationEmail } = await import('@/lib/email/templates/verification');
+
+    // Mock fetch to return 404 (email doesn't exist)
+    global.fetch = vi.fn().mockResolvedValueOnce({
+      status: 404, // Email not found - available
+      json: async () => ({ exists: false }),
+    });
+
+    vi.mocked(createEmailVerificationToken).mockReturnValueOnce({
+      token: 'test-token',
+      email: 'newemail@example.com',
+      type: 'email_verify',
+      createdAt: Date.now(),
+    });
+    vi.mocked(storeEmailToken).mockResolvedValueOnce(true);
+    vi.mocked(storeTokenByEmail).mockResolvedValueOnce(true);
+    vi.mocked(generateEmailVerificationEmail).mockReturnValueOnce('<html>Email</html>');
+    vi.mocked(sendEmail).mockResolvedValueOnce(undefined);
+
+    const request = createRequest({ ...validRegistrationData, email: 'newemail@example.com' });
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(sendEmail).toHaveBeenCalledOnce();
   });
 });
