@@ -10,12 +10,12 @@ test.describe('Simple PDF Conversion Test', () => {
   test('should display the upload area', async ({ page }) => {
     // Navigate to the form page
     await page.goto('/bewirtungsbeleg');
-    
+
     // Wait for page to load
     await page.waitForLoadState('networkidle');
-    
-    // Check if the file input exists
-    const fileInput = page.locator('input[type="file"]');
+
+    // Check if the dropzone file input exists (targets the main receipt upload, not JSON upload)
+    const fileInput = page.locator('input[type="file"][accept*="image"]');
     await expect(fileInput).toBeAttached();
     
     // Check if dropzone area is visible
@@ -42,9 +42,9 @@ test.describe('Simple PDF Conversion Test', () => {
     }
     
     console.log('Uploading PDF from:', testPdfPath);
-    
-    // Upload the file
-    const fileInput = page.locator('input[type="file"]');
+
+    // Upload the file to the dropzone (targets the main receipt upload, not JSON upload)
+    const fileInput = page.locator('input[type="file"][accept*="image"]');
     await fileInput.setInputFiles(testPdfPath);
     
     // Wait a bit for processing
