@@ -27,6 +27,9 @@ COPY . .
 # Build the application
 RUN yarn build
 
+# Run tests
+RUN yarn test
+
 # Expose port
 EXPOSE 3000
 
