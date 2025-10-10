@@ -5,13 +5,13 @@
  * Handles session creation after magic link verification
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Container, Paper, Title, Text, Loader, Alert, Stack } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-export default function MagicLinkCallbackPage() {
+function MagicLinkCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
@@ -91,5 +91,24 @@ export default function MagicLinkCallbackPage() {
         </Stack>
       </Paper>
     </Container>
+  );
+}
+
+export default function MagicLinkCallbackPage() {
+  return (
+    <Suspense fallback={
+      <Container size="xs" py={80}>
+        <Paper p="xl" radius="md" withBorder>
+          <Stack gap="md" align="center">
+            <Loader size="lg" />
+            <Title order={2} ta="center">
+              Lädt...
+            </Title>
+          </Stack>
+        </Paper>
+      </Container>
+    }>
+      <MagicLinkCallbackContent />
+    </Suspense>
   );
 }
