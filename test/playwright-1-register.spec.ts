@@ -115,12 +115,12 @@ test.describe('playwright-register: Complete Registration Flow', () => {
     // Submit password form
     await page.getByTestId('setup-submit').click();
 
-    // Wait for success message
-    const successHeading = page.getByRole('heading', { name: /Konto erfolgreich erstellt/i });
-    const errorAlert = page.locator('[role="alert"]').filter({ has: page.locator('text=/Fehler|Error/i') });
+    // Wait for password setup success message
+    const passwordSuccessHeading = page.getByRole('heading', { name: /Konto erfolgreich erstellt/i });
+    const passwordErrorAlert = page.locator('[role="alert"]').filter({ has: page.locator('text=/Fehler|Error/i') });
 
     try {
-      await expect(successHeading).toBeVisible({ timeout: 10000 });
+      await expect(passwordSuccessHeading).toBeVisible({ timeout: 10000 });
       console.log('✓ Password setup successful - account created');
     } catch (e) {
       // Take screenshot on error
@@ -129,9 +129,9 @@ test.describe('playwright-register: Complete Registration Flow', () => {
       console.log(`📸 Screenshot saved: test-results/password-setup-error-${timestamp}.png`);
 
       // Check if there's an error
-      const isErrorVisible = await errorAlert.isVisible();
+      const isErrorVisible = await passwordErrorAlert.isVisible();
       if (isErrorVisible) {
-        const errorText = await errorAlert.textContent();
+        const errorText = await passwordErrorAlert.textContent();
         console.log('❌ Error after password submit:', errorText);
         throw new Error(`Password setup failed: ${errorText}`);
       }
