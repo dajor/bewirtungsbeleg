@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Container, Title, Text, Stack, Grid, Paper, rem, Group, ThemeIcon, Image, Divider } from '@mantine/core';
-import { IconReceipt, IconClock, IconDeviceMobile, IconCheck } from '@tabler/icons-react';
+import { IconReceipt, IconClock, IconDeviceMobile, IconCheck, IconSearch } from '@tabler/icons-react';
 import Link from 'next/link';
 import { HowItWorks } from '@/components/HowItWorks';
 import { FAQ } from '@/components/FAQ';
@@ -56,7 +56,7 @@ export default function Home() {
 
       {/* Features Grid */}
       <Grid gutter="xl" mb={rem(64)}>
-        <Grid.Col span={{ base: 12, md: 4 }}>
+        <Grid.Col span={{ base: 12, md: 3 }}>
           <Paper shadow="sm" p="xl" radius="md" withBorder h="100%">
             <Stack gap="md" align="center" ta="center">
               <ThemeIcon size={rem(48)} radius="md" variant="light" color="blue">
@@ -70,7 +70,7 @@ export default function Home() {
           </Paper>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, md: 4 }}>
+        <Grid.Col span={{ base: 12, md: 3 }}>
           <Paper shadow="sm" p="xl" radius="md" withBorder h="100%">
             <Stack gap="md" align="center" ta="center">
               <ThemeIcon size={rem(48)} radius="md" variant="light" color="blue">
@@ -78,14 +78,37 @@ export default function Home() {
               </ThemeIcon>
               <Title order={3}>Zeitsparend</Title>
               <Text c="dimmed">
-                Erstellen Sie Bewirtungsbelege in wenigen Minuten statt Stunden. 
+                Erstellen Sie Bewirtungsbelege in wenigen Minuten statt Stunden.
                 Keine manuelle Dateneingabe mehr nötig.
               </Text>
             </Stack>
           </Paper>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, md: 4 }}>
+        <Grid.Col span={{ base: 12, md: 3 }}>
+          <Paper shadow="sm" p="xl" radius="md" withBorder h="100%">
+            <Stack gap="md" align="center" ta="center">
+              <ThemeIcon size={rem(48)} radius="md" variant="light" color="blue">
+                <IconSearch size={rem(32)} />
+              </ThemeIcon>
+              <Title order={3}>Intelligente Suche</Title>
+              <Text c="dimmed">
+                Finden Sie Ihre Dokumente mit modernster Volltext- und semantischer Suche.
+              </Text>
+              <Button
+                component={Link}
+                href="/warum-unsere-suche"
+                variant="light"
+                size="xs"
+                mt="xs"
+              >
+                Mehr erfahren
+              </Button>
+            </Stack>
+          </Paper>
+        </Grid.Col>
+
+        <Grid.Col span={{ base: 12, md: 3 }}>
           <Paper shadow="sm" p="xl" radius="md" withBorder h="100%">
             <Stack gap="md" align="center" ta="center">
               <ThemeIcon size={rem(48)} radius="md" variant="light" color="blue">
