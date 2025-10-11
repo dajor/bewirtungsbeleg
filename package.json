@@ -18,6 +18,8 @@
     "test:vitest:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:auth": "playwright test playwright-1-register playwright-2-login --workers=1",
+    "test:e2e:auth:clean": "./test/run-auth-tests.sh",
+    "test:cleanup-user": "node test/helpers/cleanup-test-user.js",
     "end2end-test": "playwright test"
   },
   "dependencies": {

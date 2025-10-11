@@ -1,7 +1,7 @@
 # Test info
 
 - Name: playwright-login: Login Flow >> should show error for invalid credentials
-- Location: /Users/daniel/dev/Bewritung/bewir/test/playwright-login.spec.ts:96:3
+- Location: /Users/daniel/dev/Bewritung/bewir/test/playwright-2-login.spec.ts:96:3
 
 # Error details
 
@@ -15,7 +15,7 @@ Call log:
   - expect.toBeVisible with timeout 10000ms
   - waiting for locator('[role="alert"]').filter({ hasText: /Fehler|Error|Ungültig/i })
 
-    at /Users/daniel/dev/Bewritung/bewir/test/playwright-login.spec.ts:112:30
+    at /Users/daniel/dev/Bewritung/bewir/test/playwright-2-login.spec.ts:112:30
 ```
 
 # Page snapshot
