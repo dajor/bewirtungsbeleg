@@ -245,13 +245,13 @@ export default function ProfilePage() {
                   </Group>
                 </div>
 
-                {user.user_id && (
+                {'id' in user && user.id && (
                   <div>
                     <Text size="sm" c="dimmed" mb={4}>
                       Benutzer-ID
                     </Text>
                     <Text size="xs" c="dimmed" ff="monospace">
-                      {user.user_id}
+                      {user.id}
                     </Text>
                   </div>
                 )}

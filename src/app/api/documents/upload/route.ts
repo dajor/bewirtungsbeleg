@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { uploadDocumentSet } from '@/lib/spaces';
 import { generateDocumentEmbedding, generateEmbeddingText } from '@/lib/embeddings';
 import { indexDocument } from '@/lib/opensearch';
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString(),
       thumbnail_url: pngUrl!,
       pdf_url: pdfUrl!,
-      original_url: pdfUrl,
+      original_url: pdfUrl || undefined,
       user_id: userId,
       metadata: {
         total_amount: parseFloat(metadata.gesamtbetrag) || 0,

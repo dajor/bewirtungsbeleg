@@ -14,7 +14,7 @@ export function InfoTooltip({ label, multiline = true, width = 300 }: InfoToolti
     <Tooltip
       label={label}
       multiline={multiline}
-      width={width}
+      w={width}
       withArrow
       transitionProps={{ duration: 200 }}
       position="right"

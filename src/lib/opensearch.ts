@@ -123,7 +123,7 @@ export async function createUserIndex(userId: string): Promise<boolean> {
     console.log(`[OpenSearch] Creating index ${indexName}`);
     await client.indices.create({
       index: indexName,
-      body: DOCUMENT_INDEX_MAPPING,
+      body: DOCUMENT_INDEX_MAPPING as any,
     });
 
     // Update cache
@@ -316,7 +316,9 @@ export async function searchDocuments(
       };
     });
 
-    const total = response.body.hits.total.value;
+    const total = typeof response.body.hits.total === 'number'
+      ? response.body.hits.total
+      : response.body.hits.total?.value || 0;
 
     console.log(`[OpenSearch] Found ${total} documents for user ${userId}`);
     return { documents, total };

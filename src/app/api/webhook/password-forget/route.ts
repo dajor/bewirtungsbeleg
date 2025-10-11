@@ -1,9 +1,14 @@
 /**
- * MailerSend Webhook Endpoint for E2E Testing
+ * MailerSend Webhook Endpoint for Password Reset E2E Testing
  *
  * This endpoint receives webhook notifications from MailerSend
- * when emails are sent to the test email address.
+ * when password reset emails are sent.
  * Stores email content in memory for Playwright tests to retrieve.
+ *
+ * Webhook Configuration:
+ * - Inbound Email: yzwmdjgob38u0x4txzzv@inbound.mailersend.net
+ * - Webhook URL: https://dev.bewirtungsbeleg.docbits.com/webhook/password-forget
+ * - Secret: LTgupNfVt0ibdUnv8DT3SPeaEE1oRUT4
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -14,7 +19,7 @@ interface StoredEmail {
   html: string;
   text: string;
   receivedAt: Date;
-  verificationLink?: string;
+  resetLink?: string;
 }
 
 // In-memory storage for received emails (expires after 5 minutes)
@@ -22,6 +27,7 @@ const emailStorage = new Map<string, StoredEmail>();
 
 // Cleanup old emails periodically
 const EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
+const WEBHOOK_SECRET = 'LTgupNfVt0ibdUnv8DT3SPeaEE1oRUT4';
 
 function cleanupExpiredEmails() {
   const now = Date.now();
@@ -33,17 +39,17 @@ function cleanupExpiredEmails() {
 }
 
 /**
- * Extract verification link from email HTML
+ * Extract password reset link from email HTML
  */
-function extractVerificationLink(html: string, text: string): string | undefined {
-  // Try HTML first - look for /auth/setup-password?token= link
-  const htmlMatch = html.match(/href=["']([^"']*\/auth\/setup-password\?token=[^"']*)["']/i);
+function extractResetLink(html: string, text: string): string | undefined {
+  // Try HTML first - look for /auth/reset-password?token= link
+  const htmlMatch = html.match(/href=["']([^"']*\/auth\/reset-password\?token=[^"']*)["']/i);
   if (htmlMatch) {
     return htmlMatch[1];
   }
 
   // Try plain text - look for URL pattern
-  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/setup-password\?token=[^\s]+)/i);
+  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/reset-password\?token=[^\s]+)/i);
   if (textMatch) {
     return textMatch[1];
   }
@@ -52,10 +58,34 @@ function extractVerificationLink(html: string, text: string): string | undefined
 }
 
 /**
+ * Verify webhook signature/secret
+ */
+function verifyWebhookSecret(request: NextRequest): boolean {
+  const signature = request.headers.get('x-mailersend-signature');
+  const secret = request.headers.get('x-mailersend-secret');
+
+  // In development, allow requests without signature
+  if (process.env.NODE_ENV === 'development') {
+    return true;
+  }
+
+  return secret === WEBHOOK_SECRET || signature === WEBHOOK_SECRET;
+}
+
+/**
  * POST - Receive webhook from MailerSend
  */
 export async function POST(request: NextRequest) {
   try {
+    // Verify webhook secret in production
+    if (!verifyWebhookSecret(request)) {
+      console.error('❌ Password Reset Webhook: Invalid secret');
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized'
+      }, { status: 401 });
+    }
+
     const body = await request.json();
 
     // MailerSend webhook structure:
@@ -71,8 +101,8 @@ export async function POST(request: NextRequest) {
       const text = email?.text || '';
 
       if (recipient) {
-        // Extract verification link
-        const verificationLink = extractVerificationLink(html, text);
+        // Extract password reset link
+        const resetLink = extractResetLink(html, text);
 
         // Store email
         emailStorage.set(recipient, {
@@ -81,12 +111,12 @@ export async function POST(request: NextRequest) {
           html,
           text,
           receivedAt: new Date(),
-          verificationLink,
+          resetLink,
         });
 
-        console.log(`📧 Webhook received - Email stored for: ${recipient}`);
-        if (verificationLink) {
-          console.log(`🔗 Verification link extracted: ${verificationLink.substring(0, 50)}...`);
+        console.log(`📧 Password Reset Webhook - Email stored for: ${recipient}`);
+        if (resetLink) {
+          console.log(`🔗 Reset link extracted: ${resetLink.substring(0, 50)}...`);
         }
 
         // Cleanup old emails
@@ -94,15 +124,15 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
           success: true,
-          message: 'Email received and stored',
-          hasVerificationLink: !!verificationLink
+          message: 'Password reset email received and stored',
+          hasResetLink: !!resetLink
         });
       }
     }
 
     return NextResponse.json({ success: true, message: 'Webhook received' });
   } catch (error) {
-    console.error('Webhook error:', error);
+    console.error('Password Reset Webhook error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to process webhook'
@@ -135,17 +165,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         success: false,
         error: 'Email not found',
-        message: 'No email received for this address yet. Check MailerSend webhook configuration.'
+        message: 'No password reset email received for this address yet. Check MailerSend webhook configuration.'
       }, { status: 404 });
     }
 
     return NextResponse.json({
       success: true,
       email: stored,
-      verificationLink: stored.verificationLink
+      resetLink: stored.resetLink
     });
   } catch (error) {
-    console.error('GET webhook error:', error);
+    console.error('GET Password Reset Webhook error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to retrieve email'
@@ -166,17 +196,17 @@ export async function DELETE(request: NextRequest) {
       emailStorage.delete(email);
       return NextResponse.json({
         success: true,
-        message: `Email cleared for: ${email}`
+        message: `Password reset email cleared for: ${email}`
       });
     } else {
       emailStorage.clear();
       return NextResponse.json({
         success: true,
-        message: 'All emails cleared'
+        message: 'All password reset emails cleared'
       });
     }
   } catch (error) {
-    console.error('DELETE webhook error:', error);
+    console.error('DELETE Password Reset Webhook error:', error);
     return NextResponse.json({
       success: false,
       error: 'Failed to clear emails'
