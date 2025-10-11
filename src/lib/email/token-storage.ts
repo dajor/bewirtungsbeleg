@@ -112,8 +112,8 @@ export async function storeEmailToken(
         return false;
       }
 
-      // Store with remaining EX (seconds) for TTL
-      await redis.set(key, JSON.stringify(data), { ex: remainingTTL });
+      // Store with remaining EX (seconds) for TTL - ioredis syntax
+      await redis.setex(key, remainingTTL, JSON.stringify(data));
     } else {
       // Fallback to file-based storage (persists across restarts)
       console.warn('[Token Storage] Using file-based storage (Redis not configured)');
@@ -243,7 +243,7 @@ export async function storeTokenByEmail(
     const expirySeconds = expiryMinutes * 60;
 
     if (isRedisConfigured()) {
-      await redis.set(key, token, { ex: expirySeconds });
+      await redis.setex(key, expirySeconds, token);
     } else {
       // Fallback to file-based storage
       const store = await initFileStore();

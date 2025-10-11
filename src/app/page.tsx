@@ -1,8 +1,10 @@
 'use client';
 
-import { Button, Container, Title, Text, Stack, Grid, Paper, rem, Group, ThemeIcon, Image } from '@mantine/core';
+import { Button, Container, Title, Text, Stack, Grid, Paper, rem, Group, ThemeIcon, Image, Divider } from '@mantine/core';
 import { IconReceipt, IconClock, IconDeviceMobile, IconCheck } from '@tabler/icons-react';
 import Link from 'next/link';
+import { HowItWorks } from '@/components/HowItWorks';
+import { FAQ } from '@/components/FAQ';
 
 export default function Home() {
   return (
@@ -151,16 +153,25 @@ export default function Home() {
         </Grid>
       </Paper>
 
+      {/* How It Works Section */}
+      <Divider my={rem(64)} />
+      <HowItWorks />
+
+      {/* FAQ Section */}
+      <Divider my={rem(64)} />
+      <FAQ />
+
       {/* CTA Section */}
+      <Divider my={rem(64)} />
       <Stack gap="md" align="center" ta="center">
         <Title order={2}>Bereit, Ihre Bewirtungsbelege zu digitalisieren?</Title>
         <Text size="lg" c="dimmed" maw={rem(600)}>
           Erstellen Sie jetzt Ihren ersten Bewirtungsbeleg und sparen Sie wertvolle Zeit.
         </Text>
-        <Button 
-          component={Link} 
-          href="/bewirtungsbeleg" 
-          size="lg" 
+        <Button
+          component={Link}
+          href="/bewirtungsbeleg"
+          size="lg"
           radius="xl"
         >
           Bewirtungsbeleg erstellen

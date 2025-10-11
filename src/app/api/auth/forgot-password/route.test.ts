@@ -34,6 +34,8 @@
  * RELATED ROUTES:
  * - /api/auth/reset-password - Handles actual password change (next step)
  * - /api/auth/verify-email - Similar token-based flow for registration
+ *
+ * @vitest-environment node
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
