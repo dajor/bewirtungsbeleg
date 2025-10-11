@@ -108,7 +108,7 @@ export function UserMenu() {
 
         <Menu.Item
           component={Link}
-          href="/bewirtungsbeleg"
+          href="/meine-belege"
           leftSection={<IconReceipt size={16} stroke={1.5} />}
         >
           Meine Belege

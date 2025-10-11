@@ -23,7 +23,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createEmailVerificationToken } from '@/lib/email/utils';
-import { storeEmailToken, storeTokenByEmail } from '@/lib/email/token-storage';
+import { storeEmailToken, storeTokenByEmail, getTokenByEmail } from '@/lib/email/token-storage';
 import { sendEmail } from '@/lib/email/mailer';
 import { generateEmailVerificationEmail } from '@/lib/email/templates/verification';
 import { env } from '@/lib/env';
@@ -53,8 +53,25 @@ export async function POST(request: NextRequest) {
 
     const { firstName, lastName, email } = result.data;
 
+    // Check if there's already a pending registration for this email
+    console.log('[Registration] Checking for pending registration:', email);
+    const existingToken = await getTokenByEmail(email, 'email_verify');
+
+    if (existingToken) {
+      console.log('[Registration] Found existing pending registration for:', email);
+      // Email has a pending verification - resend the same token
+      // This prevents duplicate registrations and provides better UX
+      return NextResponse.json(
+        {
+          error: 'Ein Bestätigungslink wurde bereits an diese E-Mail-Adresse gesendet. Bitte prüfen Sie Ihr Postfach oder warten Sie einige Minuten, bevor Sie es erneut versuchen.',
+          code: 'VERIFICATION_PENDING'
+        },
+        { status: 409 }
+      );
+    }
+
     // Check if email already exists in DocBits
-    console.log('[Registration] Checking if email exists:', email);
+    console.log('[Registration] Checking if email exists in DocBits:', email);
     const emailExists = await docbitsEmailExists(email);
 
     if (emailExists) {

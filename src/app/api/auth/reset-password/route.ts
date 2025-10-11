@@ -9,6 +9,7 @@ import { verifyAndConsumeToken, deleteTokenByEmail } from '@/lib/email/token-sto
 import { isTokenExpired, getTokenExpiryMinutes } from '@/lib/email/utils';
 import { sendEmail } from '@/lib/email/mailer';
 import { generatePasswordChangedEmail } from '@/lib/email/templates/password-reset';
+import { docbitsResetPasswordWithToken, DocBitsAuthError } from '@/lib/docbits-auth';
 
 // Request validation schema
 const resetPasswordSchema = z.object({
@@ -62,9 +63,60 @@ export async function POST(request: NextRequest) {
     // Delete token by email (cleanup)
     await deleteTokenByEmail(tokenData.email, 'password_reset');
 
-    // TODO: Update password in database
-    // This will be implemented when we add user management
-    // For now, we just validate the token and return success
+    // Reset password in DocBits using token-based reset
+    try {
+      console.log('[Reset Password] Resetting password in DocBits for:', tokenData.email);
+      await docbitsResetPasswordWithToken(tokenData.email, password, token);
+      console.log('[Reset Password] Password reset successfully in DocBits');
+    } catch (docbitsError) {
+      // Handle DocBits-specific errors
+      if (docbitsError instanceof DocBitsAuthError) {
+        console.error('[Reset Password] DocBits password reset error:', {
+          message: docbitsError.message,
+          statusCode: docbitsError.statusCode,
+          code: docbitsError.code,
+        });
+
+        // If not implemented, return clear message
+        if (docbitsError.code === 'NOT_IMPLEMENTED') {
+          return NextResponse.json(
+            {
+              error: 'Passwort-Zurücksetzen ist derzeit nicht verfügbar',
+              message: docbitsError.message,
+              suggestion: 'Bitte kontaktieren Sie den Support oder melden Sie sich an und ändern Sie Ihr Passwort über die Einstellungen.'
+            },
+            { status: 501 }
+          );
+        }
+
+        // If user not found, show appropriate message
+        if (docbitsError.code === 'USER_NOT_FOUND') {
+          return NextResponse.json(
+            { error: 'Benutzer nicht gefunden. Bitte registrieren Sie sich erneut.' },
+            { status: 404 }
+          );
+        }
+
+        // If invalid token
+        if (docbitsError.statusCode === 400) {
+          return NextResponse.json(
+            { error: 'Ungültiger oder abgelaufener Reset-Token' },
+            { status: 400 }
+          );
+        }
+
+        // Return DocBits error message with more context
+        const errorMessage = docbitsError.message || 'Fehler beim Zurücksetzen des Passworts';
+        return NextResponse.json(
+          { error: errorMessage },
+          { status: docbitsError.statusCode || 500 }
+        );
+      }
+
+      // Generic error
+      console.error('[Reset Password] Unexpected error during password reset:', docbitsError);
+      throw docbitsError;
+    }
 
     // Send confirmation email
     try {

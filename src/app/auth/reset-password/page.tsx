@@ -21,6 +21,7 @@ import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconCheck, IconLock } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, Suspense } from 'react';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -94,10 +95,40 @@ function ResetPasswordForm() {
 
       setSuccess(true);
 
-      // Redirect to signin after 3 seconds
-      setTimeout(() => {
-        router.push('/auth/signin?password_reset=success');
-      }, 3000);
+      // Auto-login with the newly reset credentials
+      console.log('[Reset Password] Password reset successful, auto-logging in...');
+
+      try {
+        const signInResult = await signIn('credentials', {
+          email: data.email,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          console.error('[Reset Password] Auto-login failed:', signInResult.error);
+          // Still show success but redirect to signin
+          setTimeout(() => {
+            router.push('/auth/signin?password_reset=success');
+          }, 2000);
+          return;
+        }
+
+        if (signInResult?.ok) {
+          console.log('[Reset Password] Auto-login successful, redirecting to main app');
+          // Redirect to main app after successful auto-login
+          setTimeout(() => {
+            router.push('/bewirtungsbeleg');
+            router.refresh();
+          }, 1500);
+        }
+      } catch (loginError) {
+        console.error('[Reset Password] Auto-login error:', loginError);
+        // Fallback to signin page
+        setTimeout(() => {
+          router.push('/auth/signin?password_reset=success');
+        }, 2000);
+      }
     } catch (err) {
       console.error('Reset password error:', err);
       setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
@@ -150,8 +181,7 @@ function ResetPasswordForm() {
               title="Erfolg"
               color="green"
             >
-              Ihr Passwort wurde erfolgreich geändert. Sie werden zur Anmeldeseite
-              weitergeleitet...
+              Ihr Passwort wurde erfolgreich geändert. Sie werden automatisch angemeldet...
             </Alert>
           ) : (
             <form onSubmit={form.onSubmit(handleSubmit)}>

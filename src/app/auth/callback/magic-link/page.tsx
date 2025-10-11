@@ -19,6 +19,7 @@ function MagicLinkCallbackContent() {
 
   useEffect(() => {
     if (!searchParams) {
+      console.error('[Magic Link Callback] No search params found');
       setError('Keine Parameter gefunden');
       setProcessing(false);
       return;
@@ -27,30 +28,38 @@ function MagicLinkCallbackContent() {
     const email = searchParams.get('email');
 
     if (!email) {
+      console.error('[Magic Link Callback] No email parameter found');
       setError('Keine E-Mail-Adresse gefunden');
       setProcessing(false);
       return;
     }
 
+    console.log('[Magic Link Callback] Creating session for:', email);
+
     // Create a NextAuth session for the verified email
     const createSession = async () => {
       try {
         // Sign in with magic-link provider (email already verified)
+        console.log('[Magic Link Callback] Calling signIn with magic-link provider');
         const result = await signIn('magic-link', {
           email,
           redirect: false,
         });
 
+        console.log('[Magic Link Callback] signIn result:', result);
+
         if (result?.error) {
-          setError('Anmeldung fehlgeschlagen');
+          console.error('[Magic Link Callback] signIn error:', result.error);
+          setError(`Anmeldung fehlgeschlagen: ${result.error}`);
           setProcessing(false);
           return;
         }
 
         // Session created successfully, redirect to app
+        console.log('[Magic Link Callback] Session created successfully, redirecting to /bewirtungsbeleg');
         router.push('/bewirtungsbeleg');
       } catch (err) {
-        console.error('Session creation error:', err);
+        console.error('[Magic Link Callback] Session creation error:', err);
         setError('Fehler beim Erstellen der Sitzung');
         setProcessing(false);
       }
@@ -96,18 +105,7 @@ function MagicLinkCallbackContent() {
 
 export default function MagicLinkCallbackPage() {
   return (
-    <Suspense fallback={
-      <Container size="xs" py={80}>
-        <Paper p="xl" radius="md" withBorder>
-          <Stack gap="md" align="center">
-            <Loader size="lg" />
-            <Title order={2} ta="center">
-              Lädt...
-            </Title>
-          </Stack>
-        </Paper>
-      </Container>
-    }>
+    <Suspense fallback={<div />}>
       <MagicLinkCallbackContent />
     </Suspense>
   );

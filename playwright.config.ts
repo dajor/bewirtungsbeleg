@@ -4,11 +4,11 @@ import { defineConfig, devices } from '@playwright/test';
  * Playwright Configuration
  *
  * Test Execution Order:
- * - playwright-register.spec.ts and playwright-login.spec.ts are designed to run sequentially
- * - playwright-register creates a test user account
- * - playwright-login depends on that account existing
- * - When running these tests specifically, use: npx playwright test playwright-register playwright-login --workers=1
- * - This ensures they run in order (alphabetical by default)
+ * - playwright-1-register.spec.ts and playwright-2-login.spec.ts are designed to run sequentially
+ * - playwright-1-register creates a test user account
+ * - playwright-2-login depends on that account existing
+ * - Files are named with numbers to ensure alphabetical execution order
+ * - When running these tests specifically, use: yarn test:e2e:auth
  */
 export default defineConfig({
   testDir: './test',
@@ -22,8 +22,8 @@ export default defineConfig({
     '**/e2e-zugferd.spec.ts',
     '**/e2e-eigenbeleg-workflow.spec.ts',
     '**/eigenbeleg-validation-simple.spec.ts',
-    '**/playwright-register.spec.ts',
-    '**/playwright-login.spec.ts'
+    '**/playwright-1-register.spec.ts',
+    '**/playwright-2-login.spec.ts'
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

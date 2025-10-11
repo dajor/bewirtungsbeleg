@@ -4,14 +4,15 @@
  *
  * BUSINESS LOGIC:
  * 1. Validate token and password
- * 2. Verify token is valid, not expired, and correct type
- * 3. Consume token (single-use security)
- * 4. Create user account in DocBits with email, password, firstName, lastName
+ * 2. Verify token is valid, not expired, and correct type (WITHOUT consuming)
+ * 3. Create user account in DocBits with email, password, firstName, lastName
+ * 4. ONLY consume token after successful user creation (single-use security)
  * 5. Delete token from storage (cleanup)
  * 6. Return success with email for login
  *
  * SECURITY:
- * - Tokens are single-use (consumed on first use)
+ * - Tokens are single-use (consumed ONLY after successful user creation)
+ * - If user creation fails, token remains valid for retry
  * - Tokens expire after 24 hours
  * - Password must be at least 8 characters
  * - Duplicate emails caught by DocBits (returns 409)
@@ -19,12 +20,12 @@
  * ERROR SCENARIOS:
  * - 400: Invalid/expired/used token, wrong token type, weak password
  * - 409: Email already exists in DocBits (race condition)
- * - 500: Network error, DocBits API error
+ * - 500: Network error, DocBits API error (token NOT consumed, user can retry)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { verifyAndConsumeToken, deleteTokenByEmail } from '@/lib/email/token-storage';
+import { getEmailToken, deleteEmailToken, deleteTokenByEmail } from '@/lib/email/token-storage';
 import { isTokenExpired, getTokenExpiryMinutes } from '@/lib/email/utils';
 import { docbitsRegister, DocBitsAuthError } from '@/lib/docbits-auth';
 
@@ -50,8 +51,8 @@ export async function POST(request: NextRequest) {
 
     const { token, password } = result.data;
 
-    // Verify and consume token (single-use)
-    const tokenData = await verifyAndConsumeToken(token);
+    // Verify token WITHOUT consuming it first (verify-only mode)
+    const tokenData = await getEmailToken(token);
 
     if (!tokenData) {
       return NextResponse.json(
@@ -77,9 +78,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Delete token by email (cleanup)
-    await deleteTokenByEmail(tokenData.email, 'email_verify');
-
     // Extract user data from token
     const firstName = (tokenData as any).firstName;
     const lastName = (tokenData as any).lastName;
@@ -94,6 +92,7 @@ export async function POST(request: NextRequest) {
 
     // Create user account in DocBits
     try {
+      console.log('[Setup Password] Creating DocBits user account for:', tokenData.email);
       const user = await docbitsRegister({
         email: tokenData.email,
         password,
@@ -102,6 +101,10 @@ export async function POST(request: NextRequest) {
       });
 
       console.log('[Setup Password] User account created successfully:', user.user_id);
+
+      // ONLY consume token after successful user creation
+      await deleteEmailToken(token);
+      await deleteTokenByEmail(tokenData.email, 'email_verify');
 
       // Return success with email for login
       return NextResponse.json({
@@ -112,7 +115,11 @@ export async function POST(request: NextRequest) {
     } catch (docbitsError) {
       // Handle DocBits-specific errors
       if (docbitsError instanceof DocBitsAuthError) {
-        console.error('[Setup Password] DocBits registration error:', docbitsError.message);
+        console.error('[Setup Password] DocBits registration error:', {
+          message: docbitsError.message,
+          statusCode: docbitsError.statusCode,
+          code: docbitsError.code,
+        });
 
         // If user already exists (409), show appropriate message
         if (docbitsError.statusCode === 409 || docbitsError.code === 'USER_EXISTS') {
@@ -122,14 +129,26 @@ export async function POST(request: NextRequest) {
           );
         }
 
-        // Return DocBits error message
+        // If unauthorized (401), DocBits might require different auth setup
+        // Show a user-friendly error
+        if (docbitsError.statusCode === 401) {
+          console.error('[Setup Password] DocBits returned 401 Unauthorized. Check DOCBITS_CLIENT_ID and DOCBITS_CLIENT_SECRET.');
+          return NextResponse.json(
+            { error: 'Ein technischer Fehler ist aufgetreten. Bitte kontaktieren Sie den Support.' },
+            { status: 500 }
+          );
+        }
+
+        // Return DocBits error message with more context
+        const errorMessage = docbitsError.message || 'Fehler beim Erstellen des Kontos';
         return NextResponse.json(
-          { error: docbitsError.message },
+          { error: errorMessage },
           { status: docbitsError.statusCode || 500 }
         );
       }
 
       // Generic error
+      console.error('[Setup Password] Unexpected error during registration:', docbitsError);
       throw docbitsError;
     }
   } catch (error) {

@@ -739,6 +739,211 @@ export default function BewirtungsbelegForm() {
     }
   };
 
+  const handleGobdUpload = async () => {
+    // Validate form first
+    const validation = form.validate();
+    if (validation.hasErrors) {
+      setError('Bitte füllen Sie alle erforderlichen Felder aus');
+      return;
+    }
+
+    console.log('[GoBD Upload] Starting upload to GoBD-Tresor...');
+    setIsSubmitting(true);
+    setError(null);
+
+    try {
+      // Validate: If there's a Kreditkartenbeleg, there must also be a Rechnung
+      const hasKreditkartenbeleg = attachedFiles.some(f => f.classification?.type === 'Kreditkartenbeleg');
+      const hasRechnung = attachedFiles.some(f => f.classification?.type === 'Rechnung');
+
+      if (hasKreditkartenbeleg && !hasRechnung) {
+        throw new Error('Ein Kreditkartenbeleg allein reicht nicht aus. Bitte fügen Sie auch die Rechnung hinzu.');
+      }
+
+      // Generate PDF first (same as download flow)
+      console.log('[GoBD Upload] Generating PDF...');
+
+      // Convert all attachments to Base64
+      const attachments: Array<{ data: string; name: string; type: string; classification?: string }> = [];
+
+      for (const fileData of attachedFiles) {
+        const reader = new FileReader();
+        const base64Data = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(fileData.file);
+        });
+
+        attachments.push({
+          data: base64Data,
+          name: fileData.file.name,
+          type: fileData.file.type,
+          classification: fileData.classification?.type
+        });
+      }
+
+      // Sort attachments: Rechnung first, then Kreditkartenbeleg
+      attachments.sort((a, b) => {
+        if (a.classification === 'Rechnung' && b.classification !== 'Rechnung') return -1;
+        if (a.classification !== 'Rechnung' && b.classification === 'Rechnung') return 1;
+        if (a.classification === 'Kreditkartenbeleg' && b.classification !== 'Kreditkartenbeleg') return 1;
+        if (a.classification !== 'Kreditkartenbeleg' && b.classification === 'Kreditkartenbeleg') return -1;
+        return 0;
+      });
+
+      // For backward compatibility, keep the first image as the main image
+      const imageData = attachments.length > 0 ? attachments[0].data : undefined;
+
+      // Format date
+      if (!form.values.datum) {
+        throw new Error('Datum ist erforderlich');
+      }
+      const formattedDate = form.values.datum.toISOString().split('T')[0];
+
+      // Convert to German decimal format
+      const convertToGermanDecimal = (value: string | number) => {
+        if (!value) return '';
+        const numValue = Number(value);
+        return numValue.toFixed(2).replace('.', ',');
+      };
+
+      // Prepare API data
+      const apiData = {
+        ...form.values,
+        datum: formattedDate,
+        anlass: form.values.geschaeftlicherAnlass || form.values.anlass,
+        gesamtbetrag: convertToGermanDecimal(form.values.gesamtbetrag),
+        gesamtbetragMwst: convertToGermanDecimal(form.values.gesamtbetragMwst),
+        gesamtbetragNetto: convertToGermanDecimal(form.values.gesamtbetragNetto),
+        trinkgeld: convertToGermanDecimal(form.values.trinkgeld),
+        trinkgeldMwst: convertToGermanDecimal(form.values.trinkgeldMwst),
+        kreditkartenBetrag: convertToGermanDecimal(form.values.kreditkartenBetrag),
+        generateZugferd: form.values.generateZugferd,
+        restaurantPlz: form.values.restaurantPlz,
+        restaurantOrt: form.values.restaurantOrt,
+        unternehmen: form.values.unternehmen,
+        unternehmenAnschrift: form.values.unternehmenAnschrift,
+        unternehmenPlz: form.values.unternehmenPlz,
+        unternehmenOrt: form.values.unternehmenOrt,
+        speisen: convertToGermanDecimal(form.values.speisen),
+        getraenke: convertToGermanDecimal(form.values.getraenke),
+        betragBrutto: convertToGermanDecimal(form.values.gesamtbetrag),
+        bewirtetePersonen: form.values.teilnehmer,
+        image: imageData,
+        attachments: attachments
+      };
+
+      console.log('[GoBD Upload] Generating PDF document...');
+
+      // Generate PDF via API
+      const pdfResponse = await fetch('/api/generate-pdf', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(apiData),
+      });
+
+      if (!pdfResponse.ok) {
+        const errorData = await pdfResponse.json();
+        console.error('[GoBD Upload] PDF generation error:', errorData);
+        throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
+      }
+
+      // Get PDF as blob
+      const pdfBlob = await pdfResponse.blob();
+      console.log('[GoBD Upload] PDF generated successfully, size:', pdfBlob.size);
+
+      // Convert PDF to base64 for upload
+      const pdfBase64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          // Remove data:application/pdf;base64, prefix
+          resolve(result.split(',')[1]);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(pdfBlob);
+      });
+
+      // Generate PNG preview from PDF (using first page)
+      // For now, we'll use a placeholder - in production, use pdf-to-image conversion
+      console.log('[GoBD Upload] Generating PNG preview...');
+
+      // Create a simple placeholder PNG (in production, convert PDF first page)
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 1131; // A4 aspect ratio
+      const ctx = canvas.getContext('2d');
+
+      if (ctx) {
+        // Background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Add some content
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Bewirtungsbeleg', canvas.width / 2, 60);
+        ctx.font = '16px Arial';
+        ctx.fillText(form.values.restaurantName, canvas.width / 2, 100);
+        ctx.fillText(`Datum: ${form.values.datum.toLocaleDateString('de-DE')}`, canvas.width / 2, 140);
+        ctx.fillText(`Betrag: ${apiData.gesamtbetrag} EUR`, canvas.width / 2, 180);
+      }
+
+      const pngBase64 = canvas.toDataURL('image/png').split(',')[1];
+
+      // Prepare metadata for upload
+      const metadata = {
+        ...apiData,
+        uploadDate: new Date().toISOString(),
+        fileName: `bewirtungsbeleg-${formattedDate}.pdf`,
+      };
+
+      console.log('[GoBD Upload] Uploading to DigitalOcean Spaces...');
+
+      // Upload to DigitalOcean Spaces and index in OpenSearch
+      const uploadResponse = await fetch('/api/documents/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          pdfBase64,
+          pngBase64,
+          metadata,
+        }),
+      });
+
+      if (!uploadResponse.ok) {
+        const errorData = await uploadResponse.json();
+        console.error('[GoBD Upload] Upload error:', errorData);
+        throw new Error(errorData.error || 'Fehler beim Hochladen in den GoBD-Tresor');
+      }
+
+      const uploadResult = await uploadResponse.json();
+      console.log('[GoBD Upload] Upload successful:', uploadResult);
+
+      setSuccess('Bewirtungsbeleg wurde erfolgreich in den GoBD-Tresor hochgeladen!');
+
+      // Optionally reset form after successful upload
+      // form.reset();
+      // setAttachedFiles([]);
+      // setSelectedImage(null);
+
+    } catch (error) {
+      console.error('[GoBD Upload] Error:', error);
+      if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError('Fehler beim Hochladen in den GoBD-Tresor. Bitte versuchen Sie es erneut.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleKreditkartenBetragChange = (value: string | number) => {
     const kkBetrag = String(value).replace(',', '.');
     form.setFieldValue('kreditkartenBetrag', kkBetrag);
@@ -746,7 +951,7 @@ export default function BewirtungsbelegForm() {
     if (kkBetrag && form.values.gesamtbetrag) {
       const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
       const kkBetragNum = Number(kkBetrag);
-      
+
       if (kkBetragNum > gesamtbetrag) {
         const trinkgeld = (kkBetragNum - gesamtbetrag).toFixed(2);
         form.setFieldValue('trinkgeld', trinkgeld);
@@ -1308,14 +1513,29 @@ export default function BewirtungsbelegForm() {
               />
             </Group>
 
-            <Button 
-              type="submit" 
-              size="sm"
-              fullWidth
-              loading={isSubmitting}
-            >
-              Bewirtungsbeleg erstellen
-            </Button>
+            {/* Split buttons: 50% Download, 50% Upload to GoBD-Tresor */}
+            <Group grow>
+              <Button
+                type="submit"
+                size="sm"
+                loading={isSubmitting}
+              >
+                Bewirtungsbeleg erstellen
+              </Button>
+
+              <Button
+                size="sm"
+                variant="filled"
+                color="green"
+                loading={isSubmitting}
+                onClick={(event) => {
+                  event.preventDefault();
+                  handleGobdUpload();
+                }}
+              >
+                In GoBD-Tresor speichern
+              </Button>
+            </Group>
           </Stack>
         </form>
       </Paper>

@@ -25,6 +25,7 @@ export function Header() {
   const navLinks = [
     { href: '/bewirtungsbeleg', label: 'Beleg erstellen' },
     { href: '/#features', label: 'Features' },
+    { href: '/gobd', label: 'GoBD' },
     { href: '/release-notes', label: 'Release Notes' },
   ];
 
