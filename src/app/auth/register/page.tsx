@@ -156,6 +156,7 @@ export default function RegisterPage() {
                     placeholder="Max"
                     size="md"
                     {...form.getInputProps('firstName')}
+                    data-testid="register-firstName"
                     disabled={loading}
                     required
                   />
@@ -164,6 +165,7 @@ export default function RegisterPage() {
                     placeholder="Mustermann"
                     size="md"
                     {...form.getInputProps('lastName')}
+                    data-testid="register-lastName"
                     disabled={loading}
                     required
                   />
@@ -174,6 +176,7 @@ export default function RegisterPage() {
                   placeholder="ihre@email.de"
                   size="md"
                   {...form.getInputProps('email')}
+                  data-testid="register-email"
                   disabled={loading}
                   required
                 />
@@ -196,11 +199,12 @@ export default function RegisterPage() {
                     </Text>
                   }
                   {...form.getInputProps('acceptTerms', { type: 'checkbox' })}
+                  data-testid="register-acceptTerms"
                   disabled={loading}
                   required
                 />
 
-                <Button type="submit" size="md" fullWidth loading={loading}>
+                <Button type="submit" size="md" fullWidth loading={loading} data-testid="register-submit">
                   Registrieren
                 </Button>
               </Stack>

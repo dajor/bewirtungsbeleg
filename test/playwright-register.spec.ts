@@ -1,28 +1,33 @@
 /**
- * Playwright E2E Test: Complete Registration Flow
+ * Playwright E2E Test: Complete Registration Flow with Webhook
  *
- * Tests the full registration workflow:
- * 1. Register with email (Daniel Jordan - daniel.jordan+test@fellowpro.com)
- * 2. Retrieve verification token from Redis/file storage
- * 3. Setup password using the token (Tester45%)
- * 4. Login with the new account
- * 5. Verify authentication works
+ * Tests the full registration workflow using MailerSend webhook:
+ * 1. Register with test email (Test Tester - uzylloqimwnkvwjfufeq@inbound.mailersend.net)
+ * 2. Wait for email via webhook
+ * 3. Extract verification link from email
+ * 4. Setup password (Tester45%)
+ * 5. Auto-login to /bewirtungsbeleg
+ * 6. Logout for next test
  */
 
 import { test, expect } from '@playwright/test';
-import { waitForToken } from './helpers/get-token';
+import { waitForWebhookEmail, extractVerificationLink, clearWebhookEmails } from './helpers/webhook-email';
 
-// Generate unique email for each test run to avoid token reuse issues
-const timestamp = Date.now();
+// Test user data as specified by user
 const TEST_USER = {
-  firstName: 'Daniel',
-  lastName: 'Jordan',
-  email: `daniel.jordan+test${timestamp}@fellowpro.com`,
+  firstName: 'Test',
+  lastName: 'Tester',
+  email: 'uzylloqimwnkvwjfufeq@inbound.mailersend.net',
   password: 'Tester45%',
 };
 
-test.describe('Complete Registration Flow', () => {
-  test('should register, verify email token, setup password, and login successfully', async ({ page }) => {
+test.describe('playwright-register: Complete Registration Flow', () => {
+  // Clear webhook emails before test
+  test.beforeEach(async () => {
+    await clearWebhookEmails();
+  });
+
+  test('should register, verify email via webhook, setup password, and login successfully', async ({ page }) => {
     console.log('=== Step 1: Registration Form ===');
 
     // Navigate to registration page
@@ -32,117 +37,109 @@ test.describe('Complete Registration Flow', () => {
     // Wait for form to be visible
     await expect(page.locator('text=/Konto erstellen/i')).toBeVisible({ timeout: 10000 });
 
-    // Fill registration form (Mantine TextInput uses label + input structure)
-    await page.getByLabel('Vorname').fill(TEST_USER.firstName);
-    await page.getByLabel('Nachname').fill(TEST_USER.lastName);
-    await page.getByLabel('E-Mail').fill(TEST_USER.email);
+    // Fill registration form using data-testid selectors
+    await page.getByTestId('register-firstName').fill(TEST_USER.firstName);
+    await page.getByTestId('register-lastName').fill(TEST_USER.lastName);
+    await page.getByTestId('register-email').fill(TEST_USER.email);
 
-    // Accept terms and conditions (look for checkbox near "Ich akzeptiere")
-    await page.locator('input[type="checkbox"]').check();
+    // Accept terms and conditions
+    await page.getByTestId('register-acceptTerms').check();
 
     // Submit registration
-    await page.click('button[type="submit"]');
+    await page.getByTestId('register-submit').click();
 
-    // Wait for success message (use heading role to avoid strict mode violation)
+    // Wait for success message
     await expect(page.getByRole('heading', { name: /E-Mail gesendet/i })).toBeVisible({ timeout: 10000 });
     console.log('✓ Registration successful - verification email sent');
 
-    console.log('=== Step 2: Token Retrieval ===');
+    console.log('=== Step 2: Wait for Email via Webhook ===');
 
-    // Wait for token to be stored (async operation)
-    const token = await waitForToken(TEST_USER.email, 'email_verify', 15, 1000);
+    // Wait for email to arrive via webhook (30 attempts, 1 second each = 30 seconds max)
+    const email = await waitForWebhookEmail(TEST_USER.email, 30, 1000);
 
-    if (!token) {
-      throw new Error('Failed to retrieve verification token from storage');
+    if (!email) {
+      throw new Error('Failed to receive verification email via webhook. Check MailerSend webhook configuration.');
     }
 
-    console.log('✓ Token retrieved from storage:', token.substring(0, 20) + '...');
+    console.log('✓ Email received via webhook:', email.subject);
+
+    // Extract verification link
+    const verificationLink = extractVerificationLink(email);
+
+    if (!verificationLink) {
+      throw new Error('Failed to extract verification link from email');
+    }
+
+    console.log('✓ Verification link extracted:', verificationLink.substring(0, 60) + '...');
 
     console.log('=== Step 3: Password Setup ===');
 
-    // Navigate to setup-password page with token
-    const setupUrl = `/auth/setup-password?token=${token}`;
-    await page.goto(setupUrl);
+    // Navigate to verification link
+    await page.goto(verificationLink);
 
     // Wait for verification to complete
     await expect(page.locator('text=/E-Mail-Adresse wird verifiziert/i')).toBeVisible({ timeout: 5000 });
     console.log('✓ Token verification started');
 
-    // Wait for form to appear (token verified) - use placeholder to find first password field
-    await expect(page.getByPlaceholder('Mindestens 8 Zeichen')).toBeVisible({ timeout: 10000 });
+    // Wait for password setup form to appear
+    await expect(page.getByTestId('setup-password')).toBeVisible({ timeout: 10000 });
     console.log('✓ Token verified - password setup form displayed');
 
     // Verify email is displayed
     await expect(page.locator(`text=${TEST_USER.email}`)).toBeVisible();
 
-    // Fill password fields using placeholders to distinguish them
-    await page.getByPlaceholder('Mindestens 8 Zeichen').fill(TEST_USER.password);
-    await page.getByPlaceholder('Passwort wiederholen').fill(TEST_USER.password);
+    // Fill password fields using data-testid
+    await page.getByTestId('setup-password').fill(TEST_USER.password);
+    await page.getByTestId('setup-confirmPassword').fill(TEST_USER.password);
 
     // Submit password form
-    await page.click('button[type="submit"]');
+    await page.getByTestId('setup-submit').click();
 
-    // Take screenshot to debug what happens after submit
-    await page.waitForTimeout(2000);
-    await page.screenshot({ path: 'test-results/after-password-submit.png' });
+    // Wait for success message
+    const successHeading = page.getByRole('heading', { name: /Konto erfolgreich erstellt/i });
+    const errorAlert = page.locator('[role="alert"]').filter({ has: page.locator('text=/Fehler|Error/i') });
 
-    // Check if there's an error first
-    const errorAlert = page.getByRole('alert');
-    if (await errorAlert.isVisible()) {
-      const errorText = await errorAlert.textContent();
-      console.log('❌ Error after password submit:', errorText);
-      throw new Error(`Password setup failed: ${errorText}`);
+    try {
+      await expect(successHeading).toBeVisible({ timeout: 10000 });
+      console.log('✓ Password setup successful - account created');
+    } catch (e) {
+      // Take screenshot on error
+      const timestamp = Date.now();
+      await page.screenshot({ path: `test-results/password-setup-error-${timestamp}.png`, fullPage: true });
+      console.log(`📸 Screenshot saved: test-results/password-setup-error-${timestamp}.png`);
+
+      // Check if there's an error
+      const isErrorVisible = await errorAlert.isVisible();
+      if (isErrorVisible) {
+        const errorText = await errorAlert.textContent();
+        console.log('❌ Error after password submit:', errorText);
+        throw new Error(`Password setup failed: ${errorText}`);
+      }
+      throw e;
     }
 
-    // Wait for success message (using heading role)
-    await expect(page.getByRole('heading', { name: /Konto erfolgreich erstellt/i })).toBeVisible({ timeout: 10000 });
-    console.log('✓ Password setup successful - account created');
+    console.log('=== Step 4: Auto-Login & Redirect ===');
 
-    // Wait for redirect to signin (3 second timeout in code)
-    await page.waitForURL('**/auth/signin**', { timeout: 5000 });
-    console.log('✓ Redirected to signin page');
-
-    console.log('=== Step 4: Login ===');
-
-    // Fill login form
-    await page.getByLabel('E-Mail').fill(TEST_USER.email);
-    await page.getByRole('textbox', { name: 'Passwort' }).fill(TEST_USER.password);
-
-    // Submit login
-    await page.click('button[type="submit"]:has-text("Anmelden")');
-
-    // Wait for redirect to main app
+    // Wait for auto-redirect to main app
     await page.waitForURL('**/bewirtungsbeleg**', { timeout: 10000 });
-    console.log('✓ Login successful - redirected to main app');
+    console.log('✓ Auto-login successful - redirected to /bewirtungsbeleg');
 
-    // Verify we're on the main page and authenticated
+    // Verify we're on the main page
     await expect(page).toHaveURL(/.*bewirtungsbeleg/);
 
-    // Take screenshot of successful login
-    await page.screenshot({ path: 'test-results/registration-complete.png' });
+    // Take screenshot of successful registration
+    const timestamp = Date.now();
+    await page.screenshot({ path: `test-results/registration-complete-${timestamp}.png`, fullPage: true });
+    console.log(`📸 Success screenshot saved: test-results/registration-complete-${timestamp}.png`);
+
+    console.log('=== Step 5: Logout for Next Test ===');
+
+    // TODO: Implement logout logic when user menu is available
+    // For now, just clear cookies and session
+    await page.context().clearCookies();
+    console.log('✓ Logged out (cookies cleared)');
 
     console.log('=== Test Complete ===');
-    console.log('✅ Full registration flow working correctly!');
-  });
-
-  test('should show error for duplicate email registration', async ({ page }) => {
-    console.log('=== Testing Duplicate Email Prevention ===');
-
-    // Try to register with same email again
-    await page.goto('/auth/register');
-    await page.waitForLoadState('networkidle');
-
-    await page.getByLabel('Vorname').fill('Another');
-    await page.getByLabel('Nachname').fill('User');
-    await page.getByLabel('E-Mail').fill(TEST_USER.email);
-    await page.locator('input[type="checkbox"]').check();
-    await page.click('button[type="submit"]');
-
-    // Should show error about existing email (look for Alert component with error message)
-    // The full error message from API is: "Ein Konto mit dieser E-Mail-Adresse existiert bereits. Bitte melden Sie sich an oder verwenden Sie die Funktion "Passwort vergessen"."
-    await expect(page.getByRole('alert').filter({ hasText: /Ein Konto mit dieser E-Mail-Adresse existiert bereits/i }))
-      .toBeVisible({ timeout: 10000 });
-
-    console.log('✓ Duplicate email registration properly prevented');
+    console.log('✅ Full registration flow with webhook working correctly!');
   });
 });

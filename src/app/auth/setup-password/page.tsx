@@ -24,6 +24,7 @@ import { useForm } from '@mantine/form';
 import { IconAlertCircle, IconCheck, IconLock } from '@tabler/icons-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState, useEffect, useMemo, Suspense } from 'react';
+import { signIn } from 'next-auth/react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -152,10 +153,40 @@ function SetupPasswordForm() {
 
       setSuccess(true);
 
-      // Redirect to signin after 3 seconds
-      setTimeout(() => {
-        router.push('/auth/signin?setup=success');
-      }, 3000);
+      // Auto-login with the newly created credentials
+      console.log('[Setup Password] Password setup successful, auto-logging in...');
+
+      try {
+        const signInResult = await signIn('credentials', {
+          email: data.email || email,
+          password: values.password,
+          redirect: false,
+        });
+
+        if (signInResult?.error) {
+          console.error('[Setup Password] Auto-login failed:', signInResult.error);
+          // Still show success but redirect to signin
+          setTimeout(() => {
+            router.push('/auth/signin?setup=success');
+          }, 2000);
+          return;
+        }
+
+        if (signInResult?.ok) {
+          console.log('[Setup Password] Auto-login successful, redirecting to main app');
+          // Redirect to main app after successful auto-login
+          setTimeout(() => {
+            router.push('/bewirtungsbeleg');
+            router.refresh();
+          }, 1500);
+        }
+      } catch (loginError) {
+        console.error('[Setup Password] Auto-login error:', loginError);
+        // Fallback to signin page
+        setTimeout(() => {
+          router.push('/auth/signin?setup=success');
+        }, 2000);
+      }
     } catch (err) {
       console.error('Setup password error:', err);
       setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
@@ -201,8 +232,7 @@ function SetupPasswordForm() {
               Konto erfolgreich erstellt!
             </Title>
             <Text size="sm" c="dimmed" ta="center">
-              Ihr Passwort wurde gespeichert. Sie werden zur Anmeldeseite
-              weitergeleitet...
+              Sie werden automatisch angemeldet...
             </Text>
           </Stack>
         </Paper>
@@ -281,6 +311,7 @@ function SetupPasswordForm() {
                   required
                   leftSection={<IconLock size={16} />}
                   disabled={loading}
+                  data-testid="setup-password"
                   {...form.getInputProps('password')}
                 />
                 {form.values.password && (
@@ -308,6 +339,7 @@ function SetupPasswordForm() {
                 required
                 leftSection={<IconLock size={16} />}
                 disabled={loading}
+                data-testid="setup-confirmPassword"
                 {...form.getInputProps('confirmPassword')}
               />
 
@@ -321,6 +353,7 @@ function SetupPasswordForm() {
                 fullWidth
                 loading={loading}
                 disabled={!token}
+                data-testid="setup-submit"
               >
                 Konto erstellen
               </Button>

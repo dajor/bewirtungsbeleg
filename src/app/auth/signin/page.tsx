@@ -36,9 +36,50 @@ function SignInForm() {
   const [loading, setLoading] = useState(false);
   const [magicLinkLoading, setMagicLinkLoading] = useState(false);
   const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const callbackUrl = searchParams?.get('callbackUrl') || '/bewirtungsbeleg';
+  const COUNTDOWN_SECONDS = 100;
+  const STORAGE_KEY = 'magicLinkTimestamp';
+
+  // Initialize countdown from localStorage on mount
+  useEffect(() => {
+    const storedTimestamp = localStorage.getItem(STORAGE_KEY);
+    if (storedTimestamp) {
+      const timestamp = parseInt(storedTimestamp, 10);
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - timestamp) / 1000);
+      const remainingSeconds = COUNTDOWN_SECONDS - elapsedSeconds;
+
+      if (remainingSeconds > 0) {
+        setCountdown(remainingSeconds);
+        setMagicLinkSent(true);
+      } else {
+        // Countdown expired, clean up
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+  }, []);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            // Countdown finished
+            localStorage.removeItem(STORAGE_KEY);
+            setMagicLinkSent(false);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
 
   // Handle URL error parameters
   useEffect(() => {
@@ -98,6 +139,10 @@ function SignInForm() {
           return;
         }
 
+        // Start countdown timer
+        const timestamp = Date.now();
+        localStorage.setItem(STORAGE_KEY, timestamp.toString());
+        setCountdown(COUNTDOWN_SECONDS);
         setMagicLinkSent(true);
       } catch (err) {
         setError('Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.');
@@ -217,6 +262,7 @@ function SignInForm() {
                     },
                   ]}
                   disabled={loading || magicLinkLoading}
+                  data-testid="login-mode-toggle"
                 />
 
                 <TextInput
@@ -224,6 +270,7 @@ function SignInForm() {
                   placeholder="ihre@email.de"
                   size="md"
                   {...form.getInputProps('email')}
+                  data-testid="login-email"
                   disabled={loading || magicLinkLoading}
                   required
                 />
@@ -235,6 +282,7 @@ function SignInForm() {
                       placeholder="Ihr Passwort"
                       size="md"
                       {...form.getInputProps('password')}
+                      data-testid="login-password"
                       disabled={loading}
                       required
                     />
@@ -263,12 +311,13 @@ function SignInForm() {
                   size="md"
                   fullWidth
                   loading={loginMode === 'password' ? loading : magicLinkLoading}
-                  disabled={magicLinkSent}
+                  disabled={loginMode === 'magic-link' && countdown > 0}
+                  data-testid="login-submit"
                 >
                   {loginMode === 'password'
                     ? 'Anmelden'
-                    : magicLinkSent
-                      ? 'Magischer Link gesendet'
+                    : countdown > 0
+                      ? `Magischer Link gesendet (${countdown})`
                       : 'Magischen Link senden'}
                 </Button>
               </Stack>
