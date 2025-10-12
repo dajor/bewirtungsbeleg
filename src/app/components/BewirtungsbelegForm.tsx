@@ -1484,86 +1484,176 @@ export default function BewirtungsbelegForm() {
                   </Stack>
                 )}
                 
-                <NumberInput
-                  label="Gesamtbetrag (Brutto)"
-                  placeholder={`Gesamtbetrag in ${form.values.istAuslaendischeRechnung ? (form.values.auslaendischeWaehrung || 'ausländischer Währung') : 'Euro'}`}
-                  required
-                  min={0}
-                  step={0.01}
-                  size="sm"
-                  decimalScale={2}
-                  fixedDecimalScale
-                  description={form.values.istAuslaendischeRechnung 
-                    ? `Geben Sie den Gesamtbetrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'} ein` 
-                    : "Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)"}
-                  {...form.getInputProps('gesamtbetrag')}
-                  onChange={handleGesamtbetragChange}
-                />
+                {/* Two-column layout for financial fields */}
+                <Grid gutter="md">
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <Stack gap="xs">
+                      <Title order={3} size="h6" c="dimmed">Eingabefelder</Title>
+
+                      <NumberInput
+                        label="Gesamtbetrag (Brutto)"
+                        placeholder={`Gesamtbetrag in ${form.values.istAuslaendischeRechnung ? (form.values.auslaendischeWaehrung || 'ausländischer Währung') : 'Euro'}`}
+                        required
+                        min={0}
+                        step={0.01}
+                        size="md"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description={form.values.istAuslaendischeRechnung
+                          ? `Geben Sie den Gesamtbetrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'} ein`
+                          : "Betrag von der Rechnung"}
+                        {...form.getInputProps('gesamtbetrag')}
+                        onChange={handleGesamtbetragChange}
+                        styles={{
+                          input: { fontSize: '16px', fontWeight: 500 }
+                        }}
+                      />
+
+                      <NumberInput
+                        label="Betrag auf Kreditkarte/Bar"
+                        placeholder="Betrag auf Kreditkarte/Bar in Euro"
+                        min={0}
+                        step={0.01}
+                        size="md"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description="Betrag vom Kreditkartenbeleg (inkl. Trinkgeld)"
+                        {...form.getInputProps('kreditkartenBetrag')}
+                        onChange={handleKreditkartenBetragChange}
+                        styles={{
+                          input: { fontSize: '16px', fontWeight: 500 }
+                        }}
+                      />
+                    </Stack>
+                  </Grid.Col>
+
+                  <Grid.Col span={{ base: 12, md: 6 }}>
+                    <Stack gap="xs">
+                      <Title order={3} size="h6" c="dimmed">Berechnung</Title>
+
+                      {/* Visual Calculation Display */}
+                      <Paper p="md" withBorder style={{ backgroundColor: '#f8f9fa' }}>
+                        <Stack gap="xs">
+                          <Text size="sm" fw={600} c="dimmed">Trinkgeld Berechnung:</Text>
+
+                          <Box style={{ fontFamily: 'monospace', fontSize: '14px' }}>
+                            <Group gap="xs" align="center">
+                              <Text>Kreditkarte</Text>
+                              <Text c="dimmed">-</Text>
+                              <Text>Rechnung</Text>
+                              <Text c="dimmed">=</Text>
+                              <Text fw={700}>Trinkgeld</Text>
+                            </Group>
+
+                            <Group gap="xs" align="center" mt="xs">
+                              <Text fw={600} c="blue" size="lg">
+                                {form.values.kreditkartenBetrag ? Number(form.values.kreditkartenBetrag).toFixed(2).replace('.', ',') : '0,00'} €
+                              </Text>
+                              <Text c="dimmed">-</Text>
+                              <Text fw={600} c="blue" size="lg">
+                                {form.values.gesamtbetrag ? Number(form.values.gesamtbetrag).toFixed(2).replace('.', ',') : '0,00'} €
+                              </Text>
+                              <Text c="dimmed">=</Text>
+                              <Text fw={700} c="green" size="xl">
+                                {form.values.trinkgeld ? Number(form.values.trinkgeld).toFixed(2).replace('.', ',') : '0,00'} €
+                              </Text>
+                            </Group>
+                          </Box>
+
+                          {!form.values.istAuslaendischeRechnung && form.values.trinkgeld && Number(form.values.trinkgeld) > 0 && (
+                            <Box mt="sm" pt="sm" style={{ borderTop: '1px solid #dee2e6' }}>
+                              <Text size="xs" c="dimmed" mb={4}>MwSt. (19%):</Text>
+                              <Group gap="xs" align="center" style={{ fontFamily: 'monospace' }}>
+                                <Text size="sm">
+                                  {Number(form.values.trinkgeld).toFixed(2).replace('.', ',')} €
+                                </Text>
+                                <Text c="dimmed" size="sm">×</Text>
+                                <Text size="sm">0,19</Text>
+                                <Text c="dimmed" size="sm">=</Text>
+                                <Text fw={600} c="orange" size="sm">
+                                  {form.values.trinkgeldMwst ? Number(form.values.trinkgeldMwst).toFixed(2).replace('.', ',') : '0,00'} €
+                                </Text>
+                              </Group>
+                            </Box>
+                          )}
+                        </Stack>
+                      </Paper>
+
+                      {/* Read-only result fields */}
+                      <NumberInput
+                        label="Trinkgeld"
+                        placeholder="Trinkgeld in Euro"
+                        min={0}
+                        step={0.01}
+                        size="sm"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description="Automatisch berechnet"
+                        {...form.getInputProps('trinkgeld')}
+                        readOnly
+                        styles={{
+                          input: { backgroundColor: '#e7f5ff', color: '#1971c2', fontWeight: 600 }
+                        }}
+                      />
+                    </Stack>
+                  </Grid.Col>
+                </Grid>
+
+                {/* Additional calculated fields below */}
                 {!form.values.istAuslaendischeRechnung && (
-                  <>
-                    <NumberInput
-                      label="MwSt. Gesamtbetrag"
-                      placeholder="MwSt. in Euro"
-                      min={0}
-                      step={0.01}
-                      size="sm"
-                      decimalScale={2}
-                      fixedDecimalScale
-                      description="MwSt. (19%) wird automatisch berechnet"
-                      {...form.getInputProps('gesamtbetragMwst')}
-                      readOnly
-                    />
-                    <NumberInput
-                      label="Netto Gesamtbetrag"
-                      placeholder="Netto in Euro"
-                      min={0}
-                      step={0.01}
-                      size="sm"
-                      decimalScale={2}
-                      fixedDecimalScale
-                      description="Netto wird automatisch berechnet"
-                      {...form.getInputProps('gesamtbetragNetto')}
-                      readOnly
-                    />
-                  </>
-                )}
-                <NumberInput
-                  label="Betrag auf Kreditkarte/Bar"
-                  placeholder="Betrag auf Kreditkarte/Bar in Euro"
-                  min={0}
-                  step={0.01}
-                  size="sm"
-                  decimalScale={2}
-                  fixedDecimalScale
-                  description="Geben Sie den Betrag ein, der auf der Kreditkarte belastet wurde (inkl. Trinkgeld)"
-                  {...form.getInputProps('kreditkartenBetrag')}
-                  onChange={handleKreditkartenBetragChange}
-                />
-                <NumberInput
-                  label="Trinkgeld"
-                  placeholder="Trinkgeld in Euro"
-                  min={0}
-                  step={0.01}
-                  size="sm"
-                  decimalScale={2}
-                  fixedDecimalScale
-                  description="Wird automatisch berechnet (Kreditkartenbetrag - Rechnungsbetrag)"
-                  {...form.getInputProps('trinkgeld')}
-                  readOnly
-                />
-                {!form.values.istAuslaendischeRechnung && (
-                  <NumberInput
-                    label="MwSt. Trinkgeld"
-                    placeholder="MwSt. in Euro"
-                    min={0}
-                    step={0.01}
-                    size="sm"
-                    decimalScale={2}
-                    fixedDecimalScale
-                    description="MwSt. (19%) wird automatisch berechnet"
-                    {...form.getInputProps('trinkgeldMwst')}
-                    readOnly
-                  />
+                  <Grid gutter="xs" mt="xs">
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="MwSt. Gesamtbetrag"
+                        placeholder="MwSt. in Euro"
+                        min={0}
+                        step={0.01}
+                        size="sm"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description="19% vom Gesamtbetrag"
+                        {...form.getInputProps('gesamtbetragMwst')}
+                        readOnly
+                        styles={{
+                          input: { backgroundColor: '#fff3e0' }
+                        }}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="Netto Gesamtbetrag"
+                        placeholder="Netto in Euro"
+                        min={0}
+                        step={0.01}
+                        size="sm"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description="Gesamtbetrag - MwSt."
+                        {...form.getInputProps('gesamtbetragNetto')}
+                        readOnly
+                        styles={{
+                          input: { backgroundColor: '#fff3e0' }
+                        }}
+                      />
+                    </Grid.Col>
+                    <Grid.Col span={4}>
+                      <NumberInput
+                        label="MwSt. Trinkgeld"
+                        placeholder="MwSt. in Euro"
+                        min={0}
+                        step={0.01}
+                        size="sm"
+                        decimalScale={2}
+                        fixedDecimalScale
+                        description="19% vom Trinkgeld"
+                        {...form.getInputProps('trinkgeldMwst')}
+                        readOnly
+                        styles={{
+                          input: { backgroundColor: '#fff3e0' }
+                        }}
+                      />
+                    </Grid.Col>
+                  </Grid>
                 )}
                 <Select
                   label="Zahlungsart"
