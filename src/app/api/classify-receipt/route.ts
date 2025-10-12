@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { env } from '@/lib/env';
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
-import { classifyReceiptSchema, sanitizeObject } from '@/lib/validation';
+import { classifyReceiptSchema, classifyReceiptResponseSchema, sanitizeObject } from '@/lib/validation';
+import { detectLocale, getLocaleConfig } from '@/lib/locale-config';
 import { z } from 'zod';
 
 let openai: OpenAI | null = null;
@@ -58,14 +59,15 @@ export async function POST(request: Request) {
     const messages: any[] = [
       {
         role: "system",
-        content: `Du bist ein Experte für die Klassifizierung von Belegen. 
+        content: `Du bist ein Experte für die Klassifizierung von Belegen aus verschiedenen Ländern und Sprachen.
+
         Eine Rechnung enthält typischerweise:
         - Restaurantname und Adresse
         - Datum
         - Positionen mit Preisen
         - Gesamtbetrag
-        - Mehrwertsteuer
-        
+        - Mehrwertsteuer (MwSt./TVA/IVA/VAT)
+
         Ein Kreditkartenbeleg enthält typischerweise:
         - Kreditkartennummer (teilweise maskiert)
         - Datum und Uhrzeit
@@ -73,8 +75,21 @@ export async function POST(request: Request) {
         - Transaktionsnummer
         - Händlername
         - Oft kompakter und schmaler als eine Rechnung
-        
-        Analysiere den Beleg und bestimme den Typ basierend auf diesen Merkmalen.`
+
+        WICHTIG: Analysiere auch die Sprache und das Herkunftsland des Belegs:
+        - Deutsche Belege: Verwenden Begriffe wie "MwSt.", "Gesamt", "Datum", Zahlenformat: 1.234,56
+        - Schweizer Belege (DE): Ähnlich zu deutschen Belegen, aber Zahlenformat: 1'234.56, Währung CHF statt EUR
+        - Italienische Belege: "IVA", "Totale", "Data", Zahlenformat: 1.234,56
+        - Französische Belege: "TVA", "Total", "Date", Zahlenformat: 1 234,56
+        - Schweizer Belege (IT/FR): Italienisch/Französisch mit CHF und Zahlenformat 1'234.56
+
+        Achte auf:
+        - Sprache des Textes (Deutsch, Italienisch, Französisch, Englisch)
+        - Währung (EUR, CHF, USD, GBP)
+        - Zahlenformat (Tausender- und Dezimaltrennzeichen)
+        - Typische länderspezifische Begriffe
+
+        Analysiere den Beleg und bestimme den Typ UND die Herkunft basierend auf diesen Merkmalen.`
       }
     ];
 
@@ -85,8 +100,11 @@ export async function POST(request: Request) {
         content: [
           {
             type: "text",
-            text: `Analysiere dieses Dokument und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
-            
+            text: `Analysiere dieses Dokument und bestimme:
+            1. Ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt
+            2. Die Sprache des Dokuments
+            3. Das Herkunftsland/Region
+
             Antworte nur mit einem JSON-Objekt im folgenden Format:
             {
               "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
@@ -95,8 +113,22 @@ export async function POST(request: Request) {
               "details": {
                 "rechnungProbability": 0-1,
                 "kreditkartenbelegProbability": 0-1
-              }
-            }`
+              },
+              "language": "de" | "it" | "fr" | "en",
+              "region": "DE" | "CH" | "IT" | "FR" | "GB" | "US",
+              "locale": "de-DE" | "de-CH" | "it-IT" | "it-CH" | "fr-FR" | "fr-CH" | "en-GB" | "en-US",
+              "detectedLanguages": [
+                {
+                  "language": "de",
+                  "confidence": 0.95
+                }
+              ]
+            }
+
+            Bestimme die Sprache anhand von:
+            - Begriffen wie "MwSt." (Deutsch), "IVA" (Italienisch), "TVA" (Französisch), "VAT" (Englisch)
+            - Währung: EUR (Deutschland, Italien, Frankreich), CHF (Schweiz), GBP (UK), USD (US)
+            - Zahlenformat: 1.234,56 (DE/IT), 1'234.56 (CH), 1 234,56 (FR), 1,234.56 (US/UK)`
           },
           {
             type: "image_url",
@@ -137,8 +169,32 @@ export async function POST(request: Request) {
     });
 
     const result = JSON.parse(completion.choices[0].message.content || '{}');
-    
-    return NextResponse.json(result);
+
+    // If language/region detected, validate and enhance with locale config
+    if (result.language && result.region) {
+      const locale = detectLocale(result.language, result.region);
+      result.locale = locale.code;
+
+      console.log(`Detected locale: ${locale.code} (${locale.name})`);
+      console.log(`Number format: ${locale.numberFormat.example}`);
+      console.log(`Special chars: ${locale.specialChars.join(', ')}`);
+    } else {
+      // Default to German if not detected
+      result.language = 'de';
+      result.region = 'DE';
+      result.locale = 'de-DE';
+      console.log('No language detected - defaulting to de-DE');
+    }
+
+    // Validate response schema
+    try {
+      const validatedResult = classifyReceiptResponseSchema.parse(result);
+      return NextResponse.json(sanitizeObject(validatedResult));
+    } catch (validationError) {
+      console.error('Classification response validation failed:', validationError);
+      // Return original result even if validation fails, to maintain backward compatibility
+      return NextResponse.json(result);
+    }
   } catch (error) {
     console.error('Error in classify-receipt:', error);
     

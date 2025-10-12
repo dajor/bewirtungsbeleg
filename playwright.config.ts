@@ -24,8 +24,11 @@ export default defineConfig({
     '**/eigenbeleg-validation-simple.spec.ts',
     '**/playwright-1-register.spec.ts',
     '**/playwright-2-login.spec.ts',
+    '**/playwright-3-pdf-upload.spec.ts',
+    '**/playwright-3-multi-pdf-upload.spec.ts',
     '**/playwright-3-password-reset.spec.ts',
-    '**/playwright-4-magic-link.spec.ts'
+    '**/playwright-4-magic-link.spec.ts',
+    '**/playwright-4-multi-pdf-combinations.spec.ts'
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

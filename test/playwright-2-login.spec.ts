@@ -22,8 +22,8 @@ test.describe('playwright-login: Login Flow', () => {
   test('should login with existing credentials and redirect to main app', async ({ page }) => {
     console.log('=== Step 1: Navigate to Signin Page ===');
 
-    // Navigate to signin page
-    await page.goto('/auth/signin');
+    // Navigate to signin page (using German URL from actual frontend)
+    await page.goto('/auth/anmelden');
     await page.waitForLoadState('networkidle');
 
     // Wait for form to be visible
@@ -100,8 +100,8 @@ test.describe('playwright-login: Login Flow', () => {
   test('should show error for invalid credentials', async ({ page }) => {
     console.log('=== Testing Invalid Credentials ===');
 
-    // Navigate to signin page
-    await page.goto('/auth/signin');
+    // Navigate to signin page (using German URL from actual frontend)
+    await page.goto('/auth/anmelden');
     await page.waitForLoadState('networkidle');
 
     // Fill with invalid credentials

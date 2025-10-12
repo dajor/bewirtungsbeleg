@@ -6,6 +6,7 @@ import { fileValidation, extractReceiptResponseSchema, sanitizeObject } from '@/
 import { sanitizeFilename } from '@/lib/sanitize';
 import { convertPdfToImage, isPdfFile } from '@/lib/pdf-to-image';
 import { checkOpenAIKey } from '@/lib/check-openai';
+import { getLocaleConfig, formatLocalizedNumber } from '@/lib/locale-config';
 
 // Initialize OpenAI client and check key validity on startup
 let openai: OpenAI | null = null;
@@ -50,31 +51,50 @@ function convertToGermanNumber(value: string | number): string {
   });
 }
 
-const prompt = `Analysiere den Rechnungsbeleg und extrahiere die folgenden Informationen:
+// Build locale-aware system prompt
+function buildSystemPrompt(locale: any): string {
+  const numberExample = locale.numberFormat.example;
+  const decimalSep = locale.numberFormat.decimalSeparator;
+  const dateFormat = locale.dateFormat.shortFormat;
+
+  // Build list of VAT terms for this locale
+  const vatTerms = locale.receiptTerms.vat.join(', ');
+  const totalTerms = locale.receiptTerms.total.join(', ');
+  const netTerms = locale.receiptTerms.net.join(', ');
+  const dateTerms = locale.receiptTerms.date.join(', ');
+
+  return `Analysiere den Rechnungsbeleg und extrahiere die folgenden Informationen:
 - Name des Restaurants
 - Anschrift des Restaurants
-- Datum der Rechnung (im Format DD.MM.YYYY)
+- Datum der Rechnung (im Format ${dateFormat})
 - Gesamtbetrag (Brutto)
-- MwSt. Betrag
+- MwSt./Steuer Betrag
 - Netto Betrag
+
+WICHTIG - Locale-spezifische Informationen:
+- Sprache: ${locale.name}
+- Zahlenformat: ${numberExample} (Dezimaltrennzeichen: "${decimalSep}", Tausendertrennzeichen: "${locale.numberFormat.thousandSeparator}")
+- Währung: ${locale.currencySymbol}
+- Spezielle Zeichen in dieser Sprache: ${locale.specialChars.join(', ')}
 
 Antworte im folgenden JSON-Format:
 {
   "restaurantName": "Name des Restaurants",
   "restaurantAnschrift": "Vollständige Anschrift",
-  "gesamtbetrag": "Gesamtbetrag mit Komma als Dezimaltrennzeichen",
-  "mwst": "MwSt. Betrag mit Komma als Dezimaltrennzeichen",
-  "netto": "Netto Betrag mit Komma als Dezimaltrennzeichen",
-  "datum": "Datum im Format DD.MM.YYYY"
+  "gesamtbetrag": "Gesamtbetrag im Format ${numberExample}",
+  "mwst": "MwSt. Betrag im Format ${numberExample}",
+  "netto": "Netto Betrag im Format ${numberExample}",
+  "datum": "Datum im Format ${dateFormat}"
 }
 
 Wichtige Hinweise:
-- Suche nach Begriffen wie "Gesamtbetrag", "Brutto", "MwSt.", "Netto"
-- Achte auf verschiedene Schreibweisen (z.B. "MwSt.", "MwSt", "USt.")
+- Suche nach Begriffen wie: Gesamt (${totalTerms}), MwSt. (${vatTerms}), Netto (${netTerms}), Datum (${dateTerms})
+- Verwende "${decimalSep}" als Dezimaltrennzeichen (z.B. "51${decimalSep}90")
+- Beachte das Zahlenformat: ${numberExample}
 - Wenn MwSt. oder Netto nicht gefunden werden, lass diese Felder leer
-- Verwende Komma als Dezimaltrennzeichen (z.B. "51,90" statt "51.90")
-- Wenn nur zwei der drei Beträge (Brutto, MwSt., Netto) gefunden werden, lass das dritte Feld leer
-- Formatiere alle Beträge mit zwei Dezimalstellen`;
+- Formatiere alle Beträge mit zwei Dezimalstellen
+- Achte auf spezielle Zeichen: ${locale.specialChars.join(', ')}`;
+}
 
 export async function POST(request: Request) {
   try {
@@ -82,11 +102,11 @@ export async function POST(request: Request) {
     if (initializationPromise) {
       await initializationPromise;
     }
-    
+
     // Check if OpenAI is initialized
     if (!openai || apiKeyError) {
       return NextResponse.json(
-        { 
+        {
           error: apiKeyError || 'OpenAI API ist nicht verfügbar.',
           userMessage: '🔑 Die automatische Texterkennung ist derzeit nicht verfügbar. Bitte füllen Sie die Felder manuell aus.',
           details: 'Der Administrator muss einen gültigen OpenAI API-Schlüssel in der .env Datei konfigurieren.'
@@ -94,15 +114,28 @@ export async function POST(request: Request) {
         { status: 503 }
       );
     }
-    
+
     // Rate limiting temporarily disabled
     // const identifier = getIdentifier(request, undefined);
     // const rateLimitResponse = await checkRateLimit(apiRatelimit.ocr, identifier);
     // if (rateLimitResponse) return rateLimitResponse;
-    
+
     const formData = await request.formData();
     const image = formData.get('image') as File;
     const classificationType = formData.get('classificationType') as string | null;
+
+    // Get locale information from classification
+    const localeCode = formData.get('locale') as string | null;
+    const language = formData.get('language') as string | null;
+    const region = formData.get('region') as string | null;
+
+    // Get locale configuration (default to de-DE if not provided)
+    const locale = localeCode ? getLocaleConfig(localeCode) : getLocaleConfig('de-DE');
+
+    console.log(`Processing with locale: ${locale.code} (${locale.name})`);
+
+    // Build locale-aware prompt
+    const prompt = buildSystemPrompt(locale);
 
     if (!image) {
       return NextResponse.json(

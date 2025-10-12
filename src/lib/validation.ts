@@ -45,6 +45,25 @@ export const classifyReceiptSchema = z.object({
   image: z.string().optional(), // Base64 image data for content analysis
 });
 
+// Receipt classification response schema
+export const classifyReceiptResponseSchema = z.object({
+  type: z.string(), // 'Rechnung' | 'Kreditkartenbeleg' | 'Unbekannt'
+  confidence: z.number().min(0).max(1),
+  reason: z.string().optional(),
+  details: z.object({
+    rechnungProbability: z.number().min(0).max(1).optional(),
+    kreditkartenbelegProbability: z.number().min(0).max(1).optional(),
+  }).optional(),
+  // Language and locale detection
+  language: z.string().optional(), // ISO 639-1 code: 'de', 'it', 'fr', 'en'
+  region: z.string().optional(), // ISO 3166-1 alpha-2: 'DE', 'CH', 'IT', 'FR'
+  locale: z.string().optional(), // Combined: 'de-DE', 'de-CH', 'it-IT', 'fr-FR'
+  detectedLanguages: z.array(z.object({
+    language: z.string(),
+    confidence: z.number(),
+  })).optional(),
+});
+
 // Extract receipt response schema
 export const extractReceiptResponseSchema = z.object({
   restaurantName: z.string().optional(),

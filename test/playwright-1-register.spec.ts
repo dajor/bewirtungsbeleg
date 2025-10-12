@@ -30,8 +30,8 @@ test.describe('playwright-register: Complete Registration Flow', () => {
   test('should register, verify email via webhook, setup password, and login successfully', async ({ page }) => {
     console.log('=== Step 1: Registration Form ===');
 
-    // Navigate to registration page
-    await page.goto('/auth/register');
+    // Navigate to registration page (using German URL from actual frontend)
+    await page.goto('/auth/registrieren');
     await page.waitForLoadState('networkidle');
 
     // Wait for form to be visible

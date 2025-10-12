@@ -36,6 +36,7 @@ import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 import { ImageEditor } from '@/components/ImageEditor';
+import { FormDataAccumulator } from '@/lib/FormDataAccumulator';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -217,24 +218,40 @@ export default function BewirtungsbelegForm() {
     },
   });
 
-  const extractDataFromImage = async (file: File, classificationType?: string) => {
+  const extractDataFromImage = async (file: File, classificationType?: string, classificationData?: any) => {
     // Skip PDFs from OCR extraction - they need to be converted first
     if (file.type === 'application/pdf') {
       console.log('Skipping OCR for PDF file - needs conversion first');
       return;
     }
-    
+
     setIsProcessing(true);
     setError(null);
 
     try {
       const formData = new FormData();
       formData.append('image', file);
-      
+
       // Pass classification type if available
       if (classificationType) {
         formData.append('classificationType', classificationType);
       }
+
+      // Pass locale information from classification if available
+      if (classificationData) {
+        if (classificationData.locale) {
+          formData.append('locale', classificationData.locale);
+          console.log(`[OCR] Using locale: ${classificationData.locale}`);
+        }
+        if (classificationData.language) {
+          formData.append('language', classificationData.language);
+        }
+        if (classificationData.region) {
+          formData.append('region', classificationData.region);
+        }
+      }
+
+      console.log(`[OCR] Extracting data from ${file.name} (${classificationType || 'Unknown type'})`);
 
       const response = await fetch('/api/extract-receipt', {
         method: 'POST',
@@ -244,65 +261,38 @@ export default function BewirtungsbelegForm() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Server error:', response.status, errorData);
-        
+
         // Use the user-friendly message if available
         if (errorData.userMessage) {
           throw new Error(errorData.userMessage);
         }
-        
+
         throw new Error(errorData.error || `Server error: ${response.status}`);
       }
 
       const data = await response.json();
-      
-      // Konvertiere die Beträge von "51,90" zu "51.90"
-      const gesamtbetrag = data.gesamtbetrag ? data.gesamtbetrag.replace(',', '.') : '';
-      const mwst = data.mwst ? data.mwst.replace(',', '.') : '';
-      const netto = data.netto ? data.netto.replace(',', '.') : '';
+      console.log(`[OCR] Extracted data from ${file.name}:`, data);
 
-      // Berechne fehlende Werte basierend auf den vorhandenen
-      let finalGesamtbetrag = gesamtbetrag;
-      let finalMwst = mwst;
-      let finalNetto = netto;
+      // Use FormDataAccumulator to intelligently merge data
+      const accumulator = new FormDataAccumulator(form.values);
+      accumulator.mergeOcrData(data, classificationType || 'Rechnung');
 
-      if (gesamtbetrag && mwst && !netto) {
-        finalNetto = (Number(gesamtbetrag) - Number(mwst)).toFixed(2);
-      } else if (gesamtbetrag && netto && !mwst) {
-        finalMwst = (Number(gesamtbetrag) - Number(netto)).toFixed(2);
-      } else if (mwst && netto && !gesamtbetrag) {
-        finalGesamtbetrag = (Number(mwst) + Number(netto)).toFixed(2);
-      }
-      
-      // Handle tip if present
-      let trinkgeld = data.trinkgeld ? data.trinkgeld.replace(',', '.') : '';
-      
-      // Handle Kreditkartenbeleg vs Rechnung differently
-      if (classificationType === 'Kreditkartenbeleg') {
-        // For Kreditkartenbeleg, only update kreditkartenBetrag and keep other fields from existing form
-        form.setValues({
-          ...form.values,
-          restaurantName: data.restaurantName || form.values.restaurantName,
-          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-          kreditkartenBetrag: finalGesamtbetrag || form.values.kreditkartenBetrag,
-          // Don't update gesamtbetrag, mwst, netto for Kreditkartenbeleg
-        });
+      // Apply accumulated values to form using setFieldValue for each field
+      accumulator.applyToForm(form);
+
+      console.log(`[OCR] Successfully applied ${classificationType || 'Rechnung'} data to form`);
+
+      // Validate that all financial fields are populated
+      const validation = accumulator.validateFinancialFields();
+      if (!validation.isValid) {
+        console.warn(`[OCR] Missing financial fields: ${validation.missingFields.join(', ')}`);
       } else {
-        // For Rechnung, update all financial fields
-        form.setValues({
-          ...form.values,
-          restaurantName: data.restaurantName || form.values.restaurantName,
-          restaurantAnschrift: data.restaurantAnschrift || form.values.restaurantAnschrift,
-          gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag,
-          gesamtbetragMwst: finalMwst || form.values.gesamtbetragMwst,
-          gesamtbetragNetto: finalNetto || form.values.gesamtbetragNetto,
-          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-          trinkgeld: trinkgeld || form.values.trinkgeld,
-          kreditkartenBetrag: form.values.kreditkartenBetrag, // Keep existing value for Rechnung
-        });
+        console.log('[OCR] All financial fields populated successfully ✓');
       }
+
     } catch (err) {
       console.error('Fehler bei der OCR-Verarbeitung:', err);
-      
+
       // If it's already a user-friendly message, use it directly
       if (err instanceof Error && err.message.includes('📄') || err.message.includes('🔑') || err.message.includes('⏱️') || err.message.includes('❌')) {
         setError(err.message);
@@ -318,9 +308,13 @@ export default function BewirtungsbelegForm() {
   const handleImageChange = async (file: File | null) => {
     setSelectedImage(file);
     if (file) {
-      // Get classification for the file
+      // Get full classification data for the file
       const fileClassification = attachedFiles.find(f => f.file === file)?.classification;
-      await extractDataFromImage(file, fileClassification?.type);
+      await extractDataFromImage(
+        file,
+        fileClassification?.type,
+        fileClassification
+      );
     }
   };
 
@@ -370,19 +364,29 @@ export default function BewirtungsbelegForm() {
       if (response.ok) {
         const classification = await response.json();
         console.log('Classification successful:', classification);
-        setAttachedFiles(prev => prev.map(f => 
-          f.id === fileId 
-            ? { 
-                ...f, 
-                classification: {
-                  type: classification.type || 'Rechnung', // Default to Rechnung instead of Unbekannt
-                  confidence: classification.confidence || 0.5,
-                  isProcessing: false
-                }
-              } 
+
+        // Store full classification data including locale information
+        const fullClassification = {
+          type: classification.type || 'Rechnung', // Default to Rechnung instead of Unbekannt
+          confidence: classification.confidence || 0.5,
+          isProcessing: false,
+          // Include locale data for OCR
+          language: classification.language,
+          region: classification.region,
+          locale: classification.locale,
+          detectedLanguages: classification.detectedLanguages
+        };
+
+        setAttachedFiles(prev => prev.map(f =>
+          f.id === fileId
+            ? {
+                ...f,
+                classification: fullClassification
+              }
             : f
         ));
-        return classification.type || 'Rechnung';
+
+        return fullClassification;
       } else {
         console.error('Classification failed:', response.status, response.statusText);
         const errorData = await response.json().catch(() => ({}));
@@ -390,35 +394,51 @@ export default function BewirtungsbelegForm() {
       }
     } catch (error) {
       console.error('Classification error:', error);
-      
+
       // Try to determine type from filename as fallback
       let fallbackType = 'Rechnung';
       const lowerFileName = file.name.toLowerCase();
       if (lowerFileName.includes('kredit') || lowerFileName.includes('card') || lowerFileName.includes('beleg')) {
         fallbackType = 'Kreditkartenbeleg';
       }
-      
+
+      // Create fallback classification with default locale (de-DE)
+      const fallbackClassification = {
+        type: fallbackType,
+        confidence: 0.3,
+        isProcessing: false,
+        language: 'de',
+        region: 'DE',
+        locale: 'de-DE'
+      };
+
       // Mark classification as complete with fallback type
-      setAttachedFiles(prev => prev.map(f => 
-        f.id === fileId 
-          ? { 
-              ...f, 
-              classification: {
-                type: fallbackType,
-                confidence: 0.3,
-                isProcessing: false
-              }
-            } 
+      setAttachedFiles(prev => prev.map(f =>
+        f.id === fileId
+          ? {
+              ...f,
+              classification: fallbackClassification
+            }
           : f
       ));
-      return fallbackType;
+      return fallbackClassification;
     }
-    return 'Rechnung'; // Default to Rechnung instead of Unbekannt
+
+    // Default fallback
+    const defaultClassification = {
+      type: 'Rechnung',
+      confidence: 0.5,
+      isProcessing: false,
+      language: 'de',
+      region: 'DE',
+      locale: 'de-DE'
+    };
+    return defaultClassification;
   };
 
   const handleFileDrop = useCallback(async (files: File[]) => {
     const newFiles: FileWithPreview[] = [];
-    
+
     for (const file of files) {
       const fileData: FileWithPreview = {
         file,
@@ -431,7 +451,7 @@ export default function BewirtungsbelegForm() {
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          setAttachedFiles(prev => prev.map(f => 
+          setAttachedFiles(prev => prev.map(f =>
             f.id === fileData.id ? { ...f, preview: e.target?.result as string } : f
           ));
         };
@@ -440,7 +460,7 @@ export default function BewirtungsbelegForm() {
         // For PDFs, we'll create a generic PDF thumbnail
         // You could also use pdf.js or similar to generate actual thumbnails
         const pdfThumbnail = createPdfThumbnail();
-        setAttachedFiles(prev => prev.map(f => 
+        setAttachedFiles(prev => prev.map(f =>
           f.id === fileData.id ? { ...f, preview: pdfThumbnail } : f
         ));
       }
@@ -449,110 +469,124 @@ export default function BewirtungsbelegForm() {
     }
 
     setAttachedFiles(prev => [...prev, ...newFiles]);
-    
+
     // Start classification for all files and get results
     const classificationResults = await Promise.all(
       newFiles.map(async (fileData, index) => {
-        const type = await classifyDocument(fileData.id, fileData.file);
-        return { index, type };
+        const classification = await classifyDocument(fileData.id, fileData.file);
+        return { index, classification, fileData };
       })
     );
 
-    // Process the first file for OCR if no file has been processed yet
+    // Set the first file as selected if none is selected yet
     if (!selectedImage && files.length > 0) {
-      const firstFile = files[0];
-      setSelectedImage(firstFile);
-      
-      // If it's a PDF, convert it to image first for OCR
-      if (firstFile.type === 'application/pdf') {
+      setSelectedImage(files[0]);
+    }
+
+    // Process ALL PDF files for OCR extraction (not just the first one)
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileData = newFiles[i];
+      const classification = classificationResults.find(r => r.index === i);
+
+      if (file.type === 'application/pdf') {
         setError(null);
         setSuccess(false);
-        
+
         // Show converting message
-        const fileId = newFiles[0].id;
-        setAttachedFiles(prev => prev.map(f => 
-          f.id === fileId ? { ...f, isConverting: true } : f
+        setAttachedFiles(prev => prev.map(f =>
+          f.id === fileData.id ? { ...f, isConverting: true } : f
         ));
-        
+
         try {
-          console.log('Starting PDF conversion for:', firstFile.name);
-          
+          console.log(`Starting PDF conversion for: ${file.name} (${i + 1}/${files.length})`);
+
           // Convert PDF to image
           const formData = new FormData();
-          formData.append('file', firstFile);
-          
+          formData.append('file', file);
+
           // Add timeout to fetch request (25 seconds)
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 25000);
-          
+
           const response = await fetch('/api/convert-pdf', {
             method: 'POST',
             body: formData,
             signal: controller.signal
           }).finally(() => clearTimeout(timeoutId));
-          
-          console.log('PDF conversion response status:', response.status);
-          
+
+          console.log(`PDF conversion response status for ${file.name}:`, response.status);
+
           if (!response.ok) {
             const error = await response.json();
             throw new Error(error.error || 'PDF-Konvertierung fehlgeschlagen');
           }
-          
+
           const result = await response.json();
-          console.log('PDF conversion result:', result);
-          
+          console.log(`PDF conversion result for ${file.name}:`, result.success);
+
           if (!result.success || !result.image) {
             throw new Error('PDF-Konvertierung fehlgeschlagen - keine Bilddaten erhalten');
           }
-          
+
           // Create a temporary file object with the converted image
-          console.log('Creating blob from base64 image...');
+          console.log(`Creating blob from base64 image for ${file.name}...`);
           const convertedImageBlob = await fetch(result.image).then(r => r.blob());
-          const convertedImageFile = new File([convertedImageBlob], firstFile.name.replace('.pdf', '.jpg'), {
+          const convertedImageFile = new File([convertedImageBlob], file.name.replace('.pdf', '.jpg'), {
             type: 'image/jpeg'
           });
-          console.log('Converted image file created:', convertedImageFile.size, 'bytes');
-          
-          // Get classification for the first file
-          const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
-          console.log('PDF Classification:', firstFileClassification);
-          
-          // Extract data from the converted image
-          await extractDataFromImage(convertedImageFile, firstFileClassification);
-          
-          // Update the file status
-          setAttachedFiles(prev => prev.map(f => 
-            f.id === fileId ? { ...f, isConverting: false } : f
+          console.log(`Converted image file created for ${file.name}:`, convertedImageFile.size, 'bytes');
+
+          // Get classification for this file
+          const fileClassification = classification?.classification;
+          console.log(`PDF Classification for ${file.name}:`, fileClassification);
+
+          // Extract data from the converted image - pass full classification data
+          await extractDataFromImage(
+            convertedImageFile,
+            fileClassification?.type || 'Rechnung',
+            fileClassification
+          );
+
+          // Update the file status - mark as NOT converting
+          setAttachedFiles(prev => prev.map(f =>
+            f.id === fileData.id ? { ...f, isConverting: false } : f
           ));
-          
+
+          console.log(`✅ Successfully processed PDF: ${file.name}`);
+
         } catch (error) {
-          console.error('PDF conversion error:', error);
-          
-          let errorMessage = 'Fehler bei der PDF-Konvertierung. Bitte füllen Sie die Felder manuell aus.';
-          
+          console.error(`PDF conversion error for ${file.name}:`, error);
+
+          let errorMessage = `Fehler bei der PDF-Konvertierung von ${file.name}. Bitte füllen Sie die Felder manuell aus.`;
+
           if (error instanceof Error) {
             if (error.name === 'AbortError') {
-              errorMessage = 'PDF-Konvertierung abgebrochen: Zeitüberschreitung. Die Datei ist möglicherweise zu groß.';
+              errorMessage = `PDF-Konvertierung von ${file.name} abgebrochen: Zeitüberschreitung. Die Datei ist möglicherweise zu groß.`;
             } else if (error.message.includes('timeout')) {
-              errorMessage = 'PDF-Konvertierung dauerte zu lange. Bitte versuchen Sie eine kleinere Datei.';
+              errorMessage = `PDF-Konvertierung von ${file.name} dauerte zu lange. Bitte versuchen Sie eine kleinere Datei.`;
             }
           }
-          
+
           setError(errorMessage);
-          
-          // Mark as not converting
-          setAttachedFiles(prev => prev.map(f => 
-            f.id === fileId ? { ...f, isConverting: false } : f
+
+          // Mark as not converting even on error
+          setAttachedFiles(prev => prev.map(f =>
+            f.id === fileData.id ? { ...f, isConverting: false } : f
           ));
         }
-      } else {
-        // Get classification for the first file
-        const firstFileClassification = classificationResults.find(r => r.index === 0)?.type || 'Unbekannt';
-        
-        // Process image files directly  
-        await extractDataFromImage(firstFile, firstFileClassification);
+      } else if (file.type.startsWith('image/')) {
+        // Process image files directly - pass full classification data
+        const fileClassification = classification?.classification;
+        await extractDataFromImage(
+          file,
+          fileClassification?.type || 'Rechnung',
+          fileClassification
+        );
       }
     }
+
+    console.log(`✅ Finished processing all ${files.length} file(s)`);
   }, [selectedImage, attachedFiles]);
 
   const handleFileRemove = useCallback((id: string) => {
@@ -593,7 +627,55 @@ export default function BewirtungsbelegForm() {
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     console.log('Form submitted with values:', form.values);
-    setShowConfirm(true);
+
+    // Validate form before proceeding to preview
+    const validation = form.validate();
+    if (validation.hasErrors) {
+      setError('Bitte füllen Sie alle erforderlichen Felder aus');
+      return;
+    }
+
+    // Navigate to preview page with form data
+    handleNavigateToPreview();
+  };
+
+  const handleNavigateToPreview = () => {
+    // Store form data in sessionStorage for preview page
+    const formData = {
+      ...form.values,
+      datum: form.values.datum?.toISOString() || null,
+      attachedFiles: attachedFiles.map(f => ({
+        name: f.file.name,
+        type: f.file.type,
+        classification: f.classification
+      }))
+    };
+
+    sessionStorage.setItem('bewirtungsbeleg-preview-data', JSON.stringify(formData));
+
+    // Also store files in a way we can retrieve them
+    const filePromises = attachedFiles.map(async (fileData) => {
+      const reader = new FileReader();
+      return new Promise<{ id: string; data: string; name: string; type: string; classification?: any }>((resolve) => {
+        reader.onload = () => {
+          resolve({
+            id: fileData.id,
+            data: reader.result as string,
+            name: fileData.file.name,
+            type: fileData.file.type,
+            classification: fileData.classification
+          });
+        };
+        reader.readAsDataURL(fileData.file);
+      });
+    });
+
+    Promise.all(filePromises).then((filesData) => {
+      sessionStorage.setItem('bewirtungsbeleg-preview-files', JSON.stringify(filesData));
+
+      // Navigate to preview page
+      window.location.href = '/bewirtungsbeleg/vorschau';
+    });
   };
 
   const handleConfirm = async () => {
@@ -1513,29 +1595,15 @@ export default function BewirtungsbelegForm() {
               />
             </Group>
 
-            {/* Split buttons: 50% Download, 50% Upload to GoBD-Tresor */}
-            <Group grow>
-              <Button
-                type="submit"
-                size="sm"
-                loading={isSubmitting}
-              >
-                Bewirtungsbeleg erstellen
-              </Button>
-
-              <Button
-                size="sm"
-                variant="filled"
-                color="green"
-                loading={isSubmitting}
-                onClick={(event) => {
-                  event.preventDefault();
-                  handleGobdUpload();
-                }}
-              >
-                In GoBD-Tresor speichern
-              </Button>
-            </Group>
+            {/* Single Weiter button to navigate to preview page */}
+            <Button
+              type="submit"
+              size="md"
+              fullWidth
+              loading={isSubmitting}
+            >
+              Weiter
+            </Button>
           </Stack>
         </form>
       </Paper>
@@ -1553,87 +1621,6 @@ export default function BewirtungsbelegForm() {
     )}
   </Grid>
 
-      <Modal
-        opened={showConfirm}
-        onClose={() => setShowConfirm(false)}
-        title="Bestätigung"
-        centered
-        size="sm"
-      >
-        <Stack gap="sm">
-          <Text size="sm">
-            Möchten Sie den Bewirtungsbeleg mit folgenden Details erstellen?
-          </Text>
-          
-          <Stack gap="sm">
-            <Text size="sm">
-              <strong>Restaurant:</strong> {form.values.restaurantName}
-            </Text>
-            <Text size="sm">
-              <strong>Datum:</strong> {form.values.datum?.toLocaleDateString('de-DE')}
-            </Text>
-            <Text size="sm">
-              <strong>Art der Bewirtung:</strong> {form.values.bewirtungsart === 'kunden' ? 'Kundenbewirtung (70% abzugsfähig)' : 'Mitarbeiterbewirtung (100% abzugsfähig)'}
-            </Text>
-            <Text size="sm">
-              <strong>Ausländische Rechnung:</strong> {form.values.istAuslaendischeRechnung ? 'Ja' : 'Nein'}
-            </Text>
-            <Text size="sm">
-              <strong>Anlass:</strong> {form.values.anlass || '-'}
-            </Text>
-            <Text size="sm">
-              <strong>Teilnehmer:</strong> {form.values.teilnehmer}
-            </Text>
-            <Text size="sm">
-              <strong>Gesamtbetrag (Brutto):</strong> {form.values.gesamtbetrag}€
-            </Text>
-            <Text size="sm">
-              <strong>MwSt. Gesamtbetrag:</strong> {form.values.gesamtbetragMwst}€
-            </Text>
-            <Text size="sm">
-              <strong>Netto Gesamtbetrag:</strong> {form.values.gesamtbetragNetto}€
-            </Text>
-            <Text size="sm">
-              <strong>Betrag auf Kreditkarte:</strong> {form.values.kreditkartenBetrag}€
-            </Text>
-            <Text size="sm">
-              <strong>Trinkgeld:</strong> {form.values.trinkgeld}€
-            </Text>
-            <Text size="sm">
-              <strong>MwSt. Trinkgeld:</strong> {form.values.trinkgeldMwst}€
-            </Text>
-            <Text size="sm">
-              <strong>Zahlungsart:</strong> {form.values.zahlungsart === 'firma' ? 'Firmenkreditkarte' : form.values.zahlungsart === 'privat' ? 'Private Kreditkarte' : 'Bar'}
-            </Text>
-            {form.values.bewirtungsart === 'kunden' && (
-              <>
-                <Text size="sm">
-                  <strong>Geschäftspartner:</strong> {form.values.geschaeftspartnerNamen}
-                </Text>
-                <Text size="sm">
-                  <strong>Firma:</strong> {form.values.geschaeftspartnerFirma}
-                </Text>
-              </>
-            )}
-          </Stack>
-
-          <Group justify="space-between" mt="md">
-            <Button 
-              variant="light" 
-              onClick={() => setShowConfirm(false)}
-              size="sm"
-            >
-              Abbrechen
-            </Button>
-            <Button 
-              onClick={handleConfirm}
-              size="sm"
-            >
-              PDF erstellen
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
     </Container>
   );
 } 

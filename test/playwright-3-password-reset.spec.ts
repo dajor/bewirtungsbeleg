@@ -41,8 +41,8 @@ test.describe('playwright-password-reset: Complete Password Reset Flow', () => {
   test('should reset password, auto-login, then restore original password', async ({ page }) => {
     console.log('=== Step 1: Request Password Reset ===');
 
-    // Navigate to forgot password page
-    await page.goto('/auth/forgot-password');
+    // Navigate to forgot password page (using German URL from actual frontend)
+    await page.goto('/auth/passwort-vergessen');
     await page.waitForLoadState('networkidle');
 
     // Take screenshot of forgot password form
@@ -177,7 +177,7 @@ test.describe('playwright-password-reset: Complete Password Reset Flow', () => {
     console.log('=== Step 6: Reset Password Back to Original ===');
 
     // Request password reset again (to restore original password)
-    await page.goto('/auth/forgot-password');
+    await page.goto('/auth/passwort-vergessen');
     await page.waitForLoadState('networkidle');
 
     await page.getByTestId('forgot-password-email').fill(TEST_USER.email);
@@ -225,8 +225,8 @@ test.describe('playwright-password-reset: Complete Password Reset Flow', () => {
 
     console.log('=== Step 7: Verify Login with Original Password ===');
 
-    // Navigate to signin page
-    await page.goto('/auth/signin');
+    // Navigate to signin page (using German URL)
+    await page.goto('/auth/anmelden');
     await page.waitForLoadState('networkidle');
 
     // Fill login form

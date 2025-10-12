@@ -66,6 +66,15 @@ export default function Home() {
               <Text c="dimmed">
                 Laden Sie einfach ein Foto Ihres Belegs hoch. Unsere KI extrahiert automatisch alle relevanten Daten.
               </Text>
+              <Button
+                component={Link}
+                href="/automatische-texterkennung"
+                variant="light"
+                size="xs"
+                mt="xs"
+              >
+                Mehr erfahren
+              </Button>
             </Stack>
           </Paper>
         </Grid.Col>
