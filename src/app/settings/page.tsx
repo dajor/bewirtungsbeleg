@@ -55,7 +55,7 @@ export default function SettingsPage() {
 
   // Redirect to signin if not authenticated
   if (status === 'unauthenticated') {
-    router.push('/auth/signin');
+    router.push('/auth/anmelden');
     return null;
   }
 
@@ -195,7 +195,7 @@ export default function SettingsPage() {
                     variant="light"
                     color="blue"
                     size="sm"
-                    onClick={() => router.push('/auth/reset-password')}
+                    onClick={() => router.push('/auth/passwort-zurucksetzen')}
                   >
                     Passwort zurücksetzen
                   </Button>

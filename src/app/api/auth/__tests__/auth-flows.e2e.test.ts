@@ -137,8 +137,8 @@ describe('E2E Authentication Flows', () => {
       const testEmail = 'newuser@example.com';
 
       // STEP 1: User submits registration form
-      const { POST: registerPOST } = await import('@/app/api/auth/register/send-verification/route');
-      const registerRequest = new NextRequest('http://localhost:3000/api/auth/register/send-verification', {
+      const { POST: registerPOST } = await import('@/app/api/auth/registrieren/send-verification/route');
+      const registerRequest = new NextRequest('http://localhost:3000/api/auth/registrieren/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -178,8 +178,8 @@ describe('E2E Authentication Flows', () => {
       expect(verifyData.email).toBe(testEmail);
 
       // STEP 3: User sets up password (requires token, not email!)
-      const { POST: setupPasswordPOST } = await import('@/app/api/auth/setup-password/route');
-      const setupPasswordRequest = new NextRequest('http://localhost:3000/api/auth/setup-password', {
+      const { POST: setupPasswordPOST } = await import('@/app/api/auth/passwort-einrichten/route');
+      const setupPasswordRequest = new NextRequest('http://localhost:3000/api/auth/passwort-einrichten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -220,8 +220,8 @@ describe('E2E Authentication Flows', () => {
       const testEmail = 'reuse-test@example.com';
 
       // Send verification email
-      const { POST: registerPOST } = await import('@/app/api/auth/register/send-verification/route');
-      const registerRequest = new NextRequest('http://localhost:3000/api/auth/register/send-verification', {
+      const { POST: registerPOST } = await import('@/app/api/auth/registrieren/send-verification/route');
+      const registerRequest = new NextRequest('http://localhost:3000/api/auth/registrieren/send-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: testEmail }),
@@ -399,8 +399,8 @@ describe('E2E Authentication Flows', () => {
       const testEmail = 'resetuser@example.com';
 
       // STEP 1: User requests password reset
-      const { POST: forgotPasswordPOST } = await import('@/app/api/auth/forgot-password/route');
-      const forgotRequest = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+      const { POST: forgotPasswordPOST } = await import('@/app/api/auth/passwort-vergessen/route');
+      const forgotRequest = new NextRequest('http://localhost:3000/api/auth/passwort-vergessen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: testEmail }),
@@ -421,8 +421,8 @@ describe('E2E Authentication Flows', () => {
       const token = tokenMatch![1];
 
       // STEP 2: User clicks reset link and submits new password
-      const { POST: resetPasswordPOST } = await import('@/app/api/auth/reset-password/route');
-      const resetRequest = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      const { POST: resetPasswordPOST } = await import('@/app/api/auth/passwort-zurucksetzen/route');
+      const resetRequest = new NextRequest('http://localhost:3000/api/auth/passwort-zurucksetzen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -470,8 +470,8 @@ describe('E2E Authentication Flows', () => {
       const testEmail = 'reset-reuse@example.com';
 
       // Request password reset
-      const { POST: forgotPasswordPOST } = await import('@/app/api/auth/forgot-password/route');
-      const forgotRequest = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+      const { POST: forgotPasswordPOST } = await import('@/app/api/auth/passwort-vergessen/route');
+      const forgotRequest = new NextRequest('http://localhost:3000/api/auth/passwort-vergessen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: testEmail }),
@@ -485,8 +485,8 @@ describe('E2E Authentication Flows', () => {
       const token = tokenMatch![1];
 
       // First reset should succeed
-      const { POST: resetPasswordPOST } = await import('@/app/api/auth/reset-password/route');
-      const firstReset = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      const { POST: resetPasswordPOST } = await import('@/app/api/auth/passwort-zurucksetzen/route');
+      const firstReset = new NextRequest('http://localhost:3000/api/auth/passwort-zurucksetzen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password: 'NewPass123' }),
@@ -496,7 +496,7 @@ describe('E2E Authentication Flows', () => {
       expect(firstResponse.status).toBe(200);
 
       // Second reset should fail (token consumed)
-      const secondReset = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      const secondReset = new NextRequest('http://localhost:3000/api/auth/passwort-zurucksetzen', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password: 'AnotherPass123' }),
@@ -541,7 +541,7 @@ describe('E2E Authentication Flows', () => {
         createdAt: Date.now(),
       });
 
-      // Simulate exactly what the frontend does in src/app/auth/setup-password/page.tsx line 70
+      // Simulate exactly what the frontend does in src/app/auth/passwort-einrichten/page.tsx line 70
       const { GET } = await import('@/app/api/auth/verify-email/route');
       const request = new NextRequest(`http://localhost:3000/api/auth/verify-email?token=${token}`, {
         method: 'GET', // Frontend uses GET!
@@ -558,7 +558,7 @@ describe('E2E Authentication Flows', () => {
      * BDD: Frontend-Backend Contract - reset-password POST Endpoint
      *
      * GIVEN the frontend needs to reset user's password with token
-     * WHEN frontend calls POST /api/auth/reset-password with {token, password}
+     * WHEN frontend calls POST /api/auth/passwort-zurucksetzen with {token, password}
      * THEN backend must accept POST method with JSON body
      *
      * WHY THIS TEST:
@@ -583,9 +583,9 @@ describe('E2E Authentication Flows', () => {
         createdAt: Date.now(),
       });
 
-      // Simulate exactly what the frontend does in src/app/auth/reset-password/page.tsx line 77
-      const { POST } = await import('@/app/api/auth/reset-password/route');
-      const request = new NextRequest('http://localhost:3000/api/auth/reset-password', {
+      // Simulate exactly what the frontend does in src/app/auth/passwort-zurucksetzen/page.tsx line 77
+      const { POST } = await import('@/app/api/auth/passwort-zurucksetzen/route');
+      const request = new NextRequest('http://localhost:3000/api/auth/passwort-zurucksetzen', {
         method: 'POST', // Frontend uses POST
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,0 +1,8 @@
+Baseline Metadata
+Created: Sa. 11 Okt. 2025 19:54:32 CEST
+Timestamp: 20251011_195430
+Git Branch: dev
+Git Commit: aff11dcf56eb85742d459717262d1fb6ebf8a27c
+Git Commit Short: aff11dc
+Node Version: v22.14.0
+Yarn Version: 1.22.22

@@ -36,14 +36,14 @@ function cleanupExpiredEmails() {
  * Extract verification link from email HTML
  */
 function extractVerificationLink(html: string, text: string): string | undefined {
-  // Try HTML first - look for /auth/setup-password?token= link
-  const htmlMatch = html.match(/href=["']([^"']*\/auth\/setup-password\?token=[^"']*)["']/i);
+  // Try HTML first - look for /auth/passwort-einrichten?token= link
+  const htmlMatch = html.match(/href=["']([^"']*\/auth\/passwort-einrichten\?token=[^"']*)["']/i);
   if (htmlMatch) {
     return htmlMatch[1];
   }
 
   // Try plain text - look for URL pattern
-  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/setup-password\?token=[^\s]+)/i);
+  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/passwort-einrichten\?token=[^\s]+)/i);
   if (textMatch) {
     return textMatch[1];
   }

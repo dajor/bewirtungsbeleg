@@ -1,0 +1,10 @@
+220K .next/static/chunks/994-f9c4c4e43dd43a0f.js
+169K .next/static/chunks/fd9d1056-2bd5508b361313ca.js
+157K .next/static/chunks/269-261eb07625da4c6f.js
+137K .next/static/chunks/framework-00a8ba1a63cfdc9e.js
+121K .next/static/chunks/281-8cc7d62e7518c9da.js
+121K .next/static/chunks/117-0d383045f2c23c08.js
+115K .next/static/chunks/main-da69470c5cfb37bc.js
+110K .next/static/chunks/polyfills-42372ed130431b0a.js
+92K .next/static/chunks/232-a7d679bb0702481d.js
+77K .next/static/chunks/483-06b7e2c2522d6657.js

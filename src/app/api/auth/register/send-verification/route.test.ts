@@ -17,9 +17,9 @@
  *
  * USER FLOW:
  * 1. User fills out registration form (first name, last name, email)
- * 2. Frontend calls POST /api/auth/register/send-verification
+ * 2. Frontend calls POST /api/auth/registrieren/send-verification
  * 3. Backend generates verification token, stores it, sends email
- * 4. User receives email with link: /auth/setup-password?token=xyz
+ * 4. User receives email with link: /auth/passwort-einrichten?token=xyz
  * 5. User clicks link → verify-email endpoint verifies token
  * 6. User sets password → setup-password endpoint creates account
  *
@@ -33,12 +33,12 @@
  * - Token storage (Redis or file-based fallback)
  * - Email service (MailerSend)
  * - Email templates (verification email with user's name)
- * - Frontend: /src/app/auth/register/page.tsx
+ * - Frontend: /src/app/auth/registrieren/page.tsx
  *
  * RELATED ROUTES:
  * - /api/auth/verify-email - Verifies token (step 2)
- * - /api/auth/setup-password - Sets password and creates account (step 3)
- * - /api/auth/forgot-password - Similar email flow but for password reset
+ * - /api/auth/passwort-einrichten - Sets password and creates account (step 3)
+ * - /api/auth/passwort-vergessen - Similar email flow but for password reset
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -74,13 +74,13 @@ vi.mock('@/lib/docbits-auth', () => ({
   docbitsEmailExists: vi.fn(),
 }));
 
-describe('POST /api/auth/register/send-verification', () => {
+describe('POST /api/auth/registrieren/send-verification', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   const createRequest = (body: any): NextRequest => {
-    return new NextRequest('http://localhost:3000/api/auth/register/send-verification', {
+    return new NextRequest('http://localhost:3000/api/auth/registrieren/send-verification', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -334,10 +334,10 @@ describe('POST /api/auth/register/send-verification', () => {
   /**
    * BDD: Verification URL Generation - Frontend Page Destination
    *
-   * CRITICAL: Registration verification links go to /auth/setup-password (frontend page),
+   * CRITICAL: Registration verification links go to /auth/passwort-einrichten (frontend page),
    *           NOT /api/auth/verify-email (API endpoint like magic links do)
    *
-   * URL FORMAT: http://localhost:3000/auth/setup-password?token=abc123
+   * URL FORMAT: http://localhost:3000/auth/passwort-einrichten?token=abc123
    *
    * EMAIL PERSONALIZATION: Email includes full name "Max Mustermann" for trust
    *
@@ -368,7 +368,7 @@ describe('POST /api/auth/register/send-verification', () => {
 
     expect(generateEmailVerificationEmail).toHaveBeenCalledWith(
       'Max Mustermann',
-      'http://localhost:3000/auth/setup-password?token=abc123'
+      'http://localhost:3000/auth/passwort-einrichten?token=abc123'
     );
   });
 

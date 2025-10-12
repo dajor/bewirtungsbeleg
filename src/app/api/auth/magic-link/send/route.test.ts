@@ -37,7 +37,7 @@
  *
  * RELATED ROUTES:
  * - /api/auth/magic-link/verify - Verifies token and creates session (next step)
- * - /api/auth/forgot-password - Similar flow but for password reset
+ * - /api/auth/passwort-vergessen - Similar flow but for password reset
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';

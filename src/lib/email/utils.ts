@@ -122,7 +122,7 @@ export function generateVerificationUrl(
  * @returns Full reset URL
  */
 export function generatePasswordResetUrl(baseUrl: string, token: string): string {
-  return generateVerificationUrl(baseUrl, token, '/auth/reset-password');
+  return generateVerificationUrl(baseUrl, token, '/auth/passwort-zurucksetzen');
 }
 
 /**

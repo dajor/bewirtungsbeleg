@@ -85,7 +85,7 @@ export function Header() {
                 <>
                   <Button
                     component={Link}
-                    href="/auth/signin"
+                    href="/auth/anmelden"
                     variant="subtle"
                     color="gray"
                     size="sm"
@@ -94,7 +94,7 @@ export function Header() {
                   </Button>
                   <Button
                     component={Link}
-                    href="/auth/register"
+                    href="/auth/registrieren"
                     variant="filled"
                     color="blue"
                     size="sm"
@@ -183,7 +183,7 @@ export function Header() {
             <Stack gap="sm">
               <Button
                 component={Link}
-                href="/auth/signin"
+                href="/auth/anmelden"
                 variant="light"
                 fullWidth
                 onClick={closeDrawer}
@@ -192,7 +192,7 @@ export function Header() {
               </Button>
               <Button
                 component={Link}
-                href="/auth/register"
+                href="/auth/registrieren"
                 variant="filled"
                 color="blue"
                 fullWidth

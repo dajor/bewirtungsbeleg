@@ -228,7 +228,7 @@ describe('Magic Link E2E Test Suite', () => {
       expect(response.status, 'Should redirect on invalid token').toBe(307);
 
       const location = response.headers.get('location');
-      expect(location, 'Should redirect to signin with error').toContain('/auth/signin');
+      expect(location, 'Should redirect to signin with error').toContain('/auth/anmelden');
       expect(location, 'Should include error parameter').toContain('error=TokenAlreadyUsed');
     });
 
@@ -241,7 +241,7 @@ describe('Magic Link E2E Test Suite', () => {
       expect(response.status).toBe(307);
 
       const location = response.headers.get('location');
-      expect(location).toContain('/auth/signin');
+      expect(location).toContain('/auth/anmelden');
       expect(location).toContain('error=MissingToken');
     });
 
@@ -461,7 +461,7 @@ describe('Magic Link E2E Test Suite', () => {
 
   describe('Step 7: Error Pages and User Experience', () => {
     it('should load signin page with error parameter', async () => {
-      const response = await fetch(`${BASE_URL}/auth/signin?error=InvalidToken`, {
+      const response = await fetch(`${BASE_URL}/auth/anmelden?error=InvalidToken`, {
         method: 'GET',
       });
 
@@ -472,7 +472,7 @@ describe('Magic Link E2E Test Suite', () => {
     });
 
     it('should load signin page with expired token error', async () => {
-      const response = await fetch(`${BASE_URL}/auth/signin?error=TokenExpired`, {
+      const response = await fetch(`${BASE_URL}/auth/anmelden?error=TokenExpired`, {
         method: 'GET',
       });
 

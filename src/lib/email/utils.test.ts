@@ -209,7 +209,7 @@ describe('Email Utils', () => {
   describe('generatePasswordResetUrl', () => {
     it('should generate reset URL with correct path', () => {
       const url = generatePasswordResetUrl('https://example.com', 'token456');
-      expect(url).toBe('https://example.com/auth/reset-password?token=token456');
+      expect(url).toBe('https://example.com/auth/passwort-zurucksetzen?token=token456');
     });
   });
 

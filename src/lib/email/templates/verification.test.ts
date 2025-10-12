@@ -10,18 +10,18 @@ describe('generateEmailVerificationEmail', () => {
   it('should generate HTML email with all required elements', () => {
     const html = generateEmailVerificationEmail(
       'Max Mustermann',
-      'http://localhost:3000/auth/setup-password?token=abc123'
+      'http://localhost:3000/auth/passwort-einrichten?token=abc123'
     );
 
     expect(html).toContain('<!DOCTYPE html');
     expect(html).toContain('Max Mustermann');
-    expect(html).toContain('http://localhost:3000/auth/setup-password?token=abc123');
+    expect(html).toContain('http://localhost:3000/auth/passwort-einrichten?token=abc123');
     expect(html).toContain('Willkommen bei DocBits!');
     expect(html).toContain('E-Mail bestätigen und Passwort erstellen');
   });
 
   it('should include verification URL in button', () => {
-    const verificationUrl = 'http://localhost:3000/auth/setup-password?token=xyz789';
+    const verificationUrl = 'http://localhost:3000/auth/passwort-einrichten?token=xyz789';
     const html = generateEmailVerificationEmail('Test User', verificationUrl);
 
     expect(html).toContain(`href="${verificationUrl}"`);
@@ -49,7 +49,7 @@ describe('generateEmailVerificationEmail', () => {
   });
 
   it('should include fallback link', () => {
-    const verificationUrl = 'http://localhost:3000/auth/setup-password?token=fallback';
+    const verificationUrl = 'http://localhost:3000/auth/passwort-einrichten?token=fallback';
     const html = generateEmailVerificationEmail('Test User', verificationUrl);
 
     // Should include the URL in both button href and as plain text

@@ -42,14 +42,14 @@ function cleanupExpiredEmails() {
  * Extract password reset link from email HTML
  */
 function extractResetLink(html: string, text: string): string | undefined {
-  // Try HTML first - look for /auth/reset-password?token= link
-  const htmlMatch = html.match(/href=["']([^"']*\/auth\/reset-password\?token=[^"']*)["']/i);
+  // Try HTML first - look for /auth/passwort-zurucksetzen?token= link
+  const htmlMatch = html.match(/href=["']([^"']*\/auth\/passwort-zurucksetzen\?token=[^"']*)["']/i);
   if (htmlMatch) {
     return htmlMatch[1];
   }
 
   // Try plain text - look for URL pattern
-  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/reset-password\?token=[^\s]+)/i);
+  const textMatch = text.match(/(https?:\/\/[^\s]+\/auth\/passwort-zurucksetzen\?token=[^\s]+)/i);
   if (textMatch) {
     return textMatch[1];
   }

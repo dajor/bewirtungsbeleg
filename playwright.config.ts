@@ -23,7 +23,9 @@ export default defineConfig({
     '**/e2e-eigenbeleg-workflow.spec.ts',
     '**/eigenbeleg-validation-simple.spec.ts',
     '**/playwright-1-register.spec.ts',
-    '**/playwright-2-login.spec.ts'
+    '**/playwright-2-login.spec.ts',
+    '**/playwright-3-password-reset.spec.ts',
+    '**/playwright-4-magic-link.spec.ts'
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

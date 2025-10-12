@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     if (!token || token.trim() === '') {
       // Redirect to signin with error
       return NextResponse.redirect(
-        new URL('/auth/signin?error=MissingToken', request.url)
+        new URL('/auth/anmelden?error=MissingToken', request.url)
       );
     }
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
       console.log('[Magic Link Verify] Token not found or already used:', token);
       // Token doesn't exist - either invalid or already consumed
       return NextResponse.redirect(
-        new URL('/auth/signin?error=TokenAlreadyUsed', request.url)
+        new URL('/auth/anmelden?error=TokenAlreadyUsed', request.url)
       );
     }
 
@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     // Check token type
     if (tokenData.type !== 'magic_link') {
       return NextResponse.redirect(
-        new URL('/auth/signin?error=InvalidToken', request.url)
+        new URL('/auth/anmelden?error=InvalidToken', request.url)
       );
     }
 
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
       const ageMinutes = Math.floor((Date.now() - tokenData.createdAt) / 60000);
       console.log(`[Magic Link Verify] Token expired. Age: ${ageMinutes} minutes, Max: ${expiryMinutes} minutes`);
       return NextResponse.redirect(
-        new URL('/auth/signin?error=TokenExpired', request.url)
+        new URL('/auth/anmelden?error=TokenExpired', request.url)
       );
     }
 
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Magic link verify error:', error);
     return NextResponse.redirect(
-      new URL('/auth/signin?error=VerificationFailed', request.url)
+      new URL('/auth/anmelden?error=VerificationFailed', request.url)
     );
   }
 }

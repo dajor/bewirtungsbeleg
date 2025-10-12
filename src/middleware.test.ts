@@ -42,7 +42,7 @@ describe('Middleware', () => {
 
     it('should allow access to auth API routes', async () => {
       mockGetToken.mockResolvedValue(null);
-      const request = createRequest('/api/auth/signin');
+      const request = createRequest('/api/auth/anmelden');
       const response = await middleware(request);
       
       expect(response?.status).not.toBe(307);
@@ -56,7 +56,7 @@ describe('Middleware', () => {
       const response = await middleware(request);
       
       expect(response?.status).toBe(307);
-      expect(response?.headers.get('location')).toContain('/auth/signin');
+      expect(response?.headers.get('location')).toContain('/auth/anmelden');
       expect(response?.headers.get('location')).toContain('callbackUrl=%2Fbewirtungsbeleg');
     });
 
@@ -78,7 +78,7 @@ describe('Middleware', () => {
       const response = await middleware(request);
       
       expect(response?.status).toBe(307);
-      expect(response?.headers.get('location')).toContain('/auth/signin');
+      expect(response?.headers.get('location')).toContain('/auth/anmelden');
     });
   });
 
@@ -89,7 +89,7 @@ describe('Middleware', () => {
         role: 'admin',
         id: '1',
       } as any);
-      const request = createRequest('/auth/signin');
+      const request = createRequest('/auth/anmelden');
       const response = await middleware(request);
       
       expect(response?.status).toBe(307);
@@ -98,7 +98,7 @@ describe('Middleware', () => {
 
     it('should allow unauthenticated users to access signin page', async () => {
       mockGetToken.mockResolvedValue(null);
-      const request = createRequest('/auth/signin');
+      const request = createRequest('/auth/anmelden');
       const response = await middleware(request);
       
       expect(response?.status).not.toBe(307);

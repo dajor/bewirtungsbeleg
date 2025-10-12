@@ -20,14 +20,14 @@
  * 2. Backend sends password reset email with token
  * 3. User clicks link in email → redirected to reset-password page
  * 4. User enters new password and submits
- * 5. Frontend calls POST /api/auth/reset-password with token + new password
+ * 5. Frontend calls POST /api/auth/passwort-zurucksetzen with token + new password
  * 6. Backend validates token, updates password, sends confirmation email
  * 7. User can now log in with new password
  *
  * INTEGRATION POINTS:
  * - Token storage (Redis or file-based fallback)
  * - Email service (confirmation email)
- * - Frontend: /src/app/auth/reset-password/page.tsx (line 77)
+ * - Frontend: /src/app/auth/passwort-zurucksetzen/page.tsx (line 77)
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
@@ -48,13 +48,13 @@ vi.mock('@/lib/email/mailer', () => ({
   }),
 }));
 
-describe('POST /api/auth/reset-password', () => {
+describe('POST /api/auth/passwort-zurucksetzen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   const createRequest = (body: any): NextRequest => {
-    return new NextRequest('http://localhost:3000/api/auth/reset-password', {
+    return new NextRequest('http://localhost:3000/api/auth/passwort-zurucksetzen', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +81,7 @@ describe('POST /api/auth/reset-password', () => {
    * THEN: Password is updated, token consumed, confirmation email sent, success response returned
    *
    * WHY: This is the PRIMARY password reset flow. After clicking the reset link in their email,
-   *      users land on /auth/reset-password page where they enter a new password. The frontend
+   *      users land on /auth/passwort-zurucksetzen page where they enter a new password. The frontend
    *      then calls this endpoint with the token from the URL and the new password.
    *
    * SECURITY: Token is single-use (consumed after verification), preventing replay attacks.

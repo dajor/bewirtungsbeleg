@@ -39,7 +39,7 @@ export default function ProfilePage() {
 
   // Redirect to signin if not authenticated
   if (status === 'unauthenticated') {
-    router.push('/auth/signin');
+    router.push('/auth/anmelden');
     return null;
   }
 

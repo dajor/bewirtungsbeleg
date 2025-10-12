@@ -1,0 +1,1262 @@
+yarn run v1.22.22
+$ playwright test
+
+Running 50 tests using 7 workers
+
+[1A[2K[1/50] [chromium] › test/e2e-complete-workflow.spec.ts:156:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields
+[1A[2K[2/50] [chromium] › test/e2e-complete-workflow.spec.ts:236:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments
+[1A[2K[3/50] [chromium] › test/e2e-complete-workflow.spec.ts:212:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation
+[1A[2K[4/50] [chromium] › test/e2e-complete-workflow.spec.ts:91:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation
+[1A[2K[5/50] [chromium] › test/e2e-complete-workflow.spec.ts:268:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts
+[1A[2K[6/50] [chromium] › test/e2e-critical-scenarios.spec.ts:145:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type
+[1A[2K[7/50] [chromium] › test/e2e-critical-scenarios.spec.ts:116:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg
+[1A[2K[2m[WebServer] [22m[next-auth][warn][DEBUG_ENABLED] 
+[2m[WebServer] [22mhttps://next-auth.js.org/warnings#debug_enabled
+
+[1A[2K  1) [chromium] › test/e2e-complete-workflow.spec.ts:156:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadReceipt(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |     await this.page.waitForTimeout(1000);
+      23 |   }
+      24 |
+        at BewirtungsbelegWorkflow.uploadReceipt (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:188:5
+
+    Error Context: test-results/e2e-complete-workflow-Comp-282ff-n-and-auto-fill-form-fields-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › test/e2e-complete-workflow.spec.ts:236:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      248 |
+      249 |     const fileInput = page.locator('input[type="file"]');
+    > 250 |     await fileInput.setInputFiles([file1, file2]);
+          |     ^
+      251 |
+      252 |     // Fill form
+      253 |     await workflow.fillFormField('restaurantName', 'Multi-Attachment Test');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:250:5
+
+    Error Context: test-results/e2e-complete-workflow-Comp-bba11-F-with-multiple-attachments-chromium/error-context.md
+
+
+[1A[2K  3) [chromium] › test/e2e-critical-scenarios.spec.ts:145:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      21 |   async uploadFiles(filePaths: string[]) {
+      22 |     const fileInput = this.page.locator('input[type="file"]');
+    > 23 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      24 |     await this.page.waitForTimeout(1000);
+      25 |   }
+      26 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:23:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:157:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf140-le-attachments-of-same-type-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › test/e2e-complete-workflow.spec.ts:91:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadReceipt(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |     await this.page.waitForTimeout(1000);
+      23 |   }
+      24 |
+        at BewirtungsbelegWorkflow.uploadReceipt (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:112:5
+
+    Error Context: test-results/e2e-complete-workflow-Comp-3732b-ge-upload-to-PDF-generation-chromium/error-context.md
+
+
+[1A[2K  5) [chromium] › test/e2e-critical-scenarios.spec.ts:116:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      21 |   async uploadFiles(filePaths: string[]) {
+      22 |     const fileInput = this.page.locator('input[type="file"]');
+    > 23 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      24 |     await this.page.waitForTimeout(1000);
+      25 |   }
+      26 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:23:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:129:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-353ad-Rechnung-before-Kreditbeleg-chromium/error-context.md
+
+
+[1A[2K[8/50] [chromium] › test/e2e-critical-scenarios.spec.ts:199:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure
+[1A[2K[9/50] [chromium] › test/e2e-critical-scenarios.spec.ts:252:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully
+[1A[2K[10/50] [chromium] › test/e2e-critical-scenarios.spec.ts:169:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload
+[1A[2K[11/50] [chromium] › test/e2e-critical-scenarios.spec.ts:272:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input
+[1A[2K[12/50] [chromium] › test/e2e-critical-scenarios.spec.ts:300:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format
+[1A[2K  6) [chromium] › test/e2e-critical-scenarios.spec.ts:199:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      21 |   async uploadFiles(filePaths: string[]) {
+      22 |     const fileInput = this.page.locator('input[type="file"]');
+    > 23 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      24 |     await this.page.waitForTimeout(1000);
+      25 |   }
+      26 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:23:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:233:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-2eae8-ecover-from-OCR-API-failure-chromium/error-context.md
+
+
+[1A[2K  7) [chromium] › test/e2e-critical-scenarios.spec.ts:169:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      21 |   async uploadFiles(filePaths: string[]) {
+      22 |     const fileInput = this.page.locator('input[type="file"]');
+    > 23 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      24 |     await this.page.waitForTimeout(1000);
+      25 |   }
+      26 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:23:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:176:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-dc05b--file-removal-and-re-upload-chromium/error-context.md
+
+
+[1A[2K[13/50] [chromium] › test/e2e-critical-scenarios.spec.ts:327:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY
+[1A[2K[14/50] [chromium] › test/e2e-critical-scenarios.spec.ts:345:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format
+[1A[2K  8) [chromium] › test/e2e-complete-workflow.spec.ts:268:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      36 |   async fillFormField(fieldName: string, value: string) {
+      37 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 38 |     await field.clear();
+         |                 ^
+      39 |     await field.fill(value);
+      40 |   }
+      41 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:38:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:270:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-401dd-orrectly-for-German-amounts-chromium/error-context.md
+
+
+[1A[2K  9) [chromium] › test/e2e-complete-workflow.spec.ts:212:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("PDF generieren")')[22m
+
+
+      54 |   async clickGeneratePDF() {
+      55 |     const generateButton = this.page.locator('button:has-text("PDF generieren")');
+    > 56 |     await generateButton.click();
+         |                          ^
+      57 |   }
+      58 |
+      59 |   async waitForPDFGeneration() {
+        at BewirtungsbelegWorkflow.clickGeneratePDF (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:56:26)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:214:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-0b43e--form-before-PDF-generation-chromium/error-context.md
+
+
+[1A[2K[15/50] [chromium] › test/e2e-critical-scenarios.spec.ts:385:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT
+[1A[2K[16/50] [chromium] › test/e2e-critical-scenarios.spec.ts:357:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment
+[1A[2K  10) [chromium] › test/e2e-critical-scenarios.spec.ts:300:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:301:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4ed80-idate-German-decimal-format-chromium/error-context.md
+
+
+[1A[2K  11) [chromium] › test/e2e-critical-scenarios.spec.ts:252:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:264:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-accc6--network-timeout-gracefully-chromium/error-context.md
+
+
+[1A[2K  12) [chromium] › test/e2e-critical-scenarios.spec.ts:272:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="gesamtbetrag"], textarea[name="gesamtbetrag"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:274:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-1a611-s-when-fixing-invalid-input-chromium/error-context.md
+
+
+[1A[2K[17/50] [chromium] › test/e2e-critical-scenarios.spec.ts:405:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format
+[1A[2K[18/50] [chromium] › test/e2e-critical-scenarios.spec.ts:442:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts
+[1A[2K[19/50] [chromium] › test/e2e-critical-scenarios.spec.ts:424:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes
+[1A[2K  13) [chromium] › test/e2e-critical-scenarios.spec.ts:345:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:346:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d333c-tip-amount-in-German-format-chromium/error-context.md
+
+
+[1A[2K  14) [chromium] › test/e2e-critical-scenarios.spec.ts:327:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"], textarea[name="datum"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:332:18
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d6aa0-rman-date-format-DD-MM-YYYY-chromium/error-context.md
+
+
+[1A[2K[20/50] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked
+[1A[2K[21/50] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments
+[1A[2K  15) [chromium] › test/e2e-critical-scenarios.spec.ts:357:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:358:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-a590a--for-customer-entertainment-chromium/error-context.md
+
+
+[1A[2K  16) [chromium] › test/e2e-critical-scenarios.spec.ts:385:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:386:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf5a8-urrency-receipt-without-VAT-chromium/error-context.md
+
+
+[1A[2K[22/50] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments
+[1A[2K[23/50] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields
+[1A[2K  17) [chromium] › test/e2e-critical-scenarios.spec.ts:442:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:443:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-ccca3-te-VAT-for-foreign-receipts-chromium/error-context.md
+
+
+[1A[2K  18) [chromium] › test/e2e-critical-scenarios.spec.ts:424:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:425:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-03b43-dle-multiple-currency-codes-chromium/error-context.md
+
+
+[1A[2K  19) [chromium] › test/e2e-critical-scenarios.spec.ts:405:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      45 |   async fillField(name: string, value: string) {
+      46 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 47 |     await field.clear();
+         |                 ^
+      48 |     await field.fill(value);
+      49 |   }
+      50 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:47:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:98:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:406:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4431a-lidate-exchange-rate-format-chromium/error-context.md
+
+
+[1A[2K[24/50] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content
+[1A[2K[25/50] [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields
+[1A[2K[26/50] [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully
+[1A[2K  20) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:162:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-0c91c-eg-without-file-attachments-chromium/error-context.md
+
+
+[1A[2K  21) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:190:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-1a0a1-ning-when-option-is-checked-chromium/error-context.md
+
+
+[1A[2K[27/50] [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD
+[1A[2K[28/50] [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD
+[1A[2K  22) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:201:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-79753-rrectly-for-required-fields-chromium/error-context.md
+
+
+[1A[2K  23) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:216:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-c121f-nd-without-file-attachments-chromium/error-context.md
+
+
+[1A[2K[29/50] [chromium] › test/e2e-zugferd.spec.ts:233:3 › ZUGFeRD Integration Tests › should properly format German addresses in ZUGFeRD XML
+[1A[2K[30/50] [chromium] › test/e2e-zugferd.spec.ts:278:3 › ZUGFeRD Integration Tests › should handle UTF-8 characters in ZUGFeRD data
+[1A[2K[2m[WebServer] [22mZUGFeRD generation error: TypeError: Cannot read properties of undefined (reading 'replace')
+[2m[WebServer] [22m    at parseAmount (webpack-internal:///(rsc)/./src/lib/zugferd-service.ts:122:37)
+[2m[WebServer] [22m    at ZugferdService.createInvoiceDataFromBewirtungsbeleg (webpack-internal:///(rsc)/./src/lib/zugferd-service.ts:124:30)
+[2m[WebServer] [22m    at POST (webpack-internal:///(rsc)/./src/app/api/generate-pdf/route.ts:385:102)
+[2m[WebServer] [22m[90m    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+[2m[WebServer] [22m    at async eT.execute [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:46851[90m)[39m
+[2m[WebServer] [22m    at async eT.handle [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:58760[90m)[39m
+[2m[WebServer] [22m    at async doRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1366:42[90m)[39m
+[2m[WebServer] [22m    at async cacheEntry.responseCache.get.routeKind [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1588:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseWithComponentsImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1496:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderPageComponent [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1924:24[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1962:32[90m)[39m
+[2m[WebServer] [22m    at async DevServer.pipeImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:922:25[90m)[39m
+[2m[WebServer] [22m    at async NextNodeServer.handleCatchallRenderRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/next-server.js:272:17[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequestImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:818:17[90m)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:339:20
+[2m[WebServer] [22m    at async Span.traceAsyncFn [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:20[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:336:24[90m)[39m
+[2m[WebServer] [22m    at async invokeRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:178:21[90m)[39m
+[2m[WebServer] [22m    at async handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:355:24[90m)[39m
+[2m[WebServer] [22m    at async requestHandlerImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:379:13[90m)[39m
+[2m[WebServer] [22m    at async Server.requestListener [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:141:13[90m)[39m
+
+[1A[2K[2m[WebServer] [22mError adding attachment 1: TypeError: unsupported file type: undefined
+[2m[WebServer] [22m    at Module.imageSize (webpack-internal:///(rsc)/./node_modules/[4mimage-size[24m/dist/index.mjs:992:9)
+[2m[WebServer] [22m    at POST (webpack-internal:///(rsc)/./src/app/api/generate-pdf/route.ts:324:58)
+[2m[WebServer] [22m[90m    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+[2m[WebServer] [22m    at async eT.execute [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:46851[90m)[39m
+[2m[WebServer] [22m    at async eT.handle [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:58760[90m)[39m
+[2m[WebServer] [22m    at async doRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1366:42[90m)[39m
+[2m[WebServer] [22m    at async cacheEntry.responseCache.get.routeKind [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1588:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseWithComponentsImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1496:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderPageComponent [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1924:24[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1962:32[90m)[39m
+[2m[WebServer] [22m    at async DevServer.pipeImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:922:25[90m)[39m
+[2m[WebServer] [22m    at async NextNodeServer.handleCatchallRenderRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/next-server.js:272:17[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequestImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:818:17[90m)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:339:20
+[2m[WebServer] [22m    at async Span.traceAsyncFn [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:20[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:336:24[90m)[39m
+[2m[WebServer] [22m    at async invokeRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:178:21[90m)[39m
+[2m[WebServer] [22m    at async handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:355:24[90m)[39m
+[2m[WebServer] [22m    at async requestHandlerImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:379:13[90m)[39m
+[2m[WebServer] [22m    at async Server.requestListener [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:141:13[90m)[39m
+
+[1A[2K[2m[WebServer] [22mAttachment details: {
+[2m[WebServer] [22m  name: [32m'Rechnung'[39m,
+[2m[WebServer] [22m  type: [32m'image/png'[39m,
+[2m[WebServer] [22m  dataLength: [33m42[39m,
+[2m[WebServer] [22m  dataPrefix: [32m'data:image/png;base64,JVBERi0xLjQKJeLjz9M='[39m
+[2m[WebServer] [22m}
+
+[1A[2K[2m[WebServer] [22mSkipping attachment 1 due to processing error
+
+[1A[2K[2m[WebServer] [22mZUGFeRD generation error: TypeError: Cannot read properties of undefined (reading 'replace')
+[2m[WebServer] [22m    at parseAmount (webpack-internal:///(rsc)/./src/lib/zugferd-service.ts:122:37)
+[2m[WebServer] [22m    at ZugferdService.createInvoiceDataFromBewirtungsbeleg (webpack-internal:///(rsc)/./src/lib/zugferd-service.ts:124:30)
+[2m[WebServer] [22m    at POST (webpack-internal:///(rsc)/./src/app/api/generate-pdf/route.ts:385:102)
+[2m[WebServer] [22m[90m    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+[2m[WebServer] [22m    at async eT.execute [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:46851[90m)[39m
+[2m[WebServer] [22m    at async eT.handle [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:58760[90m)[39m
+[2m[WebServer] [22m    at async doRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1366:42[90m)[39m
+[2m[WebServer] [22m    at async cacheEntry.responseCache.get.routeKind [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1588:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseWithComponentsImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1496:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderPageComponent [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1924:24[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1962:32[90m)[39m
+[2m[WebServer] [22m    at async DevServer.pipeImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:922:25[90m)[39m
+[2m[WebServer] [22m    at async NextNodeServer.handleCatchallRenderRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/next-server.js:272:17[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequestImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:818:17[90m)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:339:20
+[2m[WebServer] [22m    at async Span.traceAsyncFn [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:20[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:336:24[90m)[39m
+[2m[WebServer] [22m    at async invokeRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:178:21[90m)[39m
+[2m[WebServer] [22m    at async handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:355:24[90m)[39m
+[2m[WebServer] [22m    at async requestHandlerImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:379:13[90m)[39m
+[2m[WebServer] [22m    at async Server.requestListener [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:141:13[90m)[39m
+
+[1A[2K[31/50] [chromium] › test/eigenbeleg-validation-simple.spec.ts:10:3 › Eigenbeleg Validation Fix › should load bewirtungsbeleg page without errors
+[1A[2K[32/50] [chromium] › test/eigenbeleg-validation-simple.spec.ts:19:3 › Eigenbeleg Validation Fix › should show Eigenbeleg checkbox and handle checking it
+[1A[2K[2m[WebServer] [22m[next-auth][warn][DEBUG_ENABLED] 
+[2m[WebServer] [22mhttps://next-auth.js.org/warnings#debug_enabled
+
+[1A[2K[33/50] [chromium] › test/eigenbeleg-validation-simple.spec.ts:30:3 › Eigenbeleg Validation Fix › should not show validation error for image field when submitting basic form
+[1A[2K[34/50] [chromium] › test/eigenbeleg-validation-simple.spec.ts:82:3 › Eigenbeleg Validation Fix › should handle API validation correctly
+[1A[2K[chromium] › test/eigenbeleg-validation-simple.spec.ts:30:3 › Eigenbeleg Validation Fix › should not show validation error for image field when submitting basic form
+Form interaction failed, but checking for validation errors: locator.fill: Error: Input of type "file" cannot be filled
+Call log:
+[2m  - waiting for locator('input').nth(1)[22m
+[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>[22m
+[2m    - fill("Test Restaurant")[22m
+[2m  - attempting fill action[22m
+[2m    - waiting for element to be visible, enabled and editable[22m
+
+    at [90m/Users/daniel/dev/Bewritung/bewir/[39mtest/eigenbeleg-validation-simple.spec.ts:45:31 {
+  [[32mSymbol(step)[39m]: {
+    stepId: [32m'pw:api@11'[39m,
+    location: {
+      file: [32m'/Users/daniel/dev/Bewritung/bewir/test/eigenbeleg-validation-simple.spec.ts'[39m,
+      line: [33m45[39m,
+      column: [33m31[39m
+    },
+    category: [32m'pw:api'[39m,
+    title: [32m'locator.fill(Test Restaurant)'[39m,
+    apiName: [32m'locator.fill'[39m,
+    params: {
+      selector: [32m'input >> nth=1'[39m,
+      value: [32m'Test Restaurant'[39m,
+      strict: [33mtrue[39m
+    },
+    boxedStack: [90mundefined[39m,
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [36m[TestInfoImpl][39m,
+      _stepId: [32m'pw:api@11'[39m
+    },
+    complete: [36m[Function: complete][39m,
+    endWallTime: [33m1760205005987[39m,
+    error: {
+      message: [32m'Error: locator.fill: Error: Input of type "file" cannot be filled\n'[39m +
+        [32m'Call log:\n'[39m +
+        [32m"\x1B[2m  - waiting for locator('input').nth(1)\x1B[22m\n"[39m +
+        [32m'\x1B[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - fill("Test Restaurant")\x1B[22m\n'[39m +
+        [32m'\x1B[2m  - attempting fill action\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - waiting for element to be visible, enabled and editable\x1B[22m\n'[39m,
+      stack: [32m'Error: locator.fill: Error: Input of type "file" cannot be filled\n'[39m +
+        [32m'Call log:\n'[39m +
+        [32m"\x1B[2m  - waiting for locator('input').nth(1)\x1B[22m\n"[39m +
+        [32m'\x1B[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - fill("Test Restaurant")\x1B[22m\n'[39m +
+        [32m'\x1B[2m  - attempting fill action\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - waiting for element to be visible, enabled and editable\x1B[22m\n'[39m +
+        [32m'\n'[39m +
+        [32m'    at /Users/daniel/dev/Bewritung/bewir/test/eigenbeleg-validation-simple.spec.ts:45:31'[39m,
+      cause: [90mundefined[39m
+    }
+  }
+}
+
+[1A[2K[35/50] [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test
+[1A[2K  24) [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test ─────────────────
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      20 |   // Upload the PDF file using FileInput
+      21 |   const fileInput = page.locator('input[type="file"]');
+    > 22 |   await fileInput.setInputFiles(path.join(__dirname, 'input.pdf'));
+         |   ^
+      23 |   
+      24 |   // Wait for file to be processed and take screenshot
+      25 |   await page.waitForTimeout(3000); // Give more time for OCR
+        at /Users/daniel/dev/Bewritung/bewir/test/end2end-test.spec.ts:22:3
+
+    Error Context: test-results/end2end-test-End-to-end-Bewirtungsbeleg-test-chromium/error-context.md
+
+
+[1A[2K[36/50] [chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview
+[1A[2K[chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview
+Uploading PDF: /Users/daniel/dev/Bewritung/bewir/test/08042025_kreditbeleg_Pareo.pdf
+
+[1A[2K  25) [chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      27 |     // Upload the PDF file
+      28 |     const fileInput = page.locator('input[type="file"]');
+    > 29 |     await fileInput.setInputFiles(testPdfPath);
+         |     ^
+      30 |     
+      31 |     // Wait for file to appear in the uploaded files list
+      32 |     await page.waitForTimeout(1000);
+        at /Users/daniel/dev/Bewritung/bewir/test/image-preview-real.spec.ts:29:5
+
+    Error Context: test-results/image-preview-real-Image-P-91f8d-yed-in-Image-Editor-preview-chromium/error-context.md
+
+
+[1A[2K[37/50] [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it
+[1A[2K[38/50] [chromium] › test/image-preview-real.spec.ts:102:3 › Image Preview Real-World Test › Regular image should display immediately in preview
+[1A[2K  26) [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:122:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f4d1a-PDF-to-image-and-display-it-chromium/error-context.md
+
+
+[1A[2K[39/50] [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion
+[1A[2K  27) [chromium] › test/image-preview-real.spec.ts:102:3 › Image Preview Real-World Test › Regular image should display immediately in preview 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      125 |     // Upload the image
+      126 |     const fileInput = page.locator('input[type="file"]');
+    > 127 |     await fileInput.setInputFiles(testImagePath);
+          |     ^
+      128 |     await page.waitForTimeout(1000);
+      129 |     
+      130 |     // Click on the uploaded file to select it
+        at /Users/daniel/dev/Bewritung/bewir/test/image-preview-real.spec.ts:127:5
+
+    Error Context: test-results/image-preview-real-Image-P-bba26-play-immediately-in-preview-chromium/error-context.md
+
+
+[1A[2K[40/50] [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully
+[1A[2K  28) [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:151:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f18ed-ntrols-after-PDF-conversion-chromium/error-context.md
+
+
+[1A[2K  29) [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      103 |   test('should handle ZUGFeRD generation errors gracefully', async ({ page }) => {
+      104 |     // Fill minimal required fields
+    > 105 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      106 |     await page.fill('input[name="restaurantName"]', 'Test Restaurant');
+      107 |     await page.fill('textarea[name="teilnehmer"]', 'Test Person');
+      108 |     await page.fill('textarea[name="anlass"]', 'Test');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:105:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-23e71-eneration-errors-gracefully-chromium/error-context.md
+
+
+[1A[2K  30) [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      16 |   test('should generate ZUGFeRD-compliant PDF with all required fields', async ({ page }) => {
+      17 |     // Fill in the form with complete data
+    > 18 |     await page.fill('input[name="datum"]', '15.04.2024');
+         |                ^
+      19 |     await page.fill('input[name="restaurantName"]', 'Restaurant Zur Post');
+      20 |     await page.fill('input[name="restaurantAnschrift"]', 'Hauptstraße 42');
+      21 |     await page.fill('input[name="restaurantPlz"]', '10115');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:18:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-af460-DF-with-all-required-fields-chromium/error-context.md
+
+
+[1A[2K  31) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:235:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-528a9--correct-Eigenbeleg-content-chromium/error-context.md
+
+
+[1A[2K[41/50] [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file
+[1A[2K[42/50] [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation
+[1A[2K[43/50] [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files
+[1A[2K[44/50] [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion
+[1A[2K  32) [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:190:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f4b3c-onversion-errors-gracefully-chromium/error-context.md
+
+
+[1A[2K[45/50] [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads
+[1A[2K  33) [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:222:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-3affd-rror-when-removing-PDF-file-chromium/error-context.md
+
+
+[1A[2K  34) [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:331:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-35ec8-extract-data-from-PDF-files-chromium/error-context.md
+
+
+[1A[2K  35) [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:287:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-8c1a5--PDF-workflow-with-rotation-chromium/error-context.md
+
+
+[1A[2K  36) [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      19 |   async uploadFile(filePath: string) {
+      20 |     const fileInput = this.page.locator('input[type="file"]');
+    > 21 |     await fileInput.setInputFiles(filePath);
+         |     ^
+      22 |   }
+      23 |
+      24 |   async waitForPdfConversion() {
+        at BewirtungsbelegPage.uploadFile (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:21:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:258:5
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-d05de-NG-files-without-conversion-chromium/error-context.md
+
+
+[1A[2K[46/50] [chromium] › test/pdf-simple.spec.ts:10:3 › Simple PDF Conversion Test › should display the upload area
+[1A[2K  37) [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      189 |   test('should include business entertainment deductibility in ZUGFeRD', async ({ page }) => {
+      190 |     // Test customer entertainment (70% deductible)
+    > 191 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      192 |     await page.fill('input[name="restaurantName"]', 'Restaurant Test');
+      193 |     await page.fill('input[name="gesamtbetrag"]', '100,00');
+      194 |     await page.fill('textarea[name="teilnehmer"]', 'Kunde A, Kunde B');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:191:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-568ca-nt-deductibility-in-ZUGFeRD-chromium/error-context.md
+
+
+[1A[2K  38) [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      142 |   test('should validate VAT breakdown for ZUGFeRD', async ({ page }) => {
+      143 |     // Fill form with specific VAT rates
+    > 144 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      145 |     await page.fill('input[name="restaurantName"]', 'Test Restaurant');
+      146 |     await page.fill('input[name="restaurantAnschrift"]', 'Test Straße 1');
+      147 |     await page.fill('input[name="restaurantPlz"]', '12345');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:144:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-4175f-e-VAT-breakdown-for-ZUGFeRD-chromium/error-context.md
+
+
+[1A[2K  39) [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads 
+
+    Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+        1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+        2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+    Call log:
+    [2m  - waiting for locator('input[type="file"]')[22m
+
+
+      390 |     // Upload both files
+      391 |     const fileInput = page.locator('input[type="file"]');
+    > 392 |     await fileInput.setInputFiles([testPngPath, testPdfPath]);
+          |     ^
+      393 |
+      394 |     // Wait for PDF conversion (PNG should be instant)
+      395 |     await page.waitForTimeout(3000);
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:392:5
+
+    Error Context: test-results/pdf-conversion-Multiple-Fi-f6e27-mixed-PDF-and-image-uploads-chromium/error-context.md
+
+
+[1A[2K[47/50] [chromium] › test/playwright-1-register.spec.ts:30:3 › playwright-register: Complete Registration Flow › should register, verify email via webhook, setup password, and login successfully
+[1A[2K[48/50] [chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+[1A[2K[49/50] [chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app
+[1A[2K[50/50] [chromium] › test/playwright-2-login.spec.ts:100:3 › playwright-login: Login Flow › should show error for invalid credentials
+[1A[2K[chromium] › test/playwright-1-register.spec.ts:30:3 › playwright-register: Complete Registration Flow › should register, verify email via webhook, setup password, and login successfully
+🧹 Cleared webhook emails
+
+[1A[2K[chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app
+=== Step 1: Navigate to Signin Page ===
+
+[1A[2K[chromium] › test/playwright-2-login.spec.ts:100:3 › playwright-login: Login Flow › should show error for invalid credentials
+=== Testing Invalid Credentials ===
+
+[1A[2K[chromium] › test/playwright-1-register.spec.ts:30:3 › playwright-register: Complete Registration Flow › should register, verify email via webhook, setup password, and login successfully
+=== Step 1: Registration Form ===
+
+[1A[2K[2m[WebServer] [22m[next-auth][warn][DEBUG_ENABLED] 
+[2m[WebServer] [22mhttps://next-auth.js.org/warnings#debug_enabled
+
+[1A[2K[chromium] › test/pdf-simple.spec.ts:10:3 › Simple PDF Conversion Test › should display the upload area
+Dropzone visible: [33mfalse[39m
+
+[1A[2K[chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+Uploading PDF from: /Users/daniel/dev/Bewritung/bewir/test/08042025_kreditbeleg_Pareo.pdf
+
+[1A[2K[chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app
+✓ Signin page loaded
+
+[1A[2K✓ Password mode is active
+
+[1A[2K=== Step 2: Fill Login Form ===
+
+[1A[2K✓ Email filled: uzylloqimwnkvwjfufeq@inbound.mailersend.net
+
+[1A[2K✓ Password filled
+
+[1A[2K=== Step 3: Submit Login ===
+
+[1A[2K[2m[WebServer] [22m[next-auth][warn][DEBUG_ENABLED] 
+[2m[WebServer] [22mhttps://next-auth.js.org/warnings#debug_enabled
+
+[1A[2K[2m[WebServer] [22m[next-auth][warn][DEBUG_ENABLED] 
+[2m[WebServer] [22mhttps://next-auth.js.org/warnings#debug_enabled
+
+[1A[2K[2m[WebServer] [22m[Auth] DocBits authentication failed: DocBitsAuthError: Invalid "username" or "password" in request.
+[2m[WebServer] [22m    at docbitsLogin (webpack-internal:///(rsc)/./src/lib/docbits-auth.ts:69:19)
+[2m[WebServer] [22m[90m    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+[2m[WebServer] [22m    at async Object.authorize (webpack-internal:///(rsc)/./src/lib/auth.ts:76:45)
+[2m[WebServer] [22m    at async Object.callback (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/core/routes/callback.js:328:14)
+[2m[WebServer] [22m    at async AuthHandler (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/core/index.js:260:28)
+[2m[WebServer] [22m    at async NextAuthRouteHandler (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/next/index.js:57:28)
+[2m[WebServer] [22m    at async NextAuth._args$ (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/next/index.js:89:16)
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+[2m[WebServer] [22m    at async eT.execute [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:46851[90m)[39m
+[2m[WebServer] [22m    at async eT.handle [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:58760[90m)[39m
+[2m[WebServer] [22m    at async doRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1366:42[90m)[39m
+[2m[WebServer] [22m    at async cacheEntry.responseCache.get.routeKind [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1576:40[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseWithComponentsImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1496:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderPageComponent [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1924:24[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1962:32[90m)[39m
+[2m[WebServer] [22m    at async DevServer.pipeImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:922:25[90m)[39m
+[2m[WebServer] [22m    at async NextNodeServer.handleCatchallRenderRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/next-server.js:272:17[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequestImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:818:17[90m)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:339:20
+[2m[WebServer] [22m    at async Span.traceAsyncFn [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:20[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:336:24[90m)[39m
+[2m[WebServer] [22m    at async invokeRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:178:21[90m)[39m
+[2m[WebServer] [22m    at async handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:355:24[90m)[39m
+[2m[WebServer] [22m    at async requestHandlerImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:379:13[90m)[39m
+[2m[WebServer] [22m    at async Server.requestListener [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:141:13[90m)[39m {
+[2m[WebServer] [22m  statusCode: [33m400[39m,
+[2m[WebServer] [22m  code: [32m'invalid_request'[39m
+[2m[WebServer] [22m}
+
+[1A[2K[2m[WebServer] [22m[Auth] DocBits authentication failed: DocBitsAuthError: Invalid "username" or "password" in request.
+[2m[WebServer] [22m    at docbitsLogin (webpack-internal:///(rsc)/./src/lib/docbits-auth.ts:69:19)
+[2m[WebServer] [22m[90m    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)[39m
+[2m[WebServer] [22m    at async Object.authorize (webpack-internal:///(rsc)/./src/lib/auth.ts:76:45)
+[2m[WebServer] [22m    at async Object.callback (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/core/routes/callback.js:328:14)
+[2m[WebServer] [22m    at async AuthHandler (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/core/index.js:260:28)
+[2m[WebServer] [22m    at async NextAuthRouteHandler (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/next/index.js:57:28)
+[2m[WebServer] [22m    at async NextAuth._args$ (webpack-internal:///(rsc)/./node_modules/[4mnext-auth[24m/next/index.js:89:16)
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:57228
+[2m[WebServer] [22m    at async eT.execute [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:46851[90m)[39m
+[2m[WebServer] [22m    at async eT.handle [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/compiled/next-server/app-route.runtime.dev.js:6:58760[90m)[39m
+[2m[WebServer] [22m    at async doRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1366:42[90m)[39m
+[2m[WebServer] [22m    at async cacheEntry.responseCache.get.routeKind [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1576:40[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseWithComponentsImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1496:28[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderPageComponent [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1924:24[90m)[39m
+[2m[WebServer] [22m    at async DevServer.renderToResponseImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:1962:32[90m)[39m
+[2m[WebServer] [22m    at async DevServer.pipeImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:922:25[90m)[39m
+[2m[WebServer] [22m    at async NextNodeServer.handleCatchallRenderRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/next-server.js:272:17[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequestImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/base-server.js:818:17[90m)[39m
+[2m[WebServer] [22m    at async [90m/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:339:20
+[2m[WebServer] [22m    at async Span.traceAsyncFn [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/trace/trace.js:154:20[90m)[39m
+[2m[WebServer] [22m    at async DevServer.handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/dev/next-dev-server.js:336:24[90m)[39m
+[2m[WebServer] [22m    at async invokeRender [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:178:21[90m)[39m
+[2m[WebServer] [22m    at async handleRequest [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:355:24[90m)[39m
+[2m[WebServer] [22m    at async requestHandlerImpl [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/router-server.js:379:13[90m)[39m
+[2m[WebServer] [22m    at async Server.requestListener [90m(/Users/daniel/dev/Bewritung/bewir/[39mnode_modules/[4mnext[24m/dist/server/lib/start-server.js:141:13[90m)[39m {
+[2m[WebServer] [22m  statusCode: [33m400[39m,
+[2m[WebServer] [22m  code: [32m'invalid_request'[39m
+[2m[WebServer] [22m}
+
+[1A[2K✓ Button loading state cleared
+
+[1A[2K[chromium] › test/playwright-2-login.spec.ts:100:3 › playwright-login: Login Flow › should show error for invalid credentials
+✓ Button loading state cleared
+
+[1A[2K✓ Error shown for invalid credentials: AnmeldefehlerAnmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.
+
+[1A[2K[chromium] › test/playwright-1-register.spec.ts:30:3 › playwright-register: Complete Registration Flow › should register, verify email via webhook, setup password, and login successfully
+✓ Button loading state cleared
+
+[1A[2K[chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+Number of images found: [33m2[39m
+
+[1A[2KImage 0: alt="DocBits", src starts with: /docbits.svg
+
+[1A[2KImage 1: alt="DocBits Logo", src starts with: /docbits.svg
+
+[1A[2KAlert 0: 
+
+[1A[2K[chromium] › test/playwright-1-register.spec.ts:30:3 › playwright-register: Complete Registration Flow › should register, verify email via webhook, setup password, and login successfully
+⚠️  User already exists: RegistrierungsfehlerEin Bestätigungslink wurde bereits an diese E-Mail-Adresse gesendet. Bitte prüfen Sie Ihr Postfach oder warten Sie einige Minuten, bevor Sie es erneut versuchen.
+
+[1A[2K⚠️  Skipping to login test - assuming user is already registered
+
+[1A[2K[chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app
+📸 Screenshot saved: test-results/login-error-1760205026458.png
+
+[1A[2K❌ Login error: AnmeldefehlerAnmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.
+
+[1A[2K  40) [chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app 
+
+    Error: Login failed: AnmeldefehlerAnmeldung fehlgeschlagen. Bitte versuchen Sie es später erneut.
+
+      72 |         const errorText = await errorAlert.textContent();
+      73 |         console.log('❌ Login error:', errorText);
+    > 74 |         throw new Error(`Login failed: ${errorText}`);
+         |               ^
+      75 |       }
+      76 |
+      77 |       throw new Error('Login failed: Did not redirect to /bewirtungsbeleg');
+        at /Users/daniel/dev/Bewritung/bewir/test/playwright-2-login.spec.ts:74:15
+
+
+[1A[2K  40 failed
+    [chromium] › test/e2e-complete-workflow.spec.ts:91:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation 
+    [chromium] › test/e2e-complete-workflow.spec.ts:156:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields 
+    [chromium] › test/e2e-complete-workflow.spec.ts:212:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation 
+    [chromium] › test/e2e-complete-workflow.spec.ts:236:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments 
+    [chromium] › test/e2e-complete-workflow.spec.ts:268:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:116:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:145:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:169:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:199:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:252:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:272:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:300:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:327:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:345:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:357:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:385:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:405:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:424:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:442:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content 
+    [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields 
+    [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully 
+    [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD 
+    [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD 
+    [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test ───────────────────
+    [chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview 
+    [chromium] › test/image-preview-real.spec.ts:102:3 › Image Preview Real-World Test › Regular image should display immediately in preview 
+    [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it 
+    [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion 
+    [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully 
+    [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file 
+    [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion 
+    [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation 
+    [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files 
+    [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads 
+    [chromium] › test/playwright-2-login.spec.ts:22:3 › playwright-login: Login Flow › should login with existing credentials and redirect to main app 
+  10 passed (2.0m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m

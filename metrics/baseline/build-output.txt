@@ -1,0 +1,52 @@
+yarn run v1.22.22
+$ npm run test:ci
+
+> bewirtungsbeleg-app@0.1.0 test:ci
+> jest --config jest.config.cjs --ci --coverage=false --passWithNoTests src/lib/pdf-validation.test.ts src/app/api/generate-pdf/attachment-critical.test.ts src/app/api/generate-pdf/image-requirements.test.ts src/app/api/generate-pdf/pdf-attachment-validation.test.ts
+
+PASS src/app/api/generate-pdf/image-requirements.test.ts
+PASS src/app/api/generate-pdf/attachment-critical.test.ts
+PASS src/lib/pdf-validation.test.ts
+PASS src/app/api/generate-pdf/pdf-attachment-validation.test.ts
+
+Test Suites: 4 passed, 4 total
+Tests:       19 passed, 19 total
+Snapshots:   0 total
+Time:        0.307 s, estimated 1 s
+Ran all test suites matching /src\/lib\/pdf-validation.test.ts|src\/app\/api\/generate-pdf\/attachment-critical.test.ts|src\/app\/api\/generate-pdf\/image-requirements.test.ts|src\/app\/api\/generate-pdf\/pdf-attachment-validation.test.ts/i.
+$ next build
+  ▲ Next.js 14.2.29
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings
+
+./src/app/api/documents/list/route.ts
+Attempted import error: 'authOptions' is not exported from '../../auth/[...nextauth]/route' (imported as 'authOptions').
+
+Import trace for requested module:
+./src/app/api/documents/list/route.ts
+
+./src/app/api/documents/upload/route.ts
+Attempted import error: 'authOptions' is not exported from '../../auth/[...nextauth]/route' (imported as 'authOptions').
+
+Import trace for requested module:
+./src/app/api/documents/upload/route.ts
+
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/api/documents/list/route.ts:3:10
+Type error: Module '"../../auth/[...nextauth]/route"' declares 'authOptions' locally, but it is not exported.
+
+[0m [90m 1 |[39m [36mimport[39m { [33mNextRequest[39m[33m,[39m [33mNextResponse[39m } [36mfrom[39m [32m'next/server'[39m[33m;[39m[0m
+[0m [90m 2 |[39m [36mimport[39m { getServerSession } [36mfrom[39m [32m'next-auth'[39m[33m;[39m[0m
+[0m[31m[1m>[22m[39m[90m 3 |[39m [36mimport[39m { authOptions } [36mfrom[39m [32m'../../auth/[...nextauth]/route'[39m[33m;[39m[0m
+[0m [90m   |[39m          [31m[1m^[22m[39m[0m
+[0m [90m 4 |[39m [36mimport[39m { searchDocuments } [36mfrom[39m [32m'@/lib/opensearch'[39m[33m;[39m[0m
+[0m [90m 5 |[39m [36mimport[39m { ensureUserIndexMiddleware } [36mfrom[39m [32m'@/middleware/ensure-user-index'[39m[33m;[39m[0m
+[0m [90m 6 |[39m [36mimport[39m type {[0m
+Next.js build worker exited with code: 1 and signal: null
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

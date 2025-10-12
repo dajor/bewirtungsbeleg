@@ -50,6 +50,10 @@ test.describe('playwright-login: Login Flow', () => {
     // Submit login form
     await page.getByTestId('login-submit').click();
 
+    // Wait for button to finish loading state (max 10 seconds)
+    await expect(page.getByTestId('login-submit')).not.toHaveAttribute('data-loading', 'true', { timeout: 10000 });
+    console.log('✓ Button loading state cleared');
+
     // Wait for redirect to main app
     try {
       await page.waitForURL('**/bewirtungsbeleg**', { timeout: 10000 });
@@ -61,7 +65,7 @@ test.describe('playwright-login: Login Flow', () => {
       console.log(`📸 Screenshot saved: test-results/login-error-${timestamp}.png`);
 
       // Check if there's an error alert
-      const errorAlert = page.locator('[role="alert"]').filter({ hasText: /Fehler|Error/i });
+      const errorAlert = page.locator('[role="alert"]').filter({ hasText: /Fehler|Error|falsch/i });
       const isErrorVisible = await errorAlert.isVisible();
 
       if (isErrorVisible) {
@@ -107,8 +111,12 @@ test.describe('playwright-login: Login Flow', () => {
     // Submit
     await page.getByTestId('login-submit').click();
 
+    // Wait for button to finish loading state
+    await expect(page.getByTestId('login-submit')).not.toHaveAttribute('data-loading', 'true', { timeout: 10000 });
+    console.log('✓ Button loading state cleared');
+
     // Should show error alert
-    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /Fehler|Error|Ungültig/i });
+    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /Fehler|Error|Ungültig|falsch/i });
     await expect(errorAlert).toBeVisible({ timeout: 10000 });
 
     const errorText = await errorAlert.textContent();

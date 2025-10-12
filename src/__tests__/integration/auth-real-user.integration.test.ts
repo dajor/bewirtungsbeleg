@@ -138,7 +138,7 @@ describe('REAL User Registration Flow Integration Test', () => {
   let verificationToken: string;
 
   it('Step 1: User submits registration form', async () => {
-    const response = await fetch(`${BASE_URL}/api/auth/register/send-verification`, {
+    const response = await fetch(`${BASE_URL}/api/auth/registrieren/send-verification`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -203,7 +203,7 @@ describe('REAL User Registration Flow Integration Test', () => {
       return;
     }
 
-    const response = await fetch(`${BASE_URL}/api/auth/setup-password`, {
+    const response = await fetch(`${BASE_URL}/api/auth/passwort-einrichten`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -275,7 +275,7 @@ describe('REAL Password Reset Flow Integration Test', () => {
   let resetToken: string;
 
   it('Step 1: User requests password reset', async () => {
-    const response = await fetch(`${BASE_URL}/api/auth/forgot-password`, {
+    const response = await fetch(`${BASE_URL}/api/auth/passwort-vergessen`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -301,7 +301,7 @@ describe('REAL Password Reset Flow Integration Test', () => {
 
     const NEW_PASSWORD = 'NewTestPassword456!';
 
-    const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
+    const response = await fetch(`${BASE_URL}/api/auth/passwort-zurucksetzen`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -322,7 +322,7 @@ describe('REAL Password Reset Flow Integration Test', () => {
   });
 
   it('Step 3: Reset token should be consumed (single-use)', async () => {
-    const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
+    const response = await fetch(`${BASE_URL}/api/auth/passwort-zurucksetzen`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

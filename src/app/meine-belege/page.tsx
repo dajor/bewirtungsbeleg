@@ -71,7 +71,7 @@ export default function MeineBelegePage() {
 
   // Redirect if not authenticated
   if (status === 'unauthenticated') {
-    router.push('/auth/signin');
+    router.push('/auth/anmelden');
     return null;
   }
 

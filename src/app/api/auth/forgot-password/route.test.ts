@@ -19,9 +19,9 @@
  * USER FLOW:
  * 1. User clicks "Forgot Password" on login page
  * 2. User enters their email address
- * 3. Frontend calls POST /api/auth/forgot-password with email
+ * 3. Frontend calls POST /api/auth/passwort-vergessen with email
  * 4. Backend generates token, stores it, sends email with reset link
- * 5. User receives email with link: /auth/reset-password?token=xyz
+ * 5. User receives email with link: /auth/passwort-zurucksetzen?token=xyz
  * 6. User clicks link → redirected to reset-password page
  * 7. User enters new password (handled by reset-password route)
  *
@@ -29,10 +29,10 @@
  * - Rate limiting (Upstash Redis)
  * - Token storage (Redis or file-based fallback)
  * - Email service (MailerSend)
- * - Frontend: /src/app/auth/forgot-password/page.tsx
+ * - Frontend: /src/app/auth/passwort-vergessen/page.tsx
  *
  * RELATED ROUTES:
- * - /api/auth/reset-password - Handles actual password change (next step)
+ * - /api/auth/passwort-zurucksetzen - Handles actual password change (next step)
  * - /api/auth/verify-email - Similar token-based flow for registration
  *
  * @vitest-environment node
@@ -70,13 +70,13 @@ vi.mock('@/lib/env', () => ({
   },
 }));
 
-describe('POST /api/auth/forgot-password', () => {
+describe('POST /api/auth/passwort-vergessen', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   const createRequest = (body: any): NextRequest => {
-    return new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+    return new NextRequest('http://localhost:3000/api/auth/passwort-vergessen', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -256,7 +256,7 @@ describe('POST /api/auth/forgot-password', () => {
    * THEN: Token stored with both token-based and email-based keys
    *
    * WHY: Dual storage enables:
-   *      1. Token lookup: GET /api/auth/reset-password?token=xyz needs fast token→data lookup
+   *      1. Token lookup: GET /api/auth/passwort-zurucksetzen?token=xyz needs fast token→data lookup
    *      2. Email lookup: User requests multiple resets, we can invalidate old tokens
    *
    * STORAGE KEYS:
@@ -294,9 +294,9 @@ describe('POST /api/auth/forgot-password', () => {
    * THEN: Email HTML contains reset URL with token as query parameter
    *
    * WHY: User needs clickable link to reset their password. Link format must match
-   *      what frontend expects: /auth/reset-password?token=xyz
+   *      what frontend expects: /auth/passwort-zurucksetzen?token=xyz
    *
-   * URL FORMAT: https://test.example.com/auth/reset-password?token=<generated-token>
+   * URL FORMAT: https://test.example.com/auth/passwort-zurucksetzen?token=<generated-token>
    *
    * SECURITY: Token in URL is acceptable for email links (not stored in browser history
    *           after use). Token is single-use and expires in 30 minutes.
@@ -318,7 +318,7 @@ describe('POST /api/auth/forgot-password', () => {
     // THEN: Email HTML contains properly formatted reset URL
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
-        html: expect.stringContaining('https://test.example.com/auth/reset-password?token='),
+        html: expect.stringContaining('https://test.example.com/auth/passwort-zurucksetzen?token='),
       })
     );
   });
@@ -484,7 +484,7 @@ describe('POST /api/auth/forgot-password', () => {
     // GIVEN: Request through proxy with x-forwarded-for header
     const { apiRatelimit } = await import('@/lib/rate-limit');
 
-    const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+    const request = new NextRequest('http://localhost:3000/api/auth/passwort-vergessen', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -522,7 +522,7 @@ describe('POST /api/auth/forgot-password', () => {
     // GIVEN: Request without x-forwarded-for header
     const { apiRatelimit } = await import('@/lib/rate-limit');
 
-    const request = new NextRequest('http://localhost:3000/api/auth/forgot-password', {
+    const request = new NextRequest('http://localhost:3000/api/auth/passwort-vergessen', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

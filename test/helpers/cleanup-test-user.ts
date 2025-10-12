@@ -18,52 +18,30 @@ interface DocBitsUser {
 }
 
 /**
- * Get admin access token
+ * Get Basic Auth header for admin
  */
-async function getAdminToken(): Promise<string> {
+function getBasicAuthHeader(): string {
   if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
     throw new Error('DOCBITS_ADMIN_EMAIL and DOCBITS_ADMIN_PASSWORD environment variables required');
   }
 
-  console.log('🔐 Authenticating as admin...');
-
-  const response = await fetch(`${DOCBITS_AUTH_URL}/management/api/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: ADMIN_EMAIL,
-      password: ADMIN_PASSWORD,
-    }),
-  });
-
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`Admin login failed: ${response.status} - ${error}`);
-  }
-
-  const data = await response.json();
-
-  if (!data.access_token) {
-    throw new Error('No access token received from admin login');
-  }
-
-  console.log('✓ Admin authenticated');
-  return data.access_token;
+  console.log('🔐 Using admin credentials...');
+  const credentials = Buffer.from(`${ADMIN_EMAIL}:${ADMIN_PASSWORD}`).toString('base64');
+  console.log('✓ Basic Auth header created');
+  return `Basic ${credentials}`;
 }
 
 /**
  * Find user by email
  */
-async function findUserByEmail(email: string, token: string): Promise<DocBitsUser | null> {
+async function findUserByEmail(email: string, basicAuth: string): Promise<DocBitsUser | null> {
   console.log(`🔍 Looking for user: ${email}`);
 
   const response = await fetch(
     `${DOCBITS_AUTH_URL}/management/api/users?email=${encodeURIComponent(email)}`,
     {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': basicAuth,
         'Content-Type': 'application/json',
       },
     }
@@ -100,15 +78,15 @@ async function findUserByEmail(email: string, token: string): Promise<DocBitsUse
 /**
  * Delete user by ID
  */
-async function deleteUser(userId: string, token: string): Promise<void> {
+async function deleteUser(userId: string, basicAuth: string): Promise<void> {
   console.log(`🗑️  Deleting user ID: ${userId}`);
 
   const response = await fetch(
-    `${DOCBITS_AUTH_URL}/management/api/users/${userId}`,
+    `${DOCBITS_AUTH_URL}/management/user/${userId}`,
     {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': basicAuth,
         'Content-Type': 'application/json',
       },
     }
@@ -132,11 +110,11 @@ export async function cleanupTestUser(email: string = TEST_USER_EMAIL): Promise<
     console.log(`DocBits Auth: ${DOCBITS_AUTH_URL}`);
     console.log('');
 
-    // Get admin token
-    const token = await getAdminToken();
+    // Get admin Basic Auth header
+    const basicAuth = getBasicAuthHeader();
 
     // Find user
-    const user = await findUserByEmail(email, token);
+    const user = await findUserByEmail(email, basicAuth);
 
     if (!user) {
       console.log('✅ Cleanup complete - user does not exist');
@@ -144,7 +122,7 @@ export async function cleanupTestUser(email: string = TEST_USER_EMAIL): Promise<
     }
 
     // Delete user
-    await deleteUser(user.id, token);
+    await deleteUser(user.id, basicAuth);
 
     console.log('✅ Cleanup complete - user deleted');
     return true;

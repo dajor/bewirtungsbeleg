@@ -93,7 +93,7 @@ function MagicLinkCallbackContent() {
               </Alert>
               <Text size="sm" ta="center">
                 Bitte versuchen Sie es erneut oder{' '}
-                <a href="/auth/signin">melden Sie sich an</a>.
+                <a href="/auth/anmelden">melden Sie sich an</a>.
               </Text>
             </>
           ) : null}

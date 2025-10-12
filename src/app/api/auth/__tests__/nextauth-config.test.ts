@@ -25,7 +25,7 @@
  * BUSINESS RULES:
  * - Sessions expire after 30 days (maxAge: 30 * 24 * 60 * 60)
  * - JWT strategy (no database required)
- * - Custom signin page at /auth/signin
+ * - Custom signin page at /auth/anmelden
  * - Custom error page at /auth/error
  *
  * TEST STRATEGY:
@@ -125,7 +125,7 @@ describe('NextAuth Configuration', () => {
      * GIVEN users need branded authentication pages
      * WHEN they access authentication flows
      * THEN they should see custom pages (not default NextAuth UI)
-     * AND pages should be at /auth/signin and /auth/error
+     * AND pages should be at /auth/anmelden and /auth/error
      *
      * WHY CUSTOM PAGES:
      * - Branded experience matching application design
@@ -136,7 +136,7 @@ describe('NextAuth Configuration', () => {
      */
     it('should configure custom signin page', () => {
       expect(authOptions.pages).toBeDefined();
-      expect(authOptions.pages?.signIn).toBe('/auth/signin');
+      expect(authOptions.pages?.signIn).toBe('/auth/anmelden');
     });
 
     it('should configure custom error page', () => {

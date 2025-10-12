@@ -11,7 +11,7 @@
  * CRITICAL DIFFERENCE FROM OTHER VERIFY ROUTES:
  * - This route ALWAYS redirects (307), never returns JSON
  * - Success: Redirects to /auth/callback/magic-link with email
- * - Failure: Redirects to /auth/signin with error parameter
+ * - Failure: Redirects to /auth/anmelden with error parameter
  * - Frontend never calls this directly - it's the link destination in emails
  *
  * SECURITY REQUIREMENTS:
@@ -27,11 +27,11 @@
  * 3. Browser makes GET request to this endpoint
  * 4. This route verifies token and redirects:
  *    SUCCESS → /auth/callback/magic-link?email=user@example.com
- *    FAILURE → /auth/signin?error=TokenExpired
+ *    FAILURE → /auth/anmelden?error=TokenExpired
  * 5. Callback page creates session and logs user in
  *
  * ERROR HANDLING:
- * All errors redirect to /auth/signin with error parameter:
+ * All errors redirect to /auth/anmelden with error parameter:
  * - MissingToken: No token in query string
  * - InvalidToken: Token doesn't exist or wrong type
  * - TokenExpired: Token older than 10 minutes
@@ -40,7 +40,7 @@
  * INTEGRATION POINTS:
  * - Token storage (Redis or file-based fallback)
  * - Frontend callback: /src/app/auth/callback/magic-link/page.tsx
- * - Frontend error page: /src/app/auth/signin/page.tsx
+ * - Frontend error page: /src/app/auth/anmelden/page.tsx
  *
  * RELATED ROUTES:
  * - /api/auth/magic-link/send - Sends magic link email (step 1)
@@ -142,7 +142,7 @@ describe('GET /api/auth/magic-link/verify', () => {
 
     // THEN: Redirect to signin with error
     expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toContain('/auth/signin');
+    expect(response.headers.get('location')).toContain('/auth/anmelden');
     expect(response.headers.get('location')).toContain('error=MissingToken');
   });
 
@@ -175,7 +175,7 @@ describe('GET /api/auth/magic-link/verify', () => {
 
     // THEN: Redirect to signin with error
     expect(response.status).toBe(307);
-    expect(response.headers.get('location')).toContain('/auth/signin');
+    expect(response.headers.get('location')).toContain('/auth/anmelden');
     expect(response.headers.get('location')).toContain('error=');
   });
 

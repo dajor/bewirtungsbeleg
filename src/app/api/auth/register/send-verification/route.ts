@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
     await storeTokenByEmail(email, tokenData.token, 'email_verify');
 
     // Generate verification URL
-    const verificationUrl = `${env.NEXTAUTH_URL}/auth/setup-password?token=${tokenData.token}`;
+    const verificationUrl = `${env.NEXTAUTH_URL}/auth/passwort-einrichten?token=${tokenData.token}`;
 
     // Send verification email
     const emailHtml = generateEmailVerificationEmail(

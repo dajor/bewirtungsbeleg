@@ -118,7 +118,7 @@ describe('meine-belege/page.tsx - Component Tests', () => {
     it('should redirect to signin page if not authenticated', () => {
       renderWithProviders(<MeineBelegePage />, null);
 
-      expect(mockPush).toHaveBeenCalledWith('/auth/signin');
+      expect(mockPush).toHaveBeenCalledWith('/auth/anmelden');
     });
 
     it('should show loading spinner while checking authentication', () => {

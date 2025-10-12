@@ -48,9 +48,13 @@ test.describe('playwright-register: Complete Registration Flow', () => {
     // Submit registration
     await page.getByTestId('register-submit').click();
 
+    // Wait for button to finish loading state
+    await expect(page.getByTestId('register-submit')).not.toHaveAttribute('data-loading', 'true', { timeout: 10000 });
+    console.log('✓ Button loading state cleared');
+
     // Check if we got success or error (duplicate email)
     const successHeading = page.getByRole('heading', { name: /E-Mail gesendet/i });
-    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /existiert bereits|bereits registriert/i });
+    const errorAlert = page.locator('[role="alert"]').filter({ hasText: /existiert bereits|bereits registriert|Bestätigungslink/i });
 
     // Wait for either success or duplicate error
     try {

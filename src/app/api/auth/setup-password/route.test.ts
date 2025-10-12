@@ -17,11 +17,11 @@
  *
  * USER FLOW:
  * 1. User receives registration email with verification link
- * 2. User clicks link → lands on /auth/setup-password?token=xyz
+ * 2. User clicks link → lands on /auth/passwort-einrichten?token=xyz
  * 3. Frontend calls verify-email endpoint to validate token
  * 4. Frontend shows password form if token valid
  * 5. User enters password and submits
- * 6. Frontend calls POST /api/auth/setup-password with token + password
+ * 6. Frontend calls POST /api/auth/passwort-einrichten with token + password
  * 7. Backend verifies token, creates user account, stores password
  * 8. User can now log in with email + password
  *
@@ -34,12 +34,12 @@
  * INTEGRATION POINTS:
  * - Token storage (Redis or file-based fallback)
  * - User database (TODO: implement actual user creation at line 63-65)
- * - Frontend: /src/app/auth/setup-password/page.tsx
+ * - Frontend: /src/app/auth/passwort-einrichten/page.tsx
  *
  * RELATED ROUTES:
- * - /api/auth/register/send-verification - Sends verification email (step 1)
+ * - /api/auth/registrieren/send-verification - Sends verification email (step 1)
  * - /api/auth/verify-email - Verifies token before showing password form (step 2)
- * - /api/auth/reset-password - Similar but updates password for existing user
+ * - /api/auth/passwort-zurucksetzen - Similar but updates password for existing user
  *
  * TODO IN PRODUCTION:
  * - Line 63-65: Implement actual user creation in database
@@ -69,13 +69,13 @@ vi.mock('@/lib/docbits-auth', () => ({
   },
 }));
 
-describe('POST /api/auth/setup-password', () => {
+describe('POST /api/auth/passwort-einrichten', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   const createRequest = (body: any): NextRequest => {
-    return new NextRequest('http://localhost:3000/api/auth/setup-password', {
+    return new NextRequest('http://localhost:3000/api/auth/passwort-einrichten', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

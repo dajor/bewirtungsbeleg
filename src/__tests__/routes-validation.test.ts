@@ -51,18 +51,18 @@ describe('Routes Validation - Check for Dead Links', () => {
   });
 
   describe('Authentication Pages', () => {
-    it('should load signin page /auth/signin', async () => {
-      const result = await checkRoute('/auth/signin');
+    it('should load signin page /auth/anmelden', async () => {
+      const result = await checkRoute('/auth/anmelden');
       expect(result.passed, `Route ${result.path} failed: expected ${result.expectedStatus}, got ${result.status}`).toBe(true);
     });
 
-    it('should load register page /auth/register', async () => {
-      const result = await checkRoute('/auth/register');
+    it('should load register page /auth/registrieren', async () => {
+      const result = await checkRoute('/auth/registrieren');
       expect(result.passed, `Route ${result.path} failed: expected ${result.expectedStatus}, got ${result.status}`).toBe(true);
     });
 
-    it('should load password reset page /auth/reset-password with token', async () => {
-      const result = await checkRoute('/auth/reset-password?token=test123');
+    it('should load password reset page /auth/passwort-zurucksetzen with token', async () => {
+      const result = await checkRoute('/auth/passwort-zurucksetzen?token=test123');
       expect(result.passed, `Route ${result.path} failed: expected ${result.expectedStatus}, got ${result.status}`).toBe(true);
     });
 
@@ -130,8 +130,8 @@ describe('Routes Validation - Check for Dead Links', () => {
       ).toBe(true);
     });
 
-    it('should handle /api/auth/reset-password POST endpoint', async () => {
-      const response = await fetch(`${BASE_URL}/api/auth/reset-password`, {
+    it('should handle /api/auth/passwort-zurucksetzen POST endpoint', async () => {
+      const response = await fetch(`${BASE_URL}/api/auth/passwort-zurucksetzen`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ describe('Routes Validation - Check for Dead Links', () => {
       // Should return 200 (success) or 400 (validation error)
       const validStatuses = [200, 400];
       expect(validStatuses.includes(response.status),
-        `API endpoint /api/auth/reset-password returned unexpected status ${response.status}`
+        `API endpoint /api/auth/passwort-zurucksetzen returned unexpected status ${response.status}`
       ).toBe(true);
     });
   });
@@ -183,9 +183,9 @@ describe('Routes Validation - Check for Dead Links', () => {
     it('should check all critical routes in batch', async () => {
       const routes = [
         { path: '/', expectedStatus: 200 },
-        { path: '/auth/signin', expectedStatus: 200 },
-        { path: '/auth/register', expectedStatus: 200 },
-        { path: '/auth/reset-password?token=test', expectedStatus: 200 },
+        { path: '/auth/anmelden', expectedStatus: 200 },
+        { path: '/auth/registrieren', expectedStatus: 200 },
+        { path: '/auth/passwort-zurucksetzen?token=test', expectedStatus: 200 },
         { path: '/auth/error', expectedStatus: 200 },
         { path: '/release-notes', expectedStatus: 200 },
         { path: '/docbits.svg', expectedStatus: 200 },

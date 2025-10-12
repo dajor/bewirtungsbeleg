@@ -72,7 +72,7 @@ describe('/api/auth/verify-email', () => {
      * THEN: Token is verified, consumed (single-use), and success response with email returned
      *
      * WHY: This is the PRIMARY registration flow. Users receive emails with links like:
-     *      http://localhost:3001/auth/setup-password?token=xyz
+     *      http://localhost:3001/auth/passwort-einrichten?token=xyz
      *      The setup-password page then calls GET /api/auth/verify-email?token=xyz
      *      to verify the token before allowing password setup.
      *
