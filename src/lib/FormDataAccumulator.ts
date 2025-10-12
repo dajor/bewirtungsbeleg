@@ -190,19 +190,49 @@ export class FormDataAccumulator {
    * This prevents race conditions and ensures each field update is atomic
    */
   applyToForm(form: any): void {
-    console.log('[FormDataAccumulator] Applying accumulated values to form');
+    console.log('[FormDataAccumulator] ===== STARTING APPLY TO FORM =====');
+    console.log('[FormDataAccumulator] Current accumulated values:', JSON.stringify(this.accumulated, null, 2));
 
     const updates = this.getAccumulatedValues();
 
     // Apply each field individually using setFieldValue to prevent overwriting
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        // Only update if value is meaningful
+        console.log(`[FormDataAccumulator] ✓ Setting ${key} = "${value}"`);
         form.setFieldValue(key, value);
+      } else {
+        console.log(`[FormDataAccumulator] ✗ Skipping ${key} (value: ${value})`);
       }
     });
 
-    console.log('[FormDataAccumulator] Form updated successfully');
+    // CRITICAL: Always recalculate trinkgeld if we have both amounts
+    // This ensures trinkgeld is calculated even if applyToForm is called multiple times
+    if (this.accumulated.gesamtbetrag && this.accumulated.kreditkartenBetrag) {
+      const gesamtbetrag = Number(this.accumulated.gesamtbetrag);
+      const kreditkartenBetrag = Number(this.accumulated.kreditkartenBetrag);
+
+      if (kreditkartenBetrag > gesamtbetrag) {
+        const trinkgeld = (kreditkartenBetrag - gesamtbetrag).toFixed(2);
+        const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+
+        console.log(`[FormDataAccumulator] 💰 RECALCULATING TRINKGELD: ${kreditkartenBetrag} - ${gesamtbetrag} = ${trinkgeld}`);
+        console.log(`[FormDataAccumulator] 💰 RECALCULATING TRINKGELD MWST: ${trinkgeld} * 0.19 = ${trinkgeldMwst}`);
+
+        // Force set these calculated values
+        form.setFieldValue('trinkgeld', trinkgeld);
+        form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
+
+        console.log(`[FormDataAccumulator] ✓ FORCED trinkgeld = "${trinkgeld}"`);
+        console.log(`[FormDataAccumulator] ✓ FORCED trinkgeldMwst = "${trinkgeldMwst}"`);
+      } else {
+        console.log(`[FormDataAccumulator] ℹ️ No tip: kreditkartenBetrag (${kreditkartenBetrag}) <= gesamtbetrag (${gesamtbetrag})`);
+      }
+    } else {
+      console.log(`[FormDataAccumulator] ⚠️ Cannot calculate trinkgeld: gesamtbetrag=${this.accumulated.gesamtbetrag}, kreditkartenBetrag=${this.accumulated.kreditkartenBetrag}`);
+    }
+
+    console.log('[FormDataAccumulator] Form values after update:', JSON.stringify(form.values, null, 2));
+    console.log('[FormDataAccumulator] ===== APPLY TO FORM COMPLETE =====');
   }
 
   /**
