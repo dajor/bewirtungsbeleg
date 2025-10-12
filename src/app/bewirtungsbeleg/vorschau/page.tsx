@@ -450,7 +450,7 @@ export default function BewirtungsbelegVorschauPage() {
                   color="green"
                   size="md"
                 >
-                  In DigitalOcean speichern
+                  In Cloud speichern
                 </Button>
               </Tooltip>
 
@@ -469,7 +469,7 @@ export default function BewirtungsbelegVorschauPage() {
                   variant="light"
                   size="md"
                 >
-                  Prüfen & in DigitalOcean speichern
+                  Signieren und Cloud GoBD speichern
                 </Button>
               </Tooltip>
             </Group>

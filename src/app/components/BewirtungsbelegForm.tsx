@@ -1547,9 +1547,9 @@ export default function BewirtungsbelegForm() {
                   size="sm"
                   decimalScale={2}
                   fixedDecimalScale
-                  description="Geben Sie das Trinkgeld ein. Dies wird automatisch berechnet, wenn Sie den Betrag auf der Kreditkarte eingeben"
+                  description="Wird automatisch berechnet (Kreditkartenbetrag - Rechnungsbetrag)"
                   {...form.getInputProps('trinkgeld')}
-                  onChange={handleTrinkgeldChange}
+                  readOnly
                 />
                 {!form.values.istAuslaendischeRechnung && (
                   <NumberInput
