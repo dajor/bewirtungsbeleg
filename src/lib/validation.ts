@@ -72,6 +72,8 @@ export const extractReceiptResponseSchema = z.object({
   mwst: z.string().optional(),
   netto: z.string().optional(),
   datum: z.string().optional(),
+  trinkgeld: z.string().optional(),
+  trinkgeldMwst: z.string().optional(),
 });
 
 // Bewirtungsbeleg form schema

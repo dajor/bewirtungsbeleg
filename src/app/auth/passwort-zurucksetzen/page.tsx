@@ -33,6 +33,7 @@ function ResetPasswordForm() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
+  const [autoLoginStatus, setAutoLoginStatus] = useState<'pending' | 'success' | 'failed' | null>(null);
 
   useEffect(() => {
     const tokenParam = searchParams?.get('token');
@@ -97,6 +98,10 @@ function ResetPasswordForm() {
 
       // Auto-login with the newly reset credentials
       console.log('[Reset Password] Password reset successful, auto-logging in...');
+      setAutoLoginStatus('pending');
+
+      // Add a small delay to ensure password is fully updated in the backend
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       try {
         const signInResult = await signIn('credentials', {
@@ -105,29 +110,54 @@ function ResetPasswordForm() {
           redirect: false,
         });
 
+        console.log('[Reset Password] SignIn result:', {
+          ok: signInResult?.ok,
+          error: signInResult?.error,
+          status: signInResult?.status
+        });
+
         if (signInResult?.error) {
           console.error('[Reset Password] Auto-login failed:', signInResult.error);
-          // Still show success but redirect to signin
+          setAutoLoginStatus('failed');
+
+          // Show user-friendly error message
+          setError(`Passwort wurde geändert, aber automatische Anmeldung fehlgeschlagen: ${signInResult.error}. Sie werden zur Anmeldeseite weitergeleitet...`);
+
+          // Redirect to signin page with success message
           setTimeout(() => {
             router.push('/auth/anmelden?password_reset=success');
-          }, 2000);
+          }, 3000);
           return;
         }
 
         if (signInResult?.ok) {
           console.log('[Reset Password] Auto-login successful, redirecting to main app');
+          setAutoLoginStatus('success');
+
           // Redirect to main app after successful auto-login
           setTimeout(() => {
             router.push('/bewirtungsbeleg');
             router.refresh();
           }, 1500);
+        } else {
+          // signInResult exists but neither ok nor error (edge case)
+          console.warn('[Reset Password] Unexpected signIn result:', signInResult);
+          setAutoLoginStatus('failed');
+          setTimeout(() => {
+            router.push('/auth/anmelden?password_reset=success');
+          }, 2000);
         }
       } catch (loginError) {
-        console.error('[Reset Password] Auto-login error:', loginError);
+        console.error('[Reset Password] Auto-login exception:', loginError);
+        setAutoLoginStatus('failed');
+
+        // Show error but still allow manual login
+        setError('Passwort wurde geändert, aber automatische Anmeldung fehlgeschlagen. Sie werden zur Anmeldeseite weitergeleitet...');
+
         // Fallback to signin page
         setTimeout(() => {
           router.push('/auth/anmelden?password_reset=success');
-        }, 2000);
+        }, 3000);
       }
     } catch (err) {
       console.error('Reset password error:', err);
@@ -182,7 +212,10 @@ function ResetPasswordForm() {
               color="green"
               data-testid="reset-password-success"
             >
-              Ihr Passwort wurde erfolgreich geändert. Sie werden automatisch angemeldet...
+              {autoLoginStatus === 'pending' && 'Ihr Passwort wurde erfolgreich geändert. Sie werden automatisch angemeldet...'}
+              {autoLoginStatus === 'success' && 'Ihr Passwort wurde erfolgreich geändert. Sie werden zur Anwendung weitergeleitet...'}
+              {autoLoginStatus === 'failed' && 'Ihr Passwort wurde erfolgreich geändert. Sie werden zur Anmeldeseite weitergeleitet...'}
+              {autoLoginStatus === null && 'Ihr Passwort wurde erfolgreich geändert. Sie werden automatisch angemeldet...'}
             </Alert>
           ) : (
             <form onSubmit={form.onSubmit(handleSubmit)}>
