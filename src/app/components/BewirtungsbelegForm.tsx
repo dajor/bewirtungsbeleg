@@ -1037,6 +1037,10 @@ export default function BewirtungsbelegForm() {
       if (kkBetragNum > gesamtbetrag) {
         const trinkgeld = (kkBetragNum - gesamtbetrag).toFixed(2);
         form.setFieldValue('trinkgeld', trinkgeld);
+
+        // Calculate MwSt for trinkgeld (19%)
+        const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+        form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
       }
     }
   };
