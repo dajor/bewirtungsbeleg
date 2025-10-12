@@ -280,6 +280,15 @@ export default function BewirtungsbelegForm() {
       // Apply accumulated values to form using setFieldValue for each field
       accumulator.applyToForm(form);
 
+      // CRITICAL DEBUG: Check form values IMMEDIATELY after applyToForm
+      console.log(`[OCR] ===== FORM STATE IMMEDIATELY AFTER applyToForm() =====`);
+      console.log(`[OCR] form.values.gesamtbetrag: "${form.values.gesamtbetrag}"`);
+      console.log(`[OCR] form.values.kreditkartenBetrag: "${form.values.kreditkartenBetrag}"`);
+      console.log(`[OCR] form.values.trinkgeld: "${form.values.trinkgeld}"`);
+      console.log(`[OCR] form.values.trinkgeldMwst: "${form.values.trinkgeldMwst}"`);
+      console.log(`[OCR] Full form.values:`, JSON.stringify(form.values, null, 2));
+      console.log(`[OCR] ===== END FORM STATE CHECK =====`);
+
       console.log(`[OCR] Successfully applied ${classificationType || 'Rechnung'} data to form`);
 
       // Validate that all financial fields are populated
