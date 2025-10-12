@@ -79,33 +79,38 @@ async function verifyAllFieldsPopulated(page: any) {
 async function uploadAndWaitForProcessing(page: any, filePath: string, fileType: string) {
   console.log(`=== Uploading ${fileType}: ${filePath} ===`);
 
+  // Start listening for responses BEFORE uploading
+  const conversionPromise = page.waitForResponse(
+    (response: any) => response.url().includes('/api/convert-pdf') && response.status() === 200,
+    { timeout: 30000 }
+  );
+
+  const classificationPromise = page.waitForResponse(
+    (response: any) => response.url().includes('/api/classify-receipt') && response.status() === 200,
+    { timeout: 30000 }
+  );
+
+  const extractionPromise = page.waitForResponse(
+    (response: any) => response.url().includes('/api/extract-receipt') && response.status() === 200,
+    { timeout: 30000 }
+  );
+
+  // Now upload the file
   const fileInput = page.locator('input[type="file"]').first();
   await fileInput.setInputFiles([filePath]);
 
   console.log(`✓ ${fileType} uploaded`);
 
   // Wait for conversion API to complete
-  await page.waitForResponse(
-    response => response.url().includes('/api/convert-pdf') && response.status() === 200,
-    { timeout: 20000 }
-  );
-
+  await conversionPromise;
   console.log(`✓ ${fileType} converted`);
 
   // Wait for classification API to complete
-  await page.waitForResponse(
-    response => response.url().includes('/api/classify-receipt') && response.status() === 200,
-    { timeout: 20000 }
-  );
-
+  await classificationPromise;
   console.log(`✓ ${fileType} classified`);
 
   // Wait for OCR extraction API to complete
-  await page.waitForResponse(
-    response => response.url().includes('/api/extract-receipt') && response.status() === 200,
-    { timeout: 20000 }
-  );
-
+  await extractionPromise;
   console.log(`✓ ${fileType} OCR extraction completed`);
 
   // CRITICAL: Wait only 200ms (reduced from 1000ms) to verify immediate population
