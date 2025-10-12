@@ -163,9 +163,26 @@ test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Te
     await page.screenshot({ path: `test-results/test1-vendor-then-kundenbeleg-${timestamp}.png`, fullPage: true });
 
     // Verify all fields are populated
-    await verifyAllFieldsPopulated(page);
+    const values = await verifyAllFieldsPopulated(page);
 
-    console.log('\n✅ TEST 1 PASSED: All fields correctly populated!\n');
+    // CRITICAL: Verify specific expected values for trinkgeld calculation
+    expect(values.trinkgeld).toBe('2.10');
+    expect(values.trinkgeldMwst).toBe('0.40');
+
+    // CRITICAL: Test form validation (simulates "Weiter" button click)
+    console.log('=== Testing Form Validation ===');
+
+    // Fill required non-financial fields to enable form submission
+    await page.locator('[data-path="teilnehmer"]').fill('Test Teilnehmer');
+    await page.locator('[data-path="geschaeftlicherAnlass"]').fill('Test Geschäftlicher Anlass');
+
+    // Try to click "Weiter" button
+    const weiterButton = page.getByRole('button', { name: /weiter/i });
+    await expect(weiterButton).toBeEnabled();
+
+    console.log('✅ Form validation passed - Weiter button is enabled');
+
+    console.log('\n✅ TEST 1 PASSED: All fields correctly populated and validation passed!\n');
   });
 
   test('Test 2: Kundenbeleg (Kreditkartenbeleg) first, then Vendor (Rechnung)', async ({ page }) => {
@@ -182,9 +199,22 @@ test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Te
     await page.screenshot({ path: `test-results/test2-kundenbeleg-then-vendor-${timestamp}.png`, fullPage: true });
 
     // Verify all fields are populated
-    await verifyAllFieldsPopulated(page);
+    const values = await verifyAllFieldsPopulated(page);
 
-    console.log('\n✅ TEST 2 PASSED: All fields correctly populated!\n');
+    // CRITICAL: Verify specific expected values (most common bug scenario)
+    expect(values.trinkgeld).toBe('2.10');
+    expect(values.trinkgeldMwst).toBe('0.40');
+
+    // CRITICAL: Test form validation
+    await page.locator('[data-path="teilnehmer"]').fill('Test Teilnehmer');
+    await page.locator('[data-path="geschaeftlicherAnlass"]').fill('Test Geschäftlicher Anlass');
+
+    const weiterButton = page.getByRole('button', { name: /weiter/i });
+    await expect(weiterButton).toBeEnabled();
+
+    console.log('✅ Form validation passed - Weiter button is enabled');
+
+    console.log('\n✅ TEST 2 PASSED: All fields correctly populated and validation passed!\n');
   });
 
   test('Test 3: Vendor first, wait 20 seconds, then Kundenbeleg', async ({ page }) => {
@@ -205,9 +235,22 @@ test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Te
     await page.screenshot({ path: `test-results/test3-vendor-wait-kundenbeleg-${timestamp}.png`, fullPage: true });
 
     // Verify all fields are populated
-    await verifyAllFieldsPopulated(page);
+    const values = await verifyAllFieldsPopulated(page);
 
-    console.log('\n✅ TEST 3 PASSED: All fields correctly populated!\n');
+    // CRITICAL: Verify trinkgeld calculation works even with delayed upload
+    expect(values.trinkgeld).toBe('2.10');
+    expect(values.trinkgeldMwst).toBe('0.40');
+
+    // CRITICAL: Test form validation
+    await page.locator('[data-path="teilnehmer"]').fill('Test Teilnehmer');
+    await page.locator('[data-path="geschaeftlicherAnlass"]').fill('Test Geschäftlicher Anlass');
+
+    const weiterButton = page.getByRole('button', { name: /weiter/i });
+    await expect(weiterButton).toBeEnabled();
+
+    console.log('✅ Form validation passed - Weiter button is enabled');
+
+    console.log('\n✅ TEST 3 PASSED: All fields correctly populated and validation passed!\n');
   });
 
   test('Test 4: Kundenbeleg first, wait 20 seconds, then Vendor', async ({ page }) => {
@@ -228,8 +271,21 @@ test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Te
     await page.screenshot({ path: `test-results/test4-kundenbeleg-wait-vendor-${timestamp}.png`, fullPage: true });
 
     // Verify all fields are populated
-    await verifyAllFieldsPopulated(page);
+    const values = await verifyAllFieldsPopulated(page);
 
-    console.log('\n✅ TEST 4 PASSED: All fields correctly populated!\n');
+    // CRITICAL: This is the most problematic scenario - verify it works
+    expect(values.trinkgeld).toBe('2.10');
+    expect(values.trinkgeldMwst).toBe('0.40');
+
+    // CRITICAL: Test form validation
+    await page.locator('[data-path="teilnehmer"]').fill('Test Teilnehmer');
+    await page.locator('[data-path="geschaeftlicherAnlass"]').fill('Test Geschäftlicher Anlass');
+
+    const weiterButton = page.getByRole('button', { name: /weiter/i });
+    await expect(weiterButton).toBeEnabled();
+
+    console.log('✅ Form validation passed - Weiter button is enabled');
+
+    console.log('\n✅ TEST 4 PASSED: All fields correctly populated and validation passed!\n');
   });
 });

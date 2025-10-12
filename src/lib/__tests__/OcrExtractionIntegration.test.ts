@@ -195,18 +195,19 @@ describe('OCR Extraction Integration Test', () => {
       expect(validation.missingFields).toHaveLength(0);
     });
 
-    it('should apply values to form correctly', () => {
+    it('should apply values to form correctly using setValues()', () => {
       const accumulator = new FormDataAccumulator(getInitialFormValues());
 
       // Process both PDFs
       accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
       accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
 
-      // Mock form object
+      // Mock form object with setValues method (Mantine-like)
       const mockForm = {
         values: { ...getInitialFormValues() },
-        setFieldValue: (key: string, value: any) => {
-          (mockForm.values as any)[key] = value;
+        setValues: (updates: any) => {
+          // Merge updates into values (like Mantine does)
+          Object.assign(mockForm.values, updates);
         },
       };
 
@@ -232,25 +233,29 @@ describe('OCR Extraction Integration Test', () => {
       accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
       accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
 
-      // Mock form with tracking
-      let trinkgeldSetCount = 0;
-      let trinkgeldMwstSetCount = 0;
+      // Mock form with tracking for setValues calls
+      let setValuesCallCount = 0;
+      let lastUpdateObject: any = null;
 
       const mockForm = {
         values: { ...getInitialFormValues() },
-        setFieldValue: (key: string, value: any) => {
-          (mockForm.values as any)[key] = value;
-          if (key === 'trinkgeld') trinkgeldSetCount++;
-          if (key === 'trinkgeldMwst') trinkgeldMwstSetCount++;
+        setValues: (updates: any) => {
+          setValuesCallCount++;
+          lastUpdateObject = { ...updates };
+          // Merge updates into values (like Mantine does)
+          Object.assign(mockForm.values, updates);
         },
       };
 
       // Apply to form
       accumulator.applyToForm(mockForm);
 
-      // Verify trinkgeld was set exactly once (no setTimeout retries)
-      expect(trinkgeldSetCount).toBe(1);
-      expect(trinkgeldMwstSetCount).toBe(1);
+      // Verify setValues was called exactly once (atomic update)
+      expect(setValuesCallCount).toBe(1);
+
+      // Verify trinkgeld and trinkgeldMwst were included in the update object
+      expect(lastUpdateObject).toHaveProperty('trinkgeld', '2.10');
+      expect(lastUpdateObject).toHaveProperty('trinkgeldMwst', '0.40');
 
       // Verify trinkgeld values are correct immediately (no delay)
       expect(mockForm.values.trinkgeld).toBe('2.10');
@@ -358,6 +363,190 @@ describe('OCR Extraction Integration Test', () => {
 
         expect(actualValue, `Field "${field}" should match expected value`).toBe(expectedValue);
       });
+    });
+  });
+
+  describe('Critical Bug Detection Tests', () => {
+    it('CRITICAL: should calculate trinkgeld when Kundenbeleg uploads before Rechnung', () => {
+      // This test specifically catches the bug where trinkgeld wasn't calculated
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      // Step 1: Upload Kundenbeleg first (sets kreditkartenBetrag only)
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      const afterKundenbeleg = accumulator.getAccumulatedValues();
+      expect(afterKundenbeleg.kreditkartenBetrag).toBe('56.00');
+      expect(afterKundenbeleg.gesamtbetrag).toBe(''); // Still empty
+      expect(afterKundenbeleg.trinkgeld || '').toBe(''); // Can't calculate yet
+
+      // Step 2: Upload Rechnung (NOW we have both values)
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+
+      const afterRechnung = accumulator.getAccumulatedValues();
+
+      // CRITICAL: Trinkgeld MUST be calculated now
+      expect(afterRechnung.gesamtbetrag).toBe('53.90');
+      expect(afterRechnung.kreditkartenBetrag).toBe('56.00');
+      expect(afterRechnung.trinkgeld).toBe('2.10');
+      expect(afterRechnung.trinkgeldMwst).toBe('0.40');
+
+      // Mock form and apply
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setValues: (updates: any) => {
+          Object.assign(mockForm.values, updates);
+        },
+      };
+
+      accumulator.applyToForm(mockForm);
+
+      // CRITICAL: Form values must persist (not get cleared)
+      expect(mockForm.values.trinkgeld).toBe('2.10');
+      expect(mockForm.values.trinkgeldMwst).toBe('0.40');
+      expect(mockForm.values.kreditkartenBetrag).toBe('56.00');
+      expect(mockForm.values.gesamtbetrag).toBe('53.90');
+    });
+
+    it('CRITICAL: should calculate trinkgeld when Rechnung uploads before Kundenbeleg', () => {
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      // Step 1: Upload Rechnung first (sets financial fields)
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+
+      const afterRechnung = accumulator.getAccumulatedValues();
+      expect(afterRechnung.gesamtbetrag).toBe('53.90');
+      expect(afterRechnung.kreditkartenBetrag).toBe(''); // Still empty
+      expect(afterRechnung.trinkgeld || '').toBe(''); // Can't calculate yet
+
+      // Step 2: Upload Kundenbeleg (NOW we have both values)
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      const afterKundenbeleg = accumulator.getAccumulatedValues();
+
+      // CRITICAL: Trinkgeld MUST be calculated now
+      expect(afterKundenbeleg.gesamtbetrag).toBe('53.90');
+      expect(afterKundenbeleg.kreditkartenBetrag).toBe('56.00');
+      expect(afterKundenbeleg.trinkgeld).toBe('2.10');
+      expect(afterKundenbeleg.trinkgeldMwst).toBe('0.40');
+
+      // Mock form and apply
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setValues: (updates: any) => {
+          Object.assign(mockForm.values, updates);
+        },
+      };
+
+      accumulator.applyToForm(mockForm);
+
+      // CRITICAL: Form values must persist
+      expect(mockForm.values.trinkgeld).toBe('2.10');
+      expect(mockForm.values.trinkgeldMwst).toBe('0.40');
+      expect(mockForm.values.kreditkartenBetrag).toBe('56.00');
+      expect(mockForm.values.gesamtbetrag).toBe('53.90');
+    });
+
+    it('CRITICAL: should include trinkgeld in the setValues() update object', () => {
+      // This test verifies that trinkgeld is included in the atomic update
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      let capturedUpdates: any = null;
+
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setValues: (updates: any) => {
+          capturedUpdates = { ...updates };
+          Object.assign(mockForm.values, updates);
+        },
+      };
+
+      accumulator.applyToForm(mockForm);
+
+      // CRITICAL: The updates object passed to setValues() must include trinkgeld
+      expect(capturedUpdates).toBeDefined();
+      expect(capturedUpdates).toHaveProperty('trinkgeld', '2.10');
+      expect(capturedUpdates).toHaveProperty('trinkgeldMwst', '0.40');
+      expect(capturedUpdates).toHaveProperty('gesamtbetrag', '53.90');
+      expect(capturedUpdates).toHaveProperty('kreditkartenBetrag', '56.00');
+    });
+
+    it('CRITICAL: form validation should pass after OCR extraction', () => {
+      // This test simulates the "Weiter" button validation issue
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setValues: (updates: any) => {
+          Object.assign(mockForm.values, updates);
+        },
+      };
+
+      accumulator.applyToForm(mockForm);
+
+      // Simulate Mantine form validation
+      const requiredFinancialFields = [
+        'gesamtbetrag',
+        'gesamtbetragMwst',
+        'gesamtbetragNetto',
+        'kreditkartenBetrag',
+        'trinkgeld',
+        'trinkgeldMwst',
+      ];
+
+      const missingFields: string[] = [];
+
+      requiredFinancialFields.forEach(field => {
+        const value = mockForm.values[field as keyof typeof mockForm.values];
+        if (!value || value === '' || value === '0' || value === '0.00') {
+          missingFields.push(field);
+        }
+      });
+
+      // CRITICAL: Validation must pass (no missing fields)
+      expect(missingFields, `Missing required fields: ${missingFields.join(', ')}`).toHaveLength(0);
+
+      // Verify specific values are populated
+      expect(mockForm.values.gesamtbetrag).toBe('53.90');
+      expect(mockForm.values.kreditkartenBetrag).toBe('56.00');
+      expect(mockForm.values.trinkgeld).toBe('2.10');
+    });
+
+    it('CRITICAL: should handle rapid sequential OCR uploads without losing data', () => {
+      // This test simulates the production scenario of rapid uploads
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      // Simulate rapid uploads (no delay between them)
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setValues: (updates: any) => {
+          Object.assign(mockForm.values, updates);
+        },
+      };
+
+      // Apply immediately (no setTimeout)
+      accumulator.applyToForm(mockForm);
+
+      // CRITICAL: All values must be present immediately
+      const allFieldsPopulated = [
+        mockForm.values.gesamtbetrag === '53.90',
+        mockForm.values.gesamtbetragMwst === '8.61',
+        mockForm.values.gesamtbetragNetto === '45.29',
+        mockForm.values.kreditkartenBetrag === '56.00',
+        mockForm.values.trinkgeld === '2.10',
+        mockForm.values.trinkgeldMwst === '0.40',
+        mockForm.values.restaurantName === 'Osteria del Parco',
+      ].every(Boolean);
+
+      expect(allFieldsPopulated, 'Not all fields were populated correctly').toBe(true);
     });
   });
 });

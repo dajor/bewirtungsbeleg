@@ -172,7 +172,7 @@ export default function BewirtungsbelegForm() {
         }
         return value ? null : 'Teilnehmerkreis ist erforderlich';
       },
-      anlass: (value) => (value ? null : 'Anlass ist erforderlich'),
+      anlass: (value) => null, // Optional - geschaeftlicherAnlass is the required field
       gesamtbetrag: (value) => (value ? null : 'Gesamtbetrag ist erforderlich'),
       zahlungsart: (value) => (value ? null : 'Zahlungsart ist erforderlich'),
       bewirtungsart: (value) => (value ? null : 'Bewirtungsart ist erforderlich'),
@@ -249,6 +249,19 @@ export default function BewirtungsbelegForm() {
         if (classificationData.region) {
           formData.append('region', classificationData.region);
         }
+      }
+
+      // ===== PASS EXISTING FORM VALUES FOR TRINKGELD CALCULATION =====
+      // Pass rechnungGesamtbetrag if we have it (for Kreditkartenbeleg upload)
+      if (form.values.gesamtbetrag) {
+        formData.append('rechnungGesamtbetrag', form.values.gesamtbetrag);
+        console.log(`[OCR] Passing rechnungGesamtbetrag: ${form.values.gesamtbetrag}`);
+      }
+
+      // Pass kreditkartenBetrag if we have it (for Rechnung upload after Kreditkartenbeleg)
+      if (form.values.kreditkartenBetrag) {
+        formData.append('kreditkartenBetrag', form.values.kreditkartenBetrag);
+        console.log(`[OCR] Passing kreditkartenBetrag: ${form.values.kreditkartenBetrag}`);
       }
 
       console.log(`[OCR] Extracting data from ${file.name} (${classificationType || 'Unknown type'})`);
@@ -640,7 +653,27 @@ export default function BewirtungsbelegForm() {
     // Validate form before proceeding to preview
     const validation = form.validate();
     if (validation.hasErrors) {
-      setError('Bitte füllen Sie alle erforderlichen Felder aus');
+      // Create detailed error message showing which fields are missing
+      const missingFields = Object.entries(validation.errors)
+        .map(([field, error]) => {
+          // Map field names to German labels
+          const fieldLabels: Record<string, string> = {
+            datum: 'Datum',
+            restaurantName: 'Restaurant',
+            teilnehmer: 'Teilnehmer',
+            anlass: 'Anlass',
+            gesamtbetrag: 'Gesamtbetrag',
+            zahlungsart: 'Zahlungsart',
+            bewirtungsart: 'Bewirtungsart',
+            geschaeftlicherAnlass: 'Geschäftlicher Anlass',
+            geschaeftspartnerNamen: 'Namen der Geschäftspartner',
+            geschaeftspartnerFirma: 'Firma der Geschäftspartner',
+          };
+          return fieldLabels[field] || field;
+        })
+        .join(', ');
+
+      setError(`Bitte füllen Sie folgende Felder aus: ${missingFields}`);
       return;
     }
 

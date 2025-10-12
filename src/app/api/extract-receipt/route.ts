@@ -124,6 +124,10 @@ export async function POST(request: Request) {
     const image = formData.get('image') as File;
     const classificationType = formData.get('classificationType') as string | null;
 
+    // Get context from previous uploads for trinkgeld calculation
+    const rechnungGesamtbetrag = formData.get('rechnungGesamtbetrag') as string | null;
+    const kreditkartenBetrag = formData.get('kreditkartenBetrag') as string | null;
+
     // Get locale information from classification
     const localeCode = formData.get('locale') as string | null;
     const language = formData.get('language') as string | null;
@@ -254,6 +258,56 @@ export async function POST(request: Request) {
       }
       if (sanitizedResult.netto) {
         sanitizedResult.netto = convertToGermanNumber(sanitizedResult.netto);
+      }
+
+      // ===== TRINKGELD CALCULATION (BACKEND) =====
+      // Calculate trinkgeld if we have both amounts
+      if (classificationType === 'Kreditkartenbeleg' && rechnungGesamtbetrag && sanitizedResult.gesamtbetrag) {
+        // Parse German format numbers (53,90 → 53.90)
+        const parseGermanNumber = (value: string): number => {
+          return parseFloat(value.replace(',', '.').replace(/[^\d.-]/g, ''));
+        };
+
+        const rechnung = parseGermanNumber(rechnungGesamtbetrag);
+        const kreditkarte = parseGermanNumber(sanitizedResult.gesamtbetrag);
+
+        console.log(`💰 Trinkgeld calculation: Kreditkarte (${kreditkarte}) - Rechnung (${rechnung})`);
+
+        if (kreditkarte > rechnung) {
+          const trinkgeld = (kreditkarte - rechnung).toFixed(2);
+          const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+
+          // Add calculated trinkgeld to response
+          sanitizedResult.trinkgeld = convertToGermanNumber(trinkgeld);
+          sanitizedResult.trinkgeldMwst = convertToGermanNumber(trinkgeldMwst);
+
+          console.log(`✅ Calculated trinkgeld: ${trinkgeld}€, MwSt: ${trinkgeldMwst}€`);
+        } else {
+          console.log(`ℹ️ No tip: Kreditkarte (${kreditkarte}) <= Rechnung (${rechnung})`);
+        }
+      } else if (classificationType === 'Rechnung' && kreditkartenBetrag && sanitizedResult.gesamtbetrag) {
+        // Reverse case: Rechnung uploaded after Kreditkartenbeleg
+        const parseGermanNumber = (value: string): number => {
+          return parseFloat(value.replace(',', '.').replace(/[^\d.-]/g, ''));
+        };
+
+        const rechnung = parseGermanNumber(sanitizedResult.gesamtbetrag);
+        const kreditkarte = parseGermanNumber(kreditkartenBetrag);
+
+        console.log(`💰 Trinkgeld calculation (reverse): Kreditkarte (${kreditkarte}) - Rechnung (${rechnung})`);
+
+        if (kreditkarte > rechnung) {
+          const trinkgeld = (kreditkarte - rechnung).toFixed(2);
+          const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+
+          // Add calculated trinkgeld to response
+          sanitizedResult.trinkgeld = convertToGermanNumber(trinkgeld);
+          sanitizedResult.trinkgeldMwst = convertToGermanNumber(trinkgeldMwst);
+
+          console.log(`✅ Calculated trinkgeld: ${trinkgeld}€, MwSt: ${trinkgeldMwst}€`);
+        } else {
+          console.log(`ℹ️ No tip: Kreditkarte (${kreditkarte}) <= Rechnung (${rechnung})`);
+        }
       }
 
       return NextResponse.json(sanitizedResult);

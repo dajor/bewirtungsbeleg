@@ -186,8 +186,8 @@ export class FormDataAccumulator {
   }
 
   /**
-   * Apply accumulated values to form using setFieldValue for each field
-   * All values are applied synchronously to avoid race conditions
+   * Apply accumulated values to form using setValues for atomic update
+   * This ensures all values are applied in a single operation, avoiding React batching issues
    */
   applyToForm(form: any): void {
     console.log('[FormDataAccumulator] ===== STARTING APPLY TO FORM =====');
@@ -218,15 +218,21 @@ export class FormDataAccumulator {
       console.log(`[FormDataAccumulator] ⚠️ Cannot calculate trinkgeld: gesamtbetrag=${this.accumulated.gesamtbetrag}, kreditkartenBetrag=${this.accumulated.kreditkartenBetrag}`);
     }
 
-    // Apply ALL fields synchronously (including calculated trinkgeld)
+    // Filter out empty values
+    const filteredUpdates: Partial<BewirtungsbelegFormData> = {};
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
-        console.log(`[FormDataAccumulator] ✓ Setting ${key} = "${value}"`);
-        form.setFieldValue(key, value);
+        console.log(`[FormDataAccumulator] ✓ Including ${key} = "${value}"`);
+        filteredUpdates[key as keyof BewirtungsbelegFormData] = value as any;
       } else {
         console.log(`[FormDataAccumulator] ✗ Skipping ${key} (value: ${value})`);
       }
     });
+
+    // CRITICAL FIX: Use form.setValues() instead of multiple setFieldValue() calls
+    // This ensures atomic update and avoids React batching issues with Mantine forms
+    console.log('[FormDataAccumulator] 🔧 Applying all values atomically with setValues()...');
+    form.setValues(filteredUpdates);
 
     console.log('[FormDataAccumulator] Form values after update:', JSON.stringify(form.values, null, 2));
     console.log('[FormDataAccumulator] ===== APPLY TO FORM COMPLETE =====');
