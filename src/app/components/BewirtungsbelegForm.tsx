@@ -1063,6 +1063,20 @@ export default function BewirtungsbelegForm() {
       const { mwst, netto } = calculateMwst(bruttoNum);
       form.setFieldValue('gesamtbetragMwst', mwst);
       form.setFieldValue('gesamtbetragNetto', netto);
+
+      // Also calculate trinkgeld if kreditkartenBetrag exists
+      if (form.values.kreditkartenBetrag) {
+        const kkBetrag = Number(form.values.kreditkartenBetrag.replace(',', '.'));
+
+        if (kkBetrag > bruttoNum) {
+          const trinkgeld = (kkBetrag - bruttoNum).toFixed(2);
+          form.setFieldValue('trinkgeld', trinkgeld);
+
+          // Calculate MwSt for trinkgeld (19%)
+          const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+          form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
+        }
+      }
     }
   };
 
