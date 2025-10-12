@@ -504,6 +504,7 @@ export async function docbitsResetPasswordWithToken(
 
     // Step 1: Find user by email
     console.log('[DocBits] Looking up user by email:', email);
+    console.log('[DocBits] Management API URL:', `${AUTH_SERVER}/management/api/users?email=${encodeURIComponent(email)}`);
     const getUserResponse = await fetch(
       `${AUTH_SERVER}/management/api/users?email=${encodeURIComponent(email)}`,
       {
@@ -515,10 +516,17 @@ export async function docbitsResetPasswordWithToken(
       }
     );
 
+    console.log('[DocBits] User lookup response status:', getUserResponse.status);
+    console.log('[DocBits] User lookup response statusText:', getUserResponse.statusText);
+
     if (!getUserResponse.ok) {
+      // Try to get response body for better error debugging
+      const errorText = await getUserResponse.text().catch(() => 'Unable to read response');
+
       console.error('[DocBits] Failed to lookup user:', {
         status: getUserResponse.status,
         statusText: getUserResponse.statusText,
+        responseBody: errorText,
       });
 
       if (getUserResponse.status === 401 || getUserResponse.status === 403) {
