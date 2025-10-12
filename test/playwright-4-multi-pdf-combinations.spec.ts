@@ -108,8 +108,26 @@ async function uploadAndWaitForProcessing(page: any, filePath: string, fileType:
 
   console.log(`✓ ${fileType} OCR extraction completed`);
 
-  // Wait a bit for UI to update
-  await page.waitForTimeout(1000);
+  // CRITICAL: Wait only 200ms (reduced from 1000ms) to verify immediate population
+  // This shorter wait ensures we catch timing issues early
+  await page.waitForTimeout(200);
+
+  // Verify trinkgeld fields are populated immediately (for debugging)
+  const trinkgeld = await page.locator('[data-path="trinkgeld"]').inputValue();
+  const trinkgeldMwst = await page.locator('[data-path="trinkgeldMwst"]').inputValue();
+
+  console.log(`  → Trinkgeld after OCR: "${trinkgeld}"`);
+  console.log(`  → Trinkgeld MwSt after OCR: "${trinkgeldMwst}"`);
+
+  // Take screenshot if trinkgeld is empty (debugging)
+  if (!trinkgeld || trinkgeld === '') {
+    const timestamp = Date.now();
+    await page.screenshot({
+      path: `test-results/trinkgeld-empty-after-${fileType}-${timestamp}.png`,
+      fullPage: true
+    });
+    console.warn(`⚠️ WARNING: Trinkgeld is empty immediately after OCR! Screenshot saved.`);
+  }
 }
 
 test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Tests', () => {

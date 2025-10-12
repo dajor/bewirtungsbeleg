@@ -195,7 +195,7 @@ describe('OCR Extraction Integration Test', () => {
       expect(validation.missingFields).toHaveLength(0);
     });
 
-    it('should apply values to form correctly', async () => {
+    it('should apply values to form correctly', () => {
       const accumulator = new FormDataAccumulator(getInitialFormValues());
 
       // Process both PDFs
@@ -213,20 +213,56 @@ describe('OCR Extraction Integration Test', () => {
       // Apply to form
       accumulator.applyToForm(mockForm);
 
-      // Wait for setTimeout in applyToForm (100ms delay for trinkgeld)
-      await new Promise<void>((resolve) => {
-        setTimeout(() => {
-          // Verify all fields were set correctly
-          expect(mockForm.values.gesamtbetrag).toBe(expectedResults.gesamtbetrag);
-          expect(mockForm.values.gesamtbetragMwst).toBe(expectedResults.gesamtbetragMwst);
-          expect(mockForm.values.gesamtbetragNetto).toBe(expectedResults.gesamtbetragNetto);
-          expect(mockForm.values.kreditkartenBetrag).toBe(expectedResults.kreditkartenBetrag);
-          expect(mockForm.values.trinkgeld).toBe(expectedResults.trinkgeld);
-          expect(mockForm.values.trinkgeldMwst).toBe(expectedResults.trinkgeldMwst);
+      // Verify all fields were set correctly IMMEDIATELY (no setTimeout needed)
+      expect(mockForm.values.gesamtbetrag).toBe(expectedResults.gesamtbetrag);
+      expect(mockForm.values.gesamtbetragMwst).toBe(expectedResults.gesamtbetragMwst);
+      expect(mockForm.values.gesamtbetragNetto).toBe(expectedResults.gesamtbetragNetto);
+      expect(mockForm.values.kreditkartenBetrag).toBe(expectedResults.kreditkartenBetrag);
 
-          resolve();
-        }, 150); // Wait for setTimeout delay + buffer
-      });
+      // CRITICAL: Trinkgeld fields should be set synchronously (no await/setTimeout)
+      expect(mockForm.values.trinkgeld).toBe(expectedResults.trinkgeld);
+      expect(mockForm.values.trinkgeldMwst).toBe(expectedResults.trinkgeldMwst);
+    });
+
+    it('should populate trinkgeld immediately without setTimeout race conditions', () => {
+      // This test specifically validates that trinkgeld is set synchronously
+      const accumulator = new FormDataAccumulator(getInitialFormValues());
+
+      // Process both PDFs
+      accumulator.mergeOcrData(getVendorOcrData(), 'Rechnung');
+      accumulator.mergeOcrData(getKundenbelegOcrData(), 'Kreditkartenbeleg');
+
+      // Mock form with tracking
+      let trinkgeldSetCount = 0;
+      let trinkgeldMwstSetCount = 0;
+
+      const mockForm = {
+        values: { ...getInitialFormValues() },
+        setFieldValue: (key: string, value: any) => {
+          (mockForm.values as any)[key] = value;
+          if (key === 'trinkgeld') trinkgeldSetCount++;
+          if (key === 'trinkgeldMwst') trinkgeldMwstSetCount++;
+        },
+      };
+
+      // Apply to form
+      accumulator.applyToForm(mockForm);
+
+      // Verify trinkgeld was set exactly once (no setTimeout retries)
+      expect(trinkgeldSetCount).toBe(1);
+      expect(trinkgeldMwstSetCount).toBe(1);
+
+      // Verify trinkgeld values are correct immediately (no delay)
+      expect(mockForm.values.trinkgeld).toBe('2.10');
+      expect(mockForm.values.trinkgeldMwst).toBe('0.40');
+
+      // Verify calculation is correct
+      const gesamtbetrag = Number(mockForm.values.gesamtbetrag);
+      const kreditkartenBetrag = Number(mockForm.values.kreditkartenBetrag);
+      const trinkgeld = Number(mockForm.values.trinkgeld);
+
+      expect(trinkgeld).toBeCloseTo(kreditkartenBetrag - gesamtbetrag, 2);
+      expect(trinkgeld).toBeCloseTo(2.10, 2);
     });
   });
 

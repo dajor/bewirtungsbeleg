@@ -187,7 +187,7 @@ export class FormDataAccumulator {
 
   /**
    * Apply accumulated values to form using setFieldValue for each field
-   * This prevents race conditions and ensures each field update is atomic
+   * All values are applied synchronously to avoid race conditions
    */
   applyToForm(form: any): void {
     console.log('[FormDataAccumulator] ===== STARTING APPLY TO FORM =====');
@@ -195,25 +195,8 @@ export class FormDataAccumulator {
 
     const updates = this.getAccumulatedValues();
 
-    // CRITICAL: Apply fields in specific order to prevent race conditions
-    // 1. First apply all non-calculated fields
-    // 2. Then apply calculated trinkgeld fields LAST
-    const fieldsToApplyFirst = Object.entries(updates).filter(
-      ([key]) => key !== 'trinkgeld' && key !== 'trinkgeldMwst'
-    );
-
-    // Apply non-calculated fields first
-    fieldsToApplyFirst.forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
-        console.log(`[FormDataAccumulator] ✓ Setting ${key} = "${value}"`);
-        form.setFieldValue(key, value);
-      } else {
-        console.log(`[FormDataAccumulator] ✗ Skipping ${key} (value: ${value})`);
-      }
-    });
-
-    // CRITICAL: Always recalculate AND set trinkgeld if we have both amounts
-    // This must be done AFTER all other fields to prevent being overwritten
+    // CRITICAL: Calculate trinkgeld if we have both amounts BEFORE applying any values
+    // This ensures trinkgeld is included in the initial batch of updates
     if (this.accumulated.gesamtbetrag && this.accumulated.kreditkartenBetrag) {
       const gesamtbetrag = Number(this.accumulated.gesamtbetrag);
       const kreditkartenBetrag = Number(this.accumulated.kreditkartenBetrag);
@@ -222,18 +205,12 @@ export class FormDataAccumulator {
         const trinkgeld = (kreditkartenBetrag - gesamtbetrag).toFixed(2);
         const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
 
-        console.log(`[FormDataAccumulator] 💰 RECALCULATING TRINKGELD: ${kreditkartenBetrag} - ${gesamtbetrag} = ${trinkgeld}`);
-        console.log(`[FormDataAccumulator] 💰 RECALCULATING TRINKGELD MWST: ${trinkgeld} * 0.19 = ${trinkgeldMwst}`);
+        console.log(`[FormDataAccumulator] 💰 CALCULATED TRINKGELD: ${kreditkartenBetrag} - ${gesamtbetrag} = ${trinkgeld}`);
+        console.log(`[FormDataAccumulator] 💰 CALCULATED TRINKGELD MWST: ${trinkgeld} * 0.19 = ${trinkgeldMwst}`);
 
-        // Force set these calculated values LAST (after a small delay to ensure other setFieldValue calls complete)
-        setTimeout(() => {
-          form.setFieldValue('trinkgeld', trinkgeld);
-          form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
-
-          console.log(`[FormDataAccumulator] ✓ FORCED trinkgeld = "${trinkgeld}" (delayed)`);
-          console.log(`[FormDataAccumulator] ✓ FORCED trinkgeldMwst = "${trinkgeldMwst}" (delayed)`);
-        }, 100);
-
+        // Add calculated trinkgeld to updates object
+        updates.trinkgeld = trinkgeld;
+        updates.trinkgeldMwst = trinkgeldMwst;
       } else {
         console.log(`[FormDataAccumulator] ℹ️ No tip: kreditkartenBetrag (${kreditkartenBetrag}) <= gesamtbetrag (${gesamtbetrag})`);
       }
@@ -241,7 +218,17 @@ export class FormDataAccumulator {
       console.log(`[FormDataAccumulator] ⚠️ Cannot calculate trinkgeld: gesamtbetrag=${this.accumulated.gesamtbetrag}, kreditkartenBetrag=${this.accumulated.kreditkartenBetrag}`);
     }
 
-    console.log('[FormDataAccumulator] Form values after update (before delay):', JSON.stringify(form.values, null, 2));
+    // Apply ALL fields synchronously (including calculated trinkgeld)
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        console.log(`[FormDataAccumulator] ✓ Setting ${key} = "${value}"`);
+        form.setFieldValue(key, value);
+      } else {
+        console.log(`[FormDataAccumulator] ✗ Skipping ${key} (value: ${value})`);
+      }
+    });
+
+    console.log('[FormDataAccumulator] Form values after update:', JSON.stringify(form.values, null, 2));
     console.log('[FormDataAccumulator] ===== APPLY TO FORM COMPLETE =====');
   }
 
