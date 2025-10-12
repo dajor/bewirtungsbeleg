@@ -24,11 +24,8 @@ RUN yarn install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build the application
+# Build the application (includes test:ci)
 RUN yarn build
-
-# Run tests
-RUN yarn test
 
 # Expose port
 EXPOSE 3000
