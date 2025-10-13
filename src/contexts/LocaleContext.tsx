@@ -67,12 +67,17 @@ function detectBrowserLocale(): LocaleConfig {
  * ```
  */
 export function LocaleProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<LocaleConfig>(() => detectBrowserLocale());
+  // CRITICAL: Always start with de-DE on both server and client to avoid hydration mismatch
+  // We'll detect and update the locale AFTER hydration in useEffect
+  const [locale, setLocaleState] = useState<LocaleConfig>(LOCALE_CONFIGS['de-DE']);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // Re-run detection on client side (after hydration)
+  // Detect locale only on client side AFTER hydration
   useEffect(() => {
+    setIsMounted(true);
     const detectedLocale = detectBrowserLocale();
     if (detectedLocale.code !== locale.code) {
+      console.log('[LocaleProvider] Updating locale after hydration:', detectedLocale.code);
       setLocaleState(detectedLocale);
     }
   }, []);

@@ -1541,7 +1541,6 @@ export default function BewirtungsbelegForm() {
                       required
                       valueFormat="DD.MM.YYYY"
                       size="sm"
-                      closeOnChange={true}
                       {...form.getInputProps('datum')}
                     />
                     <SanitizedTextInput
