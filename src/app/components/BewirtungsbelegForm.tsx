@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from '@mantine/form';
 import {
   TextInput,
@@ -36,7 +36,11 @@ import { DateInput } from '@mantine/dates';
 import { jsPDF } from 'jspdf';
 import { MultiFileDropzone, FileWithPreview } from './MultiFileDropzone';
 import { ImageEditor } from '@/components/ImageEditor';
+import { CalculationPanel } from '@/components/CalculationPanel';
 import { FormDataAccumulator } from '@/lib/FormDataAccumulator';
+import { SanitizedTextInput, SanitizedTextarea } from './SanitizedInput';
+import { useLocale } from '@/contexts/LocaleContext';
+import { LOCALE_CONFIGS } from '@/lib/locale-config';
 
 interface BewirtungsbelegFormData {
   datum: Date | null;
@@ -71,6 +75,9 @@ interface BewirtungsbelegFormData {
 }
 
 export default function BewirtungsbelegForm() {
+  // Locale context for number formatting
+  const { locale, setLocale } = useLocale();
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [attachedFiles, setAttachedFiles] = useState<FileWithPreview[]>([]);
 
@@ -81,21 +88,21 @@ export default function BewirtungsbelegForm() {
     canvas.width = 200;
     canvas.height = 260;
     const ctx = canvas.getContext('2d');
-    
+
     if (ctx) {
       // Background
       ctx.fillStyle = '#f8f9fa';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
+
       // Border
       ctx.strokeStyle = '#dee2e6';
       ctx.lineWidth = 2;
       ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-      
+
       // PDF icon background
       ctx.fillStyle = '#ff0000';
       ctx.fillRect(60, 40, 80, 100);
-      
+
       // White fold corner
       ctx.fillStyle = '#ffffff';
       ctx.beginPath();
@@ -104,13 +111,13 @@ export default function BewirtungsbelegForm() {
       ctx.lineTo(120, 60);
       ctx.closePath();
       ctx.fill();
-      
+
       // PDF text
       ctx.fillStyle = '#ffffff';
       ctx.font = 'bold 24px Arial';
       ctx.textAlign = 'center';
       ctx.fillText('PDF', 100, 95);
-      
+
       // File icon lines
       ctx.strokeStyle = '#868e96';
       ctx.lineWidth = 2;
@@ -123,7 +130,7 @@ export default function BewirtungsbelegForm() {
       ctx.lineTo(120, 210);
       ctx.stroke();
     }
-    
+
     return canvas.toDataURL('image/png');
   };
   const [showConfirm, setShowConfirm] = useState(false);
@@ -131,6 +138,9 @@ export default function BewirtungsbelegForm() {
   const [success, setSuccess] = useState<string | boolean>(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Ref to prevent infinite loops from useEffect calculations
+  const isUpdatingFromBackend = useRef(false);
 
   const form = useForm<BewirtungsbelegFormData>({
     initialValues: {
@@ -217,6 +227,116 @@ export default function BewirtungsbelegForm() {
       auslaendischeWaehrung: (value) => null,
     },
   });
+
+  // ===== AUTOMATIC CALCULATION TRIGGERS FOR OCR DATA =====
+  // These useEffect hooks trigger calculations when form values change programmatically
+  // (e.g., from OCR extraction), since onChange handlers only fire on user interaction
+
+  // Watch for Kreditkarten + Gesamtbetrag changes → Calculate Trinkgeld
+  useEffect(() => {
+    // Skip if we're currently updating from backend to prevent infinite loop
+    if (isUpdatingFromBackend.current) {
+      console.log('[Auto-Calc useEffect] Skipping - currently updating from backend');
+      return;
+    }
+
+    const kkBetrag = form.values.kreditkartenBetrag;
+    const gesamtbetrag = form.values.gesamtbetrag;
+
+    console.log('[Auto-Calc useEffect] kreditkartenBetrag or gesamtbetrag changed:', { kkBetrag, gesamtbetrag });
+
+    // Only trigger if both values exist and are numbers
+    if (kkBetrag && gesamtbetrag && !isNaN(Number(kkBetrag)) && !isNaN(Number(gesamtbetrag))) {
+      const kkNum = Number(kkBetrag);
+      const totalNum = Number(gesamtbetrag);
+
+      // Only trigger if Kreditkarte > Gesamtbetrag (meaning there's a tip)
+      if (kkNum > totalNum) {
+        console.log('[Auto-Calc useEffect] Triggering Trinkgeld calculation');
+        callBackendCalculation('kreditkartenBetrag');
+      }
+    }
+  }, [form.values.kreditkartenBetrag, form.values.gesamtbetrag]);
+
+  // Watch for Gesamtbetrag changes → Calculate Netto + MwSt breakdown
+  useEffect(() => {
+    // Skip if we're currently updating from backend to prevent infinite loop
+    if (isUpdatingFromBackend.current) {
+      return;
+    }
+
+    const gesamtbetrag = form.values.gesamtbetrag;
+    const gesamtbetragMwst = form.values.gesamtbetragMwst;
+
+    console.log('[Auto-Calc useEffect] gesamtbetrag changed:', gesamtbetrag);
+
+    // Only trigger if Brutto exists and we have Total MwSt OR individual MwSt components
+    if (gesamtbetrag && !isNaN(Number(gesamtbetrag)) && !form.values.istAuslaendischeRechnung) {
+      const bruttoNum = Number(gesamtbetrag);
+
+      // Check if we have any MwSt information to work with
+      const hasMwstInfo = (gesamtbetragMwst && Number(gesamtbetragMwst) > 0) ||
+                         (form.values.speisen && Number(form.values.speisen) > 0) ||
+                         (form.values.getraenke && Number(form.values.getraenke) > 0);
+
+      if (bruttoNum > 0 && hasMwstInfo) {
+        console.log('[Auto-Calc useEffect] Triggering backward calculation from Brutto');
+        callBackendCalculation('gesamtbetrag');
+      }
+    }
+  }, [form.values.gesamtbetrag, form.values.gesamtbetragMwst, form.values.istAuslaendischeRechnung]);
+
+  // Watch for Netto changes → Calculate forward to Brutto
+  useEffect(() => {
+    // Skip if we're currently updating from backend to prevent infinite loop
+    if (isUpdatingFromBackend.current) {
+      return;
+    }
+
+    const netto = form.values.gesamtbetragNetto;
+    const speisen = form.values.speisen;
+    const getraenke = form.values.getraenke;
+
+    console.log('[Auto-Calc useEffect] netto changed:', netto);
+
+    // Only trigger if we have Netto and at least one MwSt component
+    if (netto && !isNaN(Number(netto)) && !form.values.istAuslaendischeRechnung) {
+      const nettoNum = Number(netto);
+      const hasMwst = (speisen && Number(speisen) > 0) || (getraenke && Number(getraenke) > 0);
+
+      if (nettoNum > 0 && hasMwst) {
+        console.log('[Auto-Calc useEffect] Triggering forward calculation from Netto');
+        callBackendCalculation('gesamtbetragNetto');
+      }
+    }
+  }, [form.values.gesamtbetragNetto, form.values.speisen, form.values.getraenke, form.values.istAuslaendischeRechnung]);
+
+  // Watch for MwSt component changes → Recalculate totals
+  useEffect(() => {
+    // Skip if we're currently updating from backend to prevent infinite loop
+    if (isUpdatingFromBackend.current) {
+      return;
+    }
+
+    const speisen = form.values.speisen;
+    const getraenke = form.values.getraenke;
+
+    console.log('[Auto-Calc useEffect] speisen or getraenke changed:', { speisen, getraenke });
+
+    // Only trigger if at least one MwSt component exists
+    if (!form.values.istAuslaendischeRechnung) {
+      const hasMwst7 = speisen && !isNaN(Number(speisen)) && Number(speisen) > 0;
+      const hasMwst19 = getraenke && !isNaN(Number(getraenke)) && Number(getraenke) > 0;
+
+      if (hasMwst7) {
+        console.log('[Auto-Calc useEffect] Triggering MwSt 7% calculation');
+        callBackendCalculation('speisen');
+      } else if (hasMwst19) {
+        console.log('[Auto-Calc useEffect] Triggering MwSt 19% calculation');
+        callBackendCalculation('getraenke');
+      }
+    }
+  }, [form.values.speisen, form.values.getraenke, form.values.istAuslaendischeRechnung]);
 
   const extractDataFromImage = async (file: File, classificationType?: string, classificationData?: any) => {
     // Skip PDFs from OCR extraction - they need to be converted first
@@ -343,19 +463,19 @@ export default function BewirtungsbelegForm() {
   const classifyDocument = async (fileId: string, file: File) => {
     try {
       let imageData: string | undefined;
-      
+
       // For images and PDFs, prepare image data for classification
       if (file.type.startsWith('image/') || file.type === 'application/pdf') {
         if (file.type === 'application/pdf') {
           // Convert PDF to image first
           const formData = new FormData();
           formData.append('file', file);
-          
+
           const convertResponse = await fetch('/api/convert-pdf', {
             method: 'POST',
             body: formData
           });
-          
+
           if (convertResponse.ok) {
             const result = await convertResponse.json();
             imageData = result.image;
@@ -369,7 +489,7 @@ export default function BewirtungsbelegForm() {
           });
         }
       }
-      
+
       // Call classification API
       const response = await fetch('/api/classify-receipt', {
         method: 'POST',
@@ -382,7 +502,7 @@ export default function BewirtungsbelegForm() {
           image: imageData
         })
       });
-      
+
       if (response.ok) {
         const classification = await response.json();
         console.log('Classification successful:', classification);
@@ -614,26 +734,26 @@ export default function BewirtungsbelegForm() {
   const handleFileRemove = useCallback((id: string) => {
     setAttachedFiles(prev => {
       const newFiles = prev.filter(f => f.id !== id);
-      
+
       // If we removed the selected image, clear it
       const removedFile = prev.find(f => f.id === id);
       if (removedFile && selectedImage === removedFile.file) {
         setSelectedImage(null);
       }
-      
+
       // Clear error when all files are removed
       if (newFiles.length === 0) {
         setError(null);
         setSuccess(false);
       }
-      
+
       return newFiles;
     });
   }, [selectedImage]);
 
   const handleClassificationChange = useCallback((fileId: string, newType: string) => {
-    setAttachedFiles(prev => prev.map(file => 
-      file.id === fileId 
+    setAttachedFiles(prev => prev.map(file =>
+      file.id === fileId
         ? {
             ...file,
             classification: {
@@ -729,19 +849,19 @@ export default function BewirtungsbelegForm() {
       // Validate: If there's a Kreditkartenbeleg, there must also be a Rechnung
       const hasKreditkartenbeleg = attachedFiles.some(f => f.classification?.type === 'Kreditkartenbeleg');
       const hasRechnung = attachedFiles.some(f => f.classification?.type === 'Rechnung');
-      
+
       if (hasKreditkartenbeleg && !hasRechnung) {
         setError('Ein Kreditkartenbeleg allein reicht nicht aus. Bitte fügen Sie auch die Rechnung hinzu.');
         setIsSubmitting(false);
         setShowConfirm(false);
         return;
       }
-      
+
       console.log('Starting PDF generation with form values:', Object.keys(form.values));
-      
+
       // Konvertiere alle Anhänge in Base64
       const attachments: Array<{ data: string; name: string; type: string; classification?: string }> = [];
-      
+
       for (const fileData of attachedFiles) {
         const reader = new FileReader();
         const base64Data = await new Promise<string>((resolve, reject) => {
@@ -749,7 +869,7 @@ export default function BewirtungsbelegForm() {
           reader.onerror = reject;
           reader.readAsDataURL(fileData.file);
         });
-        
+
         attachments.push({
           data: base64Data,
           name: fileData.file.name,
@@ -757,7 +877,7 @@ export default function BewirtungsbelegForm() {
           classification: fileData.classification?.type
         });
       }
-      
+
       // Sort attachments: Rechnung first, then Kreditkartenbeleg
       attachments.sort((a, b) => {
         if (a.classification === 'Rechnung' && b.classification !== 'Rechnung') return -1;
@@ -766,7 +886,7 @@ export default function BewirtungsbelegForm() {
         if (a.classification !== 'Kreditkartenbeleg' && b.classification === 'Kreditkartenbeleg') return -1;
         return 0;
       });
-      
+
       // For backward compatibility, keep the first image as the main image
       const imageData = attachments.length > 0 ? attachments[0].data : undefined;
 
@@ -826,15 +946,15 @@ export default function BewirtungsbelegForm() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error('PDF generation error:', errorData);
-        
+
         // Show detailed validation errors
         if (errorData.details && Array.isArray(errorData.details)) {
-          const validationErrors = errorData.details.map((detail: any) => 
+          const validationErrors = errorData.details.map((detail: any) =>
             `${detail.path?.join('.')}: ${detail.message}`
           ).join(', ');
           throw new Error(`Validierungsfehler: ${validationErrors}`);
         }
-        
+
         throw new Error(errorData.error || 'Fehler bei der PDF-Generierung');
       }
 
@@ -1068,89 +1188,162 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  const handleKreditkartenBetragChange = (value: string | number) => {
+  const handleKreditkartenBetragChange = async (value: string | number) => {
+    console.log('[Trinkgeld Debug] ===== handleKreditkartenBetragChange START =====');
+    console.log('[Trinkgeld Debug] Input value:', value);
+
     const kkBetrag = String(value).replace(',', '.');
+    console.log('[Trinkgeld Debug] Converted kkBetrag:', kkBetrag);
+    console.log('[Trinkgeld Debug] Current form.values.gesamtbetrag:', form.values.gesamtbetrag);
+    console.log('[Trinkgeld Debug] Current form.values.trinkgeld:', form.values.trinkgeld);
+
     form.setFieldValue('kreditkartenBetrag', kkBetrag);
+    console.log('[Trinkgeld Debug] Set kreditkartenBetrag in form, calling backend...');
 
-    if (kkBetrag && form.values.gesamtbetrag) {
-      const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
-      const kkBetragNum = Number(kkBetrag);
+    await callBackendCalculation('kreditkartenBetrag');
 
-      if (kkBetragNum > gesamtbetrag) {
-        const trinkgeld = (kkBetragNum - gesamtbetrag).toFixed(2);
-        form.setFieldValue('trinkgeld', trinkgeld);
-
-        // Calculate MwSt for trinkgeld (19%)
-        const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
-        form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
-      }
-    }
+    console.log('[Trinkgeld Debug] Backend calculation complete');
+    console.log('[Trinkgeld Debug] After backend - form.values.trinkgeld:', form.values.trinkgeld);
+    console.log('[Trinkgeld Debug] After backend - form.values.trinkgeldMwst:', form.values.trinkgeldMwst);
+    console.log('[Trinkgeld Debug] ===== handleKreditkartenBetragChange END =====');
   };
 
   // ===== NEW CALCULATION LOGIC FOR CORRECT GERMAN RECEIPT ORDER =====
 
-  // Handler for Netto field changes
-  const handleNettoChange = (value: string | number) => {
-    const netto = String(value).replace(',', '.');
-    form.setFieldValue('gesamtbetragNetto', netto);
-    recalculateGesamtbetrag();
-  };
+  /**
+   * Helper function to call backend calculation API
+   * Sends current form state to backend and updates form with result
+   */
+  const callBackendCalculation = async (changedField: string) => {
+    try {
+      const requestPayload = {
+        gesamtbetragNetto: form.values.gesamtbetragNetto ? Number(form.values.gesamtbetragNetto) : undefined,
+        speisen: form.values.speisen ? Number(form.values.speisen) : undefined,
+        getraenke: form.values.getraenke ? Number(form.values.getraenke) : undefined,
+        gesamtbetragMwst: form.values.gesamtbetragMwst ? Number(form.values.gesamtbetragMwst) : undefined,
+        gesamtbetrag: form.values.gesamtbetrag ? Number(form.values.gesamtbetrag) : undefined,
+        kreditkartenBetrag: form.values.kreditkartenBetrag ? Number(form.values.kreditkartenBetrag) : undefined,
+        trinkgeld: form.values.trinkgeld ? Number(form.values.trinkgeld) : undefined,
+        trinkgeldMwst: form.values.trinkgeldMwst ? Number(form.values.trinkgeldMwst) : undefined,
+        istAuslaendischeRechnung: form.values.istAuslaendischeRechnung,
+        changedField
+      };
 
-  // Handler for MwSt 7% field changes
-  const handleMwst7Change = (value: string | number) => {
-    const mwst7 = String(value).replace(',', '.');
-    form.setFieldValue('speisen', mwst7);
-    recalculateGesamtbetrag();
-  };
+      console.log(`[Backend API Call] Sending request for ${changedField}:`, requestPayload);
 
-  // Handler for MwSt 19% field changes
-  const handleMwst19Change = (value: string | number) => {
-    const mwst19 = String(value).replace(',', '.');
-    form.setFieldValue('getraenke', mwst19);
-    recalculateGesamtbetrag();
-  };
+      const response = await fetch('/api/calculate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestPayload),
+      });
 
-  // Recalculate Gesamtbetrag from Netto + MwSt 7% + MwSt 19%
-  const recalculateGesamtbetrag = () => {
-    const netto = Number(form.values.gesamtbetragNetto || 0);
-    const mwst7 = Number(form.values.speisen || 0);
-    const mwst19 = Number(form.values.getraenke || 0);
+      console.log(`[Backend API Call] Response status for ${changedField}:`, response.status);
 
-    // Calculate total MwSt
-    const totalMwst = (mwst7 + mwst19).toFixed(2);
-    form.setFieldValue('gesamtbetragMwst', totalMwst);
+      if (response.ok) {
+        const responseData = await response.json();
+        const { result } = responseData;
 
-    // Calculate Gesamtbetrag = Netto + Total MwSt
-    const gesamtbetrag = (netto + Number(totalMwst)).toFixed(2);
-    form.setFieldValue('gesamtbetrag', gesamtbetrag);
+        console.log(`[Backend API Call] Response received for ${changedField}:`, result);
 
-    // Also recalculate Trinkgeld if Kreditkartenbetrag exists
-    if (form.values.kreditkartenBetrag) {
-      const kkBetrag = Number(form.values.kreditkartenBetrag);
-      const trinkgeld = (kkBetrag - Number(gesamtbetrag)).toFixed(2);
-      form.setFieldValue('trinkgeld', trinkgeld);
+        // Set ref to prevent useEffect from triggering infinite loop
+        isUpdatingFromBackend.current = true;
 
-      // Calculate MwSt on Trinkgeld (19%)
-      const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
-      form.setFieldValue('trinkgeldMwst', trinkgeldMwst);
+        // Update form with calculated values
+        form.setFieldValue('gesamtbetragNetto', result.gesamtbetragNetto.toFixed(2));
+        form.setFieldValue('speisen', result.speisen.toFixed(2));
+        form.setFieldValue('getraenke', result.getraenke.toFixed(2));
+        form.setFieldValue('gesamtbetragMwst', result.gesamtbetragMwst.toFixed(2));
+        form.setFieldValue('gesamtbetrag', result.gesamtbetrag.toFixed(2));
+
+        if (result.kreditkartenBetrag !== undefined) {
+          console.log(`[Backend API Call] Setting kreditkartenBetrag to: ${result.kreditkartenBetrag.toFixed(2)}`);
+          form.setFieldValue('kreditkartenBetrag', result.kreditkartenBetrag.toFixed(2));
+        }
+        if (result.trinkgeld !== undefined) {
+          console.log(`[Backend API Call] Setting trinkgeld to: ${result.trinkgeld.toFixed(2)}`);
+          form.setFieldValue('trinkgeld', result.trinkgeld.toFixed(2));
+        }
+        if (result.trinkgeldMwst !== undefined) {
+          console.log(`[Backend API Call] Setting trinkgeldMwst to: ${result.trinkgeldMwst.toFixed(2)}`);
+          form.setFieldValue('trinkgeldMwst', result.trinkgeldMwst.toFixed(2));
+        }
+
+        // Reset ref after a short delay to allow React to process updates
+        setTimeout(() => {
+          isUpdatingFromBackend.current = false;
+          console.log('[Backend API Call] Reset isUpdatingFromBackend flag');
+        }, 100);
+
+        console.log(`[Backend Calculation] ${changedField}:`, result);
+
+        if (result.warnings && result.warnings.length > 0) {
+          console.warn('[Backend Calculation] Warnings:', result.warnings);
+        }
+      } else {
+        const errorText = await response.text();
+        console.error(`[Backend API Call] Backend calculation failed for ${changedField}:`, response.status, errorText);
+      }
+    } catch (error) {
+      console.error(`[Backend API Call] Error calling backend calculation for ${changedField}:`, error);
+      // Reset ref on error as well
+      isUpdatingFromBackend.current = false;
     }
   };
 
-  const handleTrinkgeldChange = (value: string | number) => {
+  // Handler for Netto field changes - calls backend
+  const handleNettoChange = async (value: string | number) => {
+    const netto = String(value).replace(',', '.');
+    form.setFieldValue('gesamtbetragNetto', netto);
+    await callBackendCalculation('gesamtbetragNetto');
+  };
+
+  // Handler for MwSt 7% field changes - calls backend
+  const handleMwst7Change = async (value: string | number) => {
+    const mwst7 = String(value).replace(',', '.');
+    form.setFieldValue('speisen', mwst7);
+    await callBackendCalculation('speisen');
+  };
+
+  // Handler for MwSt 19% field changes - calls backend
+  const handleMwst19Change = async (value: string | number) => {
+    const mwst19 = String(value).replace(',', '.');
+    form.setFieldValue('getraenke', mwst19);
+    await callBackendCalculation('getraenke');
+  };
+
+  // Handler for Total MwSt field changes - triggers backend breakdown calculation
+  const handleTotalMwstChange = async (value: string | number) => {
+    const totalMwst = String(value).replace(',', '.');
+    form.setFieldValue('gesamtbetragMwst', totalMwst);
+
+    // Call backend to calculate breakdown and update all fields
+    await callBackendCalculation('gesamtbetragMwst');
+  };
+
+
+  // Handler for Brutto (Gesamtbetrag) field changes - calls backend for backward calculation
+  const handleBruttoChange = async (value: string | number) => {
+    const brutto = String(value).replace(',', '.');
+    form.setFieldValue('gesamtbetrag', brutto);
+    await callBackendCalculation('gesamtbetrag');
+  };
+
+  // Handler for Trinkgeld changes - recalculates Kreditkartenbetrag
+  const handleTrinkgeldChange = async (value: string | number) => {
     const trinkgeld = String(value).replace(',', '.');
     form.setFieldValue('trinkgeld', trinkgeld);
 
-    if (trinkgeld) {
-      const trinkgeldNum = Number(trinkgeld);
-      const { mwst } = calculateMwst(trinkgeldNum);
-      form.setFieldValue('trinkgeldMwst', mwst);
-    }
-
+    // If Trinkgeld is entered, calculate Kreditkartenbetrag = Gesamtbetrag + Trinkgeld
     if (trinkgeld && form.values.gesamtbetrag) {
-      const gesamtbetrag = Number(form.values.gesamtbetrag.replace(',', '.'));
+      const gesamtbetrag = Number(form.values.gesamtbetrag);
       const trinkgeldNum = Number(trinkgeld);
       const kkBetrag = (gesamtbetrag + trinkgeldNum).toFixed(2);
       form.setFieldValue('kreditkartenBetrag', kkBetrag);
+
+      // Call backend to recalculate Trinkgeld MwSt
+      await callBackendCalculation('trinkgeld');
     }
   };
 
@@ -1188,11 +1381,11 @@ export default function BewirtungsbelegForm() {
       const url = URL.createObjectURL(jsonBlob);
       const link = document.createElement('a');
       link.href = url;
-      
+
       // Generate filename with current date
       const today = new Date().toISOString().split('T')[0];
       link.download = `bewirtungsbeleg-${today}.json`;
-      
+
       // Trigger download
       document.body.appendChild(link);
       link.click();
@@ -1214,7 +1407,7 @@ export default function BewirtungsbelegForm() {
     reader.onload = (e) => {
       try {
         const jsonData = JSON.parse(e.target?.result as string);
-        
+
         // Validate basic structure
         if (typeof jsonData !== 'object' || jsonData === null) {
           throw new Error('Invalid JSON structure');
@@ -1230,19 +1423,19 @@ export default function BewirtungsbelegForm() {
 
         // Set form values
         form.setValues(importData);
-        
+
         setSuccess('Formulardaten wurden erfolgreich importiert!');
       } catch (error) {
         console.error('JSON Upload Error:', error);
         setError('Fehler beim Importieren der JSON-Datei. Bitte überprüfen Sie das Dateiformat.');
       }
     };
-    
+
     reader.readAsText(file);
   };
 
   return (
-    <Container size="lg" py="xs">
+    <Container size="1600px" py="xs" style={{ maxWidth: '95%' }}>
       {error && (
         <Notification
           color="red"
@@ -1276,10 +1469,30 @@ export default function BewirtungsbelegForm() {
       )}
 
       <Grid gutter="md">
-        <Grid.Col span={{ base: 12, md: selectedImage ? 7 : 12 }}>
+        <Grid.Col span={{ base: 12, md: selectedImage ? 8 : 12 }}>
           <Paper shadow="sm" p="xs">
             <form onSubmit={handleSubmit}>
               <Stack gap="xs">
+                {/* Locale Selector */}
+                <Select
+                  label="Zahlenformat"
+                  description="Wählen Sie das Zahlenformat für die Anzeige. Die Daten werden automatisch umgerechnet."
+                  placeholder="Format wählen"
+                  data={Object.values(LOCALE_CONFIGS).map(config => ({
+                    value: config.code,
+                    label: `${config.name} (${config.numberFormat.example})`
+                  }))}
+                  value={locale.code}
+                  onChange={(value) => value && setLocale(value)}
+                  size="sm"
+                  styles={{
+                    label: { fontWeight: 600, fontSize: '14px' },
+                    input: { backgroundColor: '#f0f9ff', borderColor: '#228be6' }
+                  }}
+                />
+
+                <Divider my="xs" />
+
                 <Title order={1} size="h6">
                   Bewirtungsbeleg
                 </Title>
@@ -1291,7 +1504,7 @@ export default function BewirtungsbelegForm() {
                   onChange={(event) => form.setFieldValue('istEigenbeleg', event.currentTarget.checked)}
                   mb="md"
                 />
-                
+
                 <Box>
                   <Title order={2} size="h6">Allgemeine Angaben</Title>
                   <Stack gap="xs">
@@ -1316,572 +1529,588 @@ export default function BewirtungsbelegForm() {
                       <Alert color="yellow" variant="light" icon={<IconAlertCircle size="1rem" />}>
                         <Text size="sm" fw={500}>Hinweis zur Eigenbeleg-Erstellung</Text>
                         <Text size="xs" mt="xs">
-                          Da Sie einen Eigenbeleg ohne Originalrechnung erstellen, kann die Vorsteuer (MwSt.) 
-                          steuerlich nicht geltend gemacht werden. Bitte füllen Sie alle erforderlichen Felder 
+                          Da Sie einen Eigenbeleg ohne Originalrechnung erstellen, kann die Vorsteuer (MwSt.)
+                          steuerlich nicht geltend gemacht werden. Bitte füllen Sie alle erforderlichen Felder
                           manuell aus.
                         </Text>
                       </Alert>
                     )}
-                <DateInput
-                  label="Datum der Bewirtung"
-                  placeholder="Wählen Sie ein Datum"
-                  required
-                  valueFormat="DD.MM.YYYY"
-                  size="sm"
-                  {...form.getInputProps('datum')}
-                />
-                <TextInput
-                  label="Restaurant"
-                  placeholder="Name des Restaurants"
-                  required
-                  size="sm"
-                  {...form.getInputProps('restaurantName')}
-                />
-                <TextInput
-                  label="Anschrift"
-                  placeholder="Anschrift des Restaurants"
-                  size="sm"
-                  {...form.getInputProps('restaurantAnschrift')}
-                />
-                <Radio.Group
-                  label="Art der Bewirtung"
-                  required
-                  size="sm"
-                  description="Wählen Sie die Art der Bewirtung - dies beeinflusst die steuerliche Abzugsfähigkeit"
-                  {...form.getInputProps('bewirtungsart')}
-                >
-                  <Stack gap="xs" mt="xs">
-                    <Radio 
-                      value="kunden" 
-                      label="Kundenbewirtung (70% abzugsfähig)"
-                      description="Für Geschäftsfreunde (Kunden, Geschäftspartner). 70% der Kosten sind als Betriebsausgabe abziehbar."
+                    <DateInput
+                      label="Datum der Bewirtung"
+                      placeholder="Wählen Sie ein Datum"
+                      required
+                      valueFormat="DD.MM.YYYY"
+                      size="sm"
+                      closeOnChange={true}
+                      {...form.getInputProps('datum')}
                     />
-                    <Radio 
-                      value="mitarbeiter" 
-                      label="Mitarbeiterbewirtung (100% abzugsfähig)"
-                      description="Für betriebliche Veranstaltungen (Teamessen, Arbeitsessen). 100% der Kosten sind als Betriebsausgabe abziehbar."
+                    <SanitizedTextInput
+                      label="Restaurant"
+                      placeholder="Name des Restaurants"
+                      required
+                      size="sm"
+                      {...form.getInputProps('restaurantName')}
                     />
+                    <SanitizedTextInput
+                      label="Anschrift"
+                      placeholder="Anschrift des Restaurants"
+                      size="sm"
+                      {...form.getInputProps('restaurantAnschrift')}
+                    />
+                    <Radio.Group
+                      label="Art der Bewirtung"
+                      required
+                      size="sm"
+                      description="Wählen Sie die Art der Bewirtung - dies beeinflusst die steuerliche Abzugsfähigkeit"
+                      {...form.getInputProps('bewirtungsart')}
+                    >
+                      <Stack gap="xs" mt="xs">
+                        <Radio
+                          value="kunden"
+                          label="Kundenbewirtung (70% abzugsfähig)"
+                          description="Für Geschäftsfreunde (Kunden, Geschäftspartner). 70% der Kosten sind als Betriebsausgabe abziehbar."
+                        />
+                        <Radio
+                          value="mitarbeiter"
+                          label="Mitarbeiterbewirtung (100% abzugsfähig)"
+                          description="Für betriebliche Veranstaltungen (Teamessen, Arbeitsessen). 100% der Kosten sind als Betriebsausgabe abziehbar."
+                        />
+                      </Stack>
+                    </Radio.Group>
                   </Stack>
-                </Radio.Group>
-              </Stack>
-            </Box>
+                </Box>
 
-            <Box>
-              <Title order={2} size="h6">Finanzielle Details</Title>
-              <Stack gap="xs">
-                <Checkbox
-                  label="Ausländische Rechnung (keine MwSt.)"
-                  description="Aktivieren Sie diese Option, wenn die Rechnung aus dem Ausland stammt. In diesem Fall wird der Gesamtbetrag als Netto behandelt."
-                  checked={form.values.istAuslaendischeRechnung}
-                  onChange={(event) => handleAuslaendischeRechnungChange(event.currentTarget.checked)}
-                />
-                {form.values.istAuslaendischeRechnung && (
-                  <Select
-                    label="Währung"
-                    placeholder="Wählen Sie die Währung"
-                    data={[
-                      { value: 'USD', label: 'USD ($)' },
-                      { value: 'GBP', label: 'GBP (£)' },
-                      { value: 'CHF', label: 'CHF (Fr.)' },
-                      { value: 'JPY', label: 'JPY (¥)' },
-                      { value: 'EUR', label: 'EUR (€)' },
-                      { value: 'other', label: 'Andere Währung' },
-                    ]}
-                    value={form.values.auslaendischeWaehrung}
-                    onChange={(value) => {
-                      form.setFieldValue('auslaendischeWaehrung', value || '');
-                      if (value === 'other') {
-                        form.setFieldValue('auslaendischeWaehrung', '');
-                      }
-                    }}
-                  />
-                )}
-                {form.values.istAuslaendischeRechnung && form.values.auslaendischeWaehrung === 'other' && (
-                  <TextInput
-                    label="Andere Währung"
-                    placeholder="z.B. CAD, AUD, NZD"
-                    value={form.values.auslaendischeWaehrung}
-                    onChange={(event) => form.setFieldValue('auslaendischeWaehrung', event.currentTarget.value)}
-                  />
-                )}
-                
-                <Divider my="xs" />
-                
-                <Checkbox
-                  label="ZUGFeRD-kompatibles PDF generieren"
-                  description="Erstellt ein elektronisches Rechnungsformat nach ZUGFeRD 2.0 Standard für die digitale Archivierung"
-                  checked={form.values.generateZugferd}
-                  onChange={(event) => form.setFieldValue('generateZugferd', event.currentTarget.checked)}
-                />
-                
-                {form.values.generateZugferd && (
+                <Box>
+                  <Title order={2} size="h6">Finanzielle Details</Title>
                   <Stack gap="xs">
-                    <Text size="xs" c="dimmed">
-                      Zusätzliche Informationen für ZUGFeRD benötigt:
-                    </Text>
-                    <Grid>
-                      <Grid.Col span={6}>
-                        <TextInput
-                          label="Restaurant PLZ"
-                          placeholder="z.B. 10115"
-                          size="sm"
-                          {...form.getInputProps('restaurantPlz')}
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={6}>
-                        <TextInput
-                          label="Restaurant Ort"
-                          placeholder="z.B. Berlin"
-                          size="sm"
-                          {...form.getInputProps('restaurantOrt')}
-                        />
-                      </Grid.Col>
-                    </Grid>
-                    <TextInput
-                      label="Ihr Unternehmen"
-                      placeholder="Name Ihres Unternehmens"
-                      size="sm"
-                      {...form.getInputProps('unternehmen')}
+                    <Checkbox
+                      label="Ausländische Rechnung (keine MwSt.)"
+                      description="Aktivieren Sie diese Option, wenn die Rechnung aus dem Ausland stammt. In diesem Fall wird der Gesamtbetrag als Netto behandelt."
+                      checked={form.values.istAuslaendischeRechnung}
+                      onChange={(event) => handleAuslaendischeRechnungChange(event.currentTarget.checked)}
                     />
-                    <TextInput
-                      label="Unternehmensanschrift"
-                      placeholder="Straße und Hausnummer"
-                      size="sm"
-                      {...form.getInputProps('unternehmenAnschrift')}
-                    />
-                    <Grid>
-                      <Grid.Col span={6}>
-                        <TextInput
-                          label="Unternehmens-PLZ"
-                          placeholder="z.B. 20099"
-                          size="sm"
-                          {...form.getInputProps('unternehmenPlz')}
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={6}>
-                        <TextInput
-                          label="Unternehmens-Ort"
-                          placeholder="z.B. Hamburg"
-                          size="sm"
-                          {...form.getInputProps('unternehmenOrt')}
-                        />
-                      </Grid.Col>
-                    </Grid>
-                    <Grid>
-                      <Grid.Col span={6}>
-                        <NumberInput
-                          label="Speisen"
-                          placeholder="Betrag für Speisen"
-                          min={0}
-                          step={0.01}
-                          size="sm"
-                          decimalScale={2}
-                          fixedDecimalScale
-                          description="7% MwSt."
-                          {...form.getInputProps('speisen')}
-                        />
-                      </Grid.Col>
-                      <Grid.Col span={6}>
-                        <NumberInput
-                          label="Getränke"
-                          placeholder="Betrag für Getränke"
-                          min={0}
-                          step={0.01}
-                          size="sm"
-                          decimalScale={2}
-                          fixedDecimalScale
-                          description="19% MwSt."
-                          {...form.getInputProps('getraenke')}
-                        />
-                      </Grid.Col>
-                    </Grid>
-                  </Stack>
-                )}
-                
-                {/* Financial Section with Correct German Receipt Logic */}
-                <Text size="sm" c="dimmed" mb="xs">
-                  Bitte folgen Sie der Reihenfolge auf Ihrer Rechnung: Netto → MwSt. → Gesamtsumme → Bezahlter Betrag → Trinkgeld
-                </Text>
-
-                {/* Two-column layout: Input fields left, Visual calculation right */}
-                <Grid gutter="md">
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <Stack gap="xs">
-                      <Title order={3} size="h6" c="dimmed">Eingabefelder</Title>
-
-                      {/* Step 1: Netto Betrag */}
-                      <NumberInput
-                        label="1. Netto Betrag"
-                        placeholder="Netto von der Rechnung"
-                        min={0}
-                        step={0.01}
-                        size="md"
-                        decimalScale={2}
-                        fixedDecimalScale
-                        description="Netto-Gesamtsumme von der Rechnung"
-                        {...form.getInputProps('gesamtbetragNetto')}
-                        onChange={handleNettoChange}
-                        styles={{
-                          input: { fontSize: '16px', fontWeight: 500 }
-                        }}
-                      />
-
-                      {/* Step 2: MwSt fields (7% + 19%) */}
-                      {!form.values.istAuslaendischeRechnung && (
-                        <>
-                          <Grid gutter="xs">
-                            <Grid.Col span={6}>
-                              <NumberInput
-                                label="2a. MwSt. 7%"
-                                placeholder="MwSt. 7% (Speisen)"
-                                min={0}
-                                step={0.01}
-                                size="sm"
-                                decimalScale={2}
-                                fixedDecimalScale
-                                description="7% MwSt. (z.B. Speisen)"
-                                {...form.getInputProps('speisen')}
-                                onChange={handleMwst7Change}
-                              />
-                            </Grid.Col>
-                            <Grid.Col span={6}>
-                              <NumberInput
-                                label="2b. MwSt. 19%"
-                                placeholder="MwSt. 19% (Getränke)"
-                                min={0}
-                                step={0.01}
-                                size="sm"
-                                decimalScale={2}
-                                fixedDecimalScale
-                                description="19% MwSt. (z.B. Getränke)"
-                                {...form.getInputProps('getraenke')}
-                                onChange={handleMwst19Change}
-                              />
-                            </Grid.Col>
-                          </Grid>
-
-                          {/* Total MwSt (calculated from 7% + 19%) */}
-                          <NumberInput
-                            label="Gesamt MwSt."
-                            placeholder="Summe aller MwSt."
-                            min={0}
-                            step={0.01}
-                            size="sm"
-                            decimalScale={2}
-                            fixedDecimalScale
-                            description="= MwSt. 7% + MwSt. 19%"
-                            {...form.getInputProps('gesamtbetragMwst')}
-                            readOnly
-                            styles={{
-                              input: { backgroundColor: '#fff3e0', fontWeight: 600 }
-                            }}
-                          />
-                        </>
-                      )}
-
-                      {/* Step 3: Gesamtbetrag (calculated: Netto + Total MwSt) */}
-                      <NumberInput
-                        label="3. Gesamtbetrag (Rechnung)"
-                        placeholder="Gesamtsumme von der Rechnung"
-                        required
-                        min={0}
-                        step={0.01}
-                        size="md"
-                        decimalScale={2}
-                        fixedDecimalScale
-                        description={form.values.istAuslaendischeRechnung
-                          ? `Betrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'}`
-                          : "= Netto + MwSt. (sollte mit Rechnung übereinstimmen)"}
-                        {...form.getInputProps('gesamtbetrag')}
-                        readOnly={!form.values.istAuslaendischeRechnung}
-                        styles={{
-                          input: {
-                            fontSize: '16px',
-                            fontWeight: 600,
-                            backgroundColor: form.values.istAuslaendischeRechnung ? '#ffffff' : '#e7f5ff'
+                    {form.values.istAuslaendischeRechnung && (
+                      <Select
+                        label="Währung"
+                        placeholder="Wählen Sie die Währung"
+                        data={[
+                          { value: 'USD', label: 'USD ($)' },
+                          { value: 'GBP', label: 'GBP (£)' },
+                          { value: 'CHF', label: 'CHF (Fr.)' },
+                          { value: 'JPY', label: 'JPY (¥)' },
+                          { value: 'EUR', label: 'EUR (€)' },
+                          { value: 'other', label: 'Andere Währung' },
+                        ]}
+                        value={form.values.auslaendischeWaehrung}
+                        onChange={(value) => {
+                          form.setFieldValue('auslaendischeWaehrung', value || '');
+                          if (value === 'other') {
+                            form.setFieldValue('auslaendischeWaehrung', '');
                           }
                         }}
                       />
-
-                      {/* Step 4: Bezahlter Betrag (Bar/Kreditkarte) */}
-                      <NumberInput
-                        label="4. Bezahlter Betrag"
-                        placeholder="Betrag Bar/Kreditkarte"
-                        min={0}
-                        step={0.01}
-                        size="md"
-                        decimalScale={2}
-                        fixedDecimalScale
-                        description="Was wurde tatsächlich bezahlt? (inkl. Trinkgeld)"
-                        {...form.getInputProps('kreditkartenBetrag')}
-                        onChange={handleKreditkartenBetragChange}
-                        styles={{
-                          input: { fontSize: '16px', fontWeight: 500 }
-                        }}
+                    )}
+                    {form.values.istAuslaendischeRechnung && form.values.auslaendischeWaehrung === 'other' && (
+                      <SanitizedTextInput
+                        label="Andere Währung"
+                        placeholder="z.B. CAD, AUD, NZD"
+                        value={form.values.auslaendischeWaehrung}
+                        onChangeEvent={(event) => form.setFieldValue('auslaendischeWaehrung', event.currentTarget.value)}
                       />
+                    )}
 
-                      {/* Step 5: Trinkgeld (calculated automatically) */}
-                      <NumberInput
-                        label="5. Trinkgeld"
-                        placeholder="Trinkgeld"
-                        min={0}
-                        step={0.01}
-                        size="md"
-                        decimalScale={2}
-                        fixedDecimalScale
-                        description="= Bezahlt - Gesamtbetrag (automatisch berechnet)"
-                        {...form.getInputProps('trinkgeld')}
-                        readOnly
-                        styles={{
-                          input: {
-                            backgroundColor: '#e7f5ff',
-                            color: '#1971c2',
-                            fontWeight: 600,
-                            fontSize: '16px'
-                          }
-                        }}
-                      />
+                    <Divider my="xs" />
 
-                      {/* MwSt on Trinkgeld */}
-                      {!form.values.istAuslaendischeRechnung && (
-                        <NumberInput
-                          label="MwSt. Trinkgeld (19%)"
-                          placeholder="MwSt. auf Trinkgeld"
-                          min={0}
-                          step={0.01}
+                    <Checkbox
+                      label="ZUGFeRD-kompatibles PDF generieren"
+                      description="Erstellt ein elektronisches Rechnungsformat nach ZUGFeRD 2.0 Standard für die digitale Archivierung"
+                      checked={form.values.generateZugferd}
+                      onChange={(event) => form.setFieldValue('generateZugferd', event.currentTarget.checked)}
+                    />
+
+                    {form.values.generateZugferd && (
+                      <Stack gap="xs">
+                        <Text size="xs" c="dimmed">
+                          Zusätzliche Informationen für ZUGFeRD benötigt:
+                        </Text>
+                        <Grid>
+                          <Grid.Col span={6}>
+                            <SanitizedTextInput
+                              label="Restaurant PLZ"
+                              placeholder="z.B. 10115"
+                              size="sm"
+                              {...form.getInputProps('restaurantPlz')}
+                            />
+                          </Grid.Col>
+                          <Grid.Col span={6}>
+                            <SanitizedTextInput
+                              label="Restaurant Ort"
+                              placeholder="z.B. Berlin"
+                              size="sm"
+                              {...form.getInputProps('restaurantOrt')}
+                            />
+                          </Grid.Col>
+                        </Grid>
+                        <SanitizedTextInput
+                          label="Ihr Unternehmen"
+                          placeholder="Name Ihres Unternehmens"
                           size="sm"
-                          decimalScale={2}
-                          fixedDecimalScale
-                          description="19% vom Trinkgeld"
-                          {...form.getInputProps('trinkgeldMwst')}
-                          readOnly
-                          styles={{
-                            input: { backgroundColor: '#fff3e0' }
-                          }}
+                          {...form.getInputProps('unternehmen')}
                         />
-                      )}
-                    </Stack>
-                  </Grid.Col>
+                        <SanitizedTextInput
+                          label="Unternehmensanschrift"
+                          placeholder="Straße und Hausnummer"
+                          size="sm"
+                          {...form.getInputProps('unternehmenAnschrift')}
+                        />
+                        <Grid>
+                          <Grid.Col span={6}>
+                            <SanitizedTextInput
+                              label="Unternehmens-PLZ"
+                              placeholder="z.B. 20099"
+                              size="sm"
+                              {...form.getInputProps('unternehmenPlz')}
+                            />
+                          </Grid.Col>
+                          <Grid.Col span={6}>
+                            <SanitizedTextInput
+                              label="Unternehmens-Ort"
+                              placeholder="z.B. Hamburg"
+                              size="sm"
+                              {...form.getInputProps('unternehmenOrt')}
+                            />
+                          </Grid.Col>
+                        </Grid>
+                        <Grid>
+                          <Grid.Col span={6}>
+                            <NumberInput
+                              label="Speisen"
+                              placeholder="Betrag für Speisen"
+                              min={0}
+                              step={0.01}
+                              size="sm"
+                              decimalScale={2}
+                              fixedDecimalScale
+                              decimalSeparator={locale.numberFormat.decimalSeparator}
+                              thousandSeparator={locale.numberFormat.thousandSeparator}
+                              description="7% MwSt."
+                              {...form.getInputProps('speisen')}
+                            />
+                          </Grid.Col>
+                          <Grid.Col span={6}>
+                            <NumberInput
+                              label="Getränke"
+                              placeholder="Betrag für Getränke"
+                              min={0}
+                              step={0.01}
+                              size="sm"
+                              decimalScale={2}
+                              fixedDecimalScale
+                              decimalSeparator={locale.numberFormat.decimalSeparator}
+                              thousandSeparator={locale.numberFormat.thousandSeparator}
+                              description="19% MwSt."
+                              {...form.getInputProps('getraenke')}
+                            />
+                          </Grid.Col>
+                        </Grid>
+                      </Stack>
+                    )}
 
-                  {/* Visual Calculation Display (Right Column) */}
-                  <Grid.Col span={{ base: 12, md: 6 }}>
-                    <Stack gap="xs">
-                      <Title order={3} size="h6" c="dimmed">Berechnung</Title>
+                    {/* Financial Section with Correct German Receipt Logic */}
+                    <Paper p="md" withBorder radius="md" style={{ backgroundColor: '#f8f9fa', borderColor: '#dee2e6' }}>
+                      <Stack gap="lg">
+                        <Box>
+                          <Title order={3} size="h5" mb="xs" style={{ color: '#228be6' }}>
+                            💰 Finanzielle Berechnung
+                          </Title>
+                          <Text size="sm" c="dimmed">
+                            Bitte folgen Sie der Reihenfolge auf Ihrer Rechnung: Netto → MwSt. → Gesamtsumme → Bezahlter Betrag → Trinkgeld
+                          </Text>
+                        </Box>
 
-                      <Paper p="md" withBorder style={{ backgroundColor: '#f8f9fa' }}>
-                        <Stack gap="md">
-                          {/* Gesamtbetrag Calculation */}
-                          {!form.values.istAuslaendischeRechnung && (
-                            <Box>
-                              <Text size="sm" fw={600} c="dimmed" mb="xs">Gesamtbetrag Berechnung:</Text>
-                              <Box style={{ fontFamily: 'monospace', fontSize: '13px' }}>
-                                <Group gap="xs" align="center">
-                                  <Text size="sm">Netto:</Text>
-                                  <Text fw={600} c="teal" size="md">
-                                    {form.values.gesamtbetragNetto ? Number(form.values.gesamtbetragNetto).toFixed(2).replace('.', ',') : '0,00'} €
+                        {/* Two-column layout: Input fields left, Visual calculation right */}
+                        <Grid gutter="lg">
+                          <Grid.Col span={{ base: 12, md: 7 }}>
+                            <Paper p="md" withBorder radius="md" style={{ backgroundColor: '#ffffff', borderColor: '#e3f2fd' }}>
+                              <Stack gap="md">
+                                <Box>
+                                  <Text size="sm" fw={700} c="blue" mb="xs" tt="uppercase">
+                                    📝 Eingabefelder
                                   </Text>
-                                </Group>
-
-                                <Group gap="xs" align="center" mt={4}>
-                                  <Text size="sm" c="dimmed">+ MwSt. 7%:</Text>
-                                  <Text fw={600} c="orange" size="sm">
-                                    {form.values.speisen ? Number(form.values.speisen).toFixed(2).replace('.', ',') : '0,00'} €
+                                  <Text size="xs" c="dimmed">
+                                    Tragen Sie die Beträge von Ihrer Rechnung ein
                                   </Text>
-                                </Group>
+                                </Box>
 
-                                <Group gap="xs" align="center" mt={2}>
-                                  <Text size="sm" c="dimmed">+ MwSt. 19%:</Text>
-                                  <Text fw={600} c="orange" size="sm">
-                                    {form.values.getraenke ? Number(form.values.getraenke).toFixed(2).replace('.', ',') : '0,00'} €
-                                  </Text>
-                                </Group>
+                                {/* Step 1: Netto Betrag */}
+                                <Box>
+                                  <NumberInput
+                                    label="1. Netto Betrag"
+                                    placeholder="Netto von der Rechnung"
+                                    min={0}
+                                    step={0.01}
+                                    size="md"
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    decimalSeparator={locale.numberFormat.decimalSeparator}
+                                    thousandSeparator={locale.numberFormat.thousandSeparator}
+                                    description="Netto-Gesamtsumme von der Rechnung"
+                                    value={form.values.gesamtbetragNetto}
+                                    onChange={handleNettoChange}
+                                    error={form.errors.gesamtbetragNetto}
+                                    styles={{
+                                      label: { fontWeight: 600, fontSize: '14px' },
+                                      input: {
+                                        fontSize: '16px',
+                                        fontWeight: 500,
+                                        backgroundColor: '#f8f9fa',
+                                        borderColor: '#228be6'
+                                      }
+                                    }}
+                                  />
+                                </Box>
+
+                                {/* Step 2: MwSt fields (7% + 19%) */}
+                                {!form.values.istAuslaendischeRechnung && (
+                                  <Box>
+                                    <Text size="sm" fw={600} mb="xs">2. Mehrwertsteuer</Text>
+                                    <Grid gutter="sm">
+                                      <Grid.Col span={6}>
+                                        <NumberInput
+                                          label="MwSt. 7%"
+                                          placeholder="Speisen"
+                                          min={0}
+                                          step={0.01}
+                                          size="md"
+                                          decimalScale={2}
+                                          fixedDecimalScale
+                                          decimalSeparator={locale.numberFormat.decimalSeparator}
+                                          thousandSeparator={locale.numberFormat.thousandSeparator}
+                                          description="7% (Speisen)"
+                                          value={form.values.speisen}
+                                          onChange={handleMwst7Change}
+                                          error={form.errors.speisen}
+                                          styles={{
+                                            label: { fontWeight: 600, fontSize: '13px' },
+                                            input: {
+                                              backgroundColor: '#fff4e6',
+                                              borderColor: '#fd7e14',
+                                              fontWeight: 500
+                                            }
+                                          }}
+                                        />
+                                      </Grid.Col>
+                                      <Grid.Col span={6}>
+                                        <NumberInput
+                                          label="MwSt. 19%"
+                                          placeholder="Getränke"
+                                          min={0}
+                                          step={0.01}
+                                          size="md"
+                                          decimalScale={2}
+                                          fixedDecimalScale
+                                          decimalSeparator={locale.numberFormat.decimalSeparator}
+                                          thousandSeparator={locale.numberFormat.thousandSeparator}
+                                          description="19% (Getränke)"
+                                          value={form.values.getraenke}
+                                          onChange={handleMwst19Change}
+                                          error={form.errors.getraenke}
+                                          styles={{
+                                            label: { fontWeight: 600, fontSize: '13px' },
+                                            input: {
+                                              backgroundColor: '#fff4e6',
+                                              borderColor: '#fd7e14',
+                                              fontWeight: 500
+                                            }
+                                          }}
+                                        />
+                                      </Grid.Col>
+                                    </Grid>
+
+                                    {/* Total MwSt (calculated from 7% + 19%) */}
+                                    <Box mt="sm">
+                                      <NumberInput
+                                        label="Gesamt MwSt."
+                                        placeholder="Summe aller MwSt."
+                                        min={0}
+                                        step={0.01}
+                                        size="md"
+                                        decimalScale={2}
+                                        fixedDecimalScale
+                                        decimalSeparator={locale.numberFormat.decimalSeparator}
+                                        thousandSeparator={locale.numberFormat.thousandSeparator}
+                                        description="= MwSt. 7% + MwSt. 19%"
+                                        {...form.getInputProps('gesamtbetragMwst')}
+                                        readOnly
+                                        styles={{
+                                          label: { fontWeight: 600, fontSize: '13px' },
+                                          input: {
+                                            backgroundColor: '#ffe8cc',
+                                            fontWeight: 600,
+                                            color: '#d9480f',
+                                            borderColor: '#fd7e14'
+                                          }
+                                        }}
+                                      />
+                                    </Box>
+                                  </Box>
+                                )}
+
+                                {/* Step 3: Gesamtbetrag (calculated: Netto + Total MwSt OR editable for backward calc) */}
+                                <Box>
+                                  <NumberInput
+                                    label="3. Brutto Gesamtbetrag"
+                                    placeholder="Gesamtsumme von der Rechnung"
+                                    required
+                                    min={0}
+                                    step={0.01}
+                                    size="lg"
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    decimalSeparator={locale.numberFormat.decimalSeparator}
+                                    thousandSeparator={locale.numberFormat.thousandSeparator}
+                                    description={form.values.istAuslaendischeRechnung
+                                      ? `Betrag in ${form.values.auslaendischeWaehrung || 'ausländischer Währung'}`
+                                      : "Editierbar: Brutto ⇄ Netto (Berechnung in beide Richtungen)"}
+                                    value={form.values.gesamtbetrag}
+                                    onChange={handleBruttoChange}
+                                    error={form.errors.gesamtbetrag}
+                                    styles={{
+                                      label: { fontWeight: 700, fontSize: '15px', color: '#1971c2' },
+                                      input: {
+                                        fontSize: '18px',
+                                        fontWeight: 700,
+                                        backgroundColor: '#e3f2fd',
+                                        borderColor: '#1971c2',
+                                        borderWidth: 2,
+                                        color: '#0c4a6e'
+                                      }
+                                    }}
+                                  />
+                                </Box>
 
                                 <Divider my="xs" />
 
-                                <Group gap="xs" align="center">
-                                  <Text size="sm" fw={600} c="dimmed">=Gesamtbetrag:</Text>
-                                  <Text fw={700} c="blue" size="lg">
-                                    {form.values.gesamtbetrag ? Number(form.values.gesamtbetrag).toFixed(2).replace('.', ',') : '0,00'} €
-                                  </Text>
-                                </Group>
-                              </Box>
-                            </Box>
-                          )}
-
-                          {/* Divider between sections */}
-                          {!form.values.istAuslaendischeRechnung && form.values.kreditkartenBetrag && (
-                            <Divider />
-                          )}
-
-                          {/* Trinkgeld Calculation */}
-                          {form.values.kreditkartenBetrag && (
-                            <Box>
-                              <Text size="sm" fw={600} c="dimmed" mb="xs">Trinkgeld Berechnung:</Text>
-                              <Box style={{ fontFamily: 'monospace', fontSize: '14px' }}>
-                                <Group gap="xs" align="center">
-                                  <Text>Bezahlt</Text>
-                                  <Text c="dimmed">-</Text>
-                                  <Text>Rechnung</Text>
-                                  <Text c="dimmed">=</Text>
-                                  <Text fw={700}>Trinkgeld</Text>
-                                </Group>
-
-                                <Group gap="xs" align="center" mt="xs">
-                                  <Text fw={600} c="blue" size="lg">
-                                    {form.values.kreditkartenBetrag ? Number(form.values.kreditkartenBetrag).toFixed(2).replace('.', ',') : '0,00'} €
-                                  </Text>
-                                  <Text c="dimmed">-</Text>
-                                  <Text fw={600} c="blue" size="lg">
-                                    {form.values.gesamtbetrag ? Number(form.values.gesamtbetrag).toFixed(2).replace('.', ',') : '0,00'} €
-                                  </Text>
-                                  <Text c="dimmed">=</Text>
-                                  <Text fw={700} c="green" size="xl">
-                                    {form.values.trinkgeld ? Number(form.values.trinkgeld).toFixed(2).replace('.', ',') : '0,00'} €
-                                  </Text>
-                                </Group>
-                              </Box>
-
-                              {!form.values.istAuslaendischeRechnung && form.values.trinkgeld && Number(form.values.trinkgeld) > 0 && (
-                                <Box mt="sm" pt="sm" style={{ borderTop: '1px solid #dee2e6' }}>
-                                  <Text size="xs" c="dimmed" mb={4}>MwSt. auf Trinkgeld (19%):</Text>
-                                  <Group gap="xs" align="center" style={{ fontFamily: 'monospace' }}>
-                                    <Text size="sm">
-                                      {Number(form.values.trinkgeld).toFixed(2).replace('.', ',')} €
-                                    </Text>
-                                    <Text c="dimmed" size="sm">×</Text>
-                                    <Text size="sm">0,19</Text>
-                                    <Text c="dimmed" size="sm">=</Text>
-                                    <Text fw={600} c="orange" size="sm">
-                                      {form.values.trinkgeldMwst ? Number(form.values.trinkgeldMwst).toFixed(2).replace('.', ',') : '0,00'} €
-                                    </Text>
-                                  </Group>
+                                {/* Step 4: Bezahlter Betrag (Bar/Kreditkarte) */}
+                                <Box>
+                                  <NumberInput
+                                    label="4. Bezahlter Betrag"
+                                    placeholder="Betrag Bar/Kreditkarte"
+                                    min={0}
+                                    step={0.01}
+                                    size="md"
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    decimalSeparator={locale.numberFormat.decimalSeparator}
+                                    thousandSeparator={locale.numberFormat.thousandSeparator}
+                                    description="Was wurde tatsächlich bezahlt? (inkl. Trinkgeld)"
+                                    value={form.values.kreditkartenBetrag}
+                                    onChange={handleKreditkartenBetragChange}
+                                    error={form.errors.kreditkartenBetrag}
+                                    styles={{
+                                      label: { fontWeight: 600, fontSize: '14px' },
+                                      input: {
+                                        fontSize: '16px',
+                                        fontWeight: 500,
+                                        backgroundColor: '#f8f9fa',
+                                        borderColor: '#228be6'
+                                      }
+                                    }}
+                                  />
                                 </Box>
-                              )}
-                            </Box>
-                          )}
-                        </Stack>
-                      </Paper>
-                    </Stack>
-                  </Grid.Col>
-                </Grid>
 
-                {/* Zahlungsart below the calculations */}
-                <Select
-                  label="Zahlungsart"
-                  placeholder="Wählen Sie die Zahlungsart"
-                  required
-                  size="sm"
-                  description="Wie wurde bezahlt? Die Rechnung muss auf die Firma ausgestellt sein."
-                  data={[
-                    { value: 'firma', label: 'Firmenkreditkarte' },
-                    { value: 'privat', label: 'Private Kreditkarte' },
-                    { value: 'bar', label: 'Bar' },
-                  ]}
-                  {...form.getInputProps('zahlungsart')}
-                />
-              </Stack>
-            </Box>
+                                {/* Step 5: Trinkgeld (calculated automatically) */}
+                                <Box>
+                                  <NumberInput
+                                    label="5. Trinkgeld"
+                                    placeholder="Trinkgeld"
+                                    min={0}
+                                    step={0.01}
+                                    size="md"
+                                    decimalScale={2}
+                                    fixedDecimalScale
+                                    decimalSeparator={locale.numberFormat.decimalSeparator}
+                                    thousandSeparator={locale.numberFormat.thousandSeparator}
+                                    description="= Bezahlt - Gesamtbetrag (automatisch berechnet)"
+                                    {...form.getInputProps('trinkgeld')}
+                                    readOnly
+                                    styles={{
+                                      label: { fontWeight: 600, fontSize: '14px' },
+                                      input: {
+                                        backgroundColor: '#d0f4de',
+                                        color: '#2b8a3e',
+                                        fontWeight: 700,
+                                        fontSize: '16px',
+                                        borderColor: '#40c057'
+                                      }
+                                    }}
+                                  />
+                                </Box>
 
-            <Box>
-              <Title order={2} size="h6">Geschäftlicher Anlass</Title>
-              <Stack gap="xs">
-                <TextInput
-                  label="Geschäftlicher Anlass"
-                  placeholder={form.values.bewirtungsart === 'kunden' 
-                    ? "z.B. Projektbesprechung Kunde X" 
-                    : "z.B. Projektabschluss Team Meeting"}
-                  required
-                  size="sm"
-                  description={form.values.bewirtungsart === 'kunden'
-                    ? "Geben Sie den konkreten Anlass an (z.B. 'Kundengespräch', 'Projektbesprechung')"
-                    : "Geben Sie den Anlass an (z.B. 'Teamevent', 'Projektabschluss')"}
-                  {...form.getInputProps('geschaeftlicherAnlass')}
-                />
-                <Textarea
-                  label={form.values.bewirtungsart === 'kunden' 
-                    ? "Namen aller Teilnehmer" 
-                    : "Teilnehmerkreis"}
-                  placeholder={form.values.bewirtungsart === 'kunden'
-                    ? "Ein Teilnehmer pro Zeile"
-                    : "z.B. Team Marketing"}
-                  required
-                  minRows={3}
-                  size="sm"
-                  description={form.values.bewirtungsart === 'kunden'
-                    ? "Geben Sie die Namen aller Teilnehmer ein (auch Ihren eigenen Namen)"
-                    : "Geben Sie den Teilnehmerkreis an (z.B. 'Team Marketing', 'Abteilung Vertrieb')"}
-                  {...form.getInputProps('teilnehmer')}
-                />
-                {form.values.bewirtungsart === 'kunden' && (
-                  <>
-                    <TextInput
-                      label="Namen der Geschäftspartner"
-                      placeholder="Namen der Geschäftspartner"
+                                {/* MwSt on Trinkgeld */}
+                                {!form.values.istAuslaendischeRechnung && (
+                                  <Box>
+                                    <NumberInput
+                                      label="MwSt. Trinkgeld (19%)"
+                                      placeholder="MwSt. auf Trinkgeld"
+                                      min={0}
+                                      step={0.01}
+                                      size="sm"
+                                      decimalScale={2}
+                                      fixedDecimalScale
+                                      decimalSeparator={locale.numberFormat.decimalSeparator}
+                                      thousandSeparator={locale.numberFormat.thousandSeparator}
+                                      description="19% vom Trinkgeld"
+                                      {...form.getInputProps('trinkgeldMwst')}
+                                      readOnly
+                                      styles={{
+                                        label: { fontWeight: 600, fontSize: '13px' },
+                                        input: {
+                                          backgroundColor: '#e7f5dd',
+                                          borderColor: '#82c91e'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                )}
+                              </Stack>
+                            </Paper>
+                          </Grid.Col>
+
+                          {/* Visual Calculation Display (Right Column) */}
+                          <Grid.Col span={{ base: 12, md: 5 }}>
+                            <CalculationPanel
+                              gesamtbetragNetto={form.values.gesamtbetragNetto}
+                              speisen={form.values.speisen}
+                              getraenke={form.values.getraenke}
+                              gesamtbetragMwst={form.values.gesamtbetragMwst}
+                              gesamtbetrag={form.values.gesamtbetrag}
+                              kreditkartenBetrag={form.values.kreditkartenBetrag}
+                              trinkgeld={form.values.trinkgeld}
+                              trinkgeldMwst={form.values.trinkgeldMwst}
+                              istAuslaendischeRechnung={form.values.istAuslaendischeRechnung}
+                            />
+                          </Grid.Col>
+                        </Grid>
+
+                        {/* Zahlungsart below the calculations */}
+                        <Select
+                          label="Zahlungsart"
+                          placeholder="Wählen Sie die Zahlungsart"
+                          required
+                          size="sm"
+                          description="Wie wurde bezahlt? Die Rechnung muss auf die Firma ausgestellt sein."
+                          data={[
+                            { value: 'firma', label: 'Firmenkreditkarte' },
+                            { value: 'privat', label: 'Private Kreditkarte' },
+                            { value: 'bar', label: 'Bar' },
+                          ]}
+                          {...form.getInputProps('zahlungsart')}
+                        />
+                      </Stack>
+                    </Paper>
+                  </Stack>
+                </Box>
+
+                <Box>
+                  <Title order={2} size="h6">Geschäftlicher Anlass</Title>
+                  <Stack gap="xs">
+                    <SanitizedTextInput
+                      label="Geschäftlicher Anlass"
+                      placeholder={form.values.bewirtungsart === 'kunden'
+                        ? "z.B. Projektbesprechung Kunde X"
+                        : "z.B. Projektabschluss Team Meeting"}
                       required
                       size="sm"
-                      description="Geben Sie die Namen der Geschäftspartner ein"
-                      {...form.getInputProps('geschaeftspartnerNamen')}
+                      description={form.values.bewirtungsart === 'kunden'
+                        ? "Geben Sie den konkreten Anlass an (z.B. 'Kundengespräch', 'Projektbesprechung')"
+                        : "Geben Sie den Anlass an (z.B. 'Teamevent', 'Projektabschluss')"}
+                      {...form.getInputProps('geschaeftlicherAnlass')}
                     />
-                    <TextInput
-                      label="Firma der Geschäftspartner"
-                      placeholder="Name der Firma"
+                    <SanitizedTextarea
+                      label={form.values.bewirtungsart === 'kunden'
+                        ? "Namen aller Teilnehmer"
+                        : "Teilnehmerkreis"}
+                      placeholder={form.values.bewirtungsart === 'kunden'
+                        ? "Ein Teilnehmer pro Zeile"
+                        : "z.B. Team Marketing"}
                       required
+                      minRows={3}
                       size="sm"
-                      description="Geben Sie die Firma der Geschäftspartner ein"
-                      {...form.getInputProps('geschaeftspartnerFirma')}
+                      description={form.values.bewirtungsart === 'kunden'
+                        ? "Geben Sie die Namen aller Teilnehmer ein (auch Ihren eigenen Namen)"
+                        : "Geben Sie den Teilnehmerkreis an (z.B. 'Team Marketing', 'Abteilung Vertrieb')"}
+                      {...form.getInputProps('teilnehmer')}
                     />
-                  </>
-                )}
+                    {form.values.bewirtungsart === 'kunden' && (
+                      <>
+                        <SanitizedTextInput
+                          label="Namen der Geschäftspartner"
+                          placeholder="Namen der Geschäftspartner"
+                          required
+                          size="sm"
+                          description="Geben Sie die Namen der Geschäftspartner ein"
+                          {...form.getInputProps('geschaeftspartnerNamen')}
+                        />
+                        <SanitizedTextInput
+                          label="Firma der Geschäftspartner"
+                          placeholder="Name der Firma"
+                          required
+                          size="sm"
+                          description="Geben Sie die Firma der Geschäftspartner ein"
+                          {...form.getInputProps('geschaeftspartnerFirma')}
+                        />
+                      </>
+                    )}
+                  </Stack>
+                </Box>
+
+                {/* JSON Download/Upload Buttons */}
+                <Group grow mb="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftSection={<IconDownload size={16} />}
+                    onClick={handleJsonDownload}
+                  >
+                    JSON Download
+                  </Button>
+
+                  <FileInput
+                    placeholder="JSON Upload"
+                    size="sm"
+                    leftSection={<IconUpload size={16} />}
+                    accept=".json"
+                    onChange={(file) => file && handleJsonUpload(file)}
+                    clearable
+                  />
+                </Group>
+
+                {/* Single Weiter button to navigate to preview page */}
+                <Button
+                  type="submit"
+                  size="md"
+                  fullWidth
+                  loading={isSubmitting}
+                >
+                  Weiter
+                </Button>
               </Stack>
-            </Box>
+            </form>
+          </Paper>
+        </Grid.Col>
 
-            {/* JSON Download/Upload Buttons */}
-            <Group grow mb="sm">
-              <Button
-                variant="outline"
-                size="sm"
-                leftSection={<IconDownload size={16} />}
-                onClick={handleJsonDownload}
-              >
-                JSON Download
-              </Button>
-              
-              <FileInput
-                placeholder="JSON Upload"
-                size="sm"
-                leftSection={<IconUpload size={16} />}
-                accept=".json"
-                onChange={(file) => file && handleJsonUpload(file)}
-                clearable
-              />
-            </Group>
-
-            {/* Single Weiter button to navigate to preview page */}
-            <Button
-              type="submit"
-              size="md"
-              fullWidth
-              loading={isSubmitting}
-            >
-              Weiter
-            </Button>
-          </Stack>
-        </form>
-      </Paper>
-    </Grid.Col>
-    
-    {selectedImage && (
-      <Grid.Col span={{ base: 12, md: 5 }}>
-        <ImageEditor 
-          file={selectedImage} 
-          onImageUpdate={(processedUrl) => {
-            console.log('Image updated:', processedUrl);
-          }}
-        />
-      </Grid.Col>
-    )}
-  </Grid>
-
+        {selectedImage && (
+          <Grid.Col span={{ base: 12, md: 4 }}>
+            <ImageEditor
+              file={selectedImage}
+              onImageUpdate={(processedUrl) => {
+                console.log('Image updated:', processedUrl);
+              }}
+            />
+          </Grid.Col>
+        )}
+      </Grid>
     </Container>
   );
-} 
+}

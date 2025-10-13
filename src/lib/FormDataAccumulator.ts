@@ -18,9 +18,12 @@ interface OcrExtractedData {
   restaurantAnschrift?: string;
   gesamtbetrag?: string;
   mwst?: string;
+  speisen?: string; // MwSt 7% for food
+  getraenke?: string; // MwSt 19% for drinks
   netto?: string;
   datum?: string;
   trinkgeld?: string;
+  trinkgeldMwst?: string;
 }
 
 interface BewirtungsbelegFormData {
@@ -71,8 +74,11 @@ export class FormDataAccumulator {
     // Convert amounts from German format (51,90) to English format (51.90)
     const gesamtbetrag = data.gesamtbetrag ? data.gesamtbetrag.replace(',', '.') : '';
     const mwst = data.mwst ? data.mwst.replace(',', '.') : '';
+    const speisen = data.speisen ? data.speisen.replace(',', '.') : '';
+    const getraenke = data.getraenke ? data.getraenke.replace(',', '.') : '';
     const netto = data.netto ? data.netto.replace(',', '.') : '';
     const trinkgeld = data.trinkgeld ? data.trinkgeld.replace(',', '.') : '';
+    const trinkgeldMwst = data.trinkgeldMwst ? data.trinkgeldMwst.replace(',', '.') : '';
 
     // Calculate missing financial values
     let finalGesamtbetrag = gesamtbetrag;
@@ -142,16 +148,37 @@ export class FormDataAccumulator {
         this.accumulated.gesamtbetragMwst = finalMwst;
       }
 
+      // Add MwSt breakdown (7% and 19%)
+      if (speisen && Number(speisen) > 0) {
+        this.accumulated.speisen = speisen;
+        console.log('[FormDataAccumulator] Set speisen (MwSt 7%):', speisen);
+      }
+
+      if (getraenke && Number(getraenke) > 0) {
+        this.accumulated.getraenke = getraenke;
+        console.log('[FormDataAccumulator] Set getraenke (MwSt 19%):', getraenke);
+      }
+
       if (finalNetto) {
         this.accumulated.gesamtbetragNetto = finalNetto;
       }
 
-      if (trinkgeld) {
+      // CRITICAL FIX: Only apply OCR trinkgeld if it's greater than 0
+      // This prevents overwriting calculated trinkgeld with "0.00" from OCR
+      if (trinkgeld && Number(trinkgeld) > 0) {
         this.accumulated.trinkgeld = trinkgeld;
+        console.log('[FormDataAccumulator] Set trinkgeld from OCR:', trinkgeld);
 
-        // Calculate MwSt for trinkgeld (19%)
-        const trinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
-        this.accumulated.trinkgeldMwst = trinkgeldMwst;
+        // Apply OCR trinkgeldMwst if provided, otherwise calculate it
+        if (trinkgeldMwst && Number(trinkgeldMwst) > 0) {
+          this.accumulated.trinkgeldMwst = trinkgeldMwst;
+        } else {
+          // Calculate MwSt for trinkgeld (19%)
+          const calculatedTrinkgeldMwst = (Number(trinkgeld) * 0.19).toFixed(2);
+          this.accumulated.trinkgeldMwst = calculatedTrinkgeldMwst;
+        }
+      } else {
+        console.log('[FormDataAccumulator] Skipping OCR trinkgeld (zero or empty):', trinkgeld);
       }
 
       // For Rechnung, keep existing kreditkartenBetrag if it exists

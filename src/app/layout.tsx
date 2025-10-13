@@ -7,6 +7,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
 import { AppLayout } from '@/components/AppLayout';
+import { LocaleProvider } from '@/contexts/LocaleContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -43,9 +44,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <Providers>
           <MantineProvider theme={theme}>
-            <AppLayout>
-              {children}
-            </AppLayout>
+            <LocaleProvider>
+              <AppLayout>
+                {children}
+              </AppLayout>
+            </LocaleProvider>
           </MantineProvider>
         </Providers>
       </body>
