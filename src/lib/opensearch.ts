@@ -139,10 +139,15 @@ export async function createUserIndex(userId: string): Promise<boolean> {
 
 /**
  * Index a document in user's index
+ * Supports optional embedding and form_data from upload API
  */
 export async function indexDocument(
   userId: string,
-  document: Document
+  document: Document & {
+    embedding?: number[];
+    full_text?: string;
+    form_data?: Record<string, any>;
+  }
 ): Promise<boolean> {
   const indexName = getUserIndexName(userId);
   const client = getOpenSearchClient();
@@ -170,32 +175,46 @@ export async function indexDocument(
       original_url: document.original_url,
       metadata: document.metadata,
       gobd_compliant: document.gobd_compliant,
+      gobd_validated_at: document.gobd_validated_at,
+      gobd_check_url: document.gobd_check_url,
       signature_hash: document.signature_hash,
-      // TODO: Generate full_text from document metadata
-      full_text: generateFullText(document),
-      // TODO: Generate vector embeddings using OpenAI
-      // embedding: await generateEmbedding(generateFullText(document)),
+      gobd_signature: document.signature_hash, // Same as signature_hash for now
+      // Use provided full_text or generate it from document data
+      full_text: document.full_text || generateFullText(document),
+      // Use provided embedding for semantic search
+      embedding: document.embedding,
+      // Store complete form data for detailed queries
+      form_data: document.form_data,
     };
 
-    await client.index({
+    const response = await client.index({
       index: indexName,
       id: document.id,
       body: osDoc,
       refresh: true, // Make document searchable immediately
     });
 
+    if (response.body.result === 'error') {
+      console.error(`[OpenSearch] Error indexing document ${document.id}:`, response.body.error);
+      return false;
+    }
+
     console.log(`[OpenSearch] Document ${document.id} indexed successfully`);
+    if (document.embedding) {
+      console.log(`[OpenSearch] Document indexed with vector embedding (${document.embedding.length} dimensions)`);
+    }
     return true;
   } catch (error) {
-    console.error(`[OpenSearch] Error indexing document ${document.id}:`, error);
+    console.error(`[OpenSearch] Error indexing document ${document.id}:`, JSON.stringify(error, null, 2));
     return false;
   }
 }
 
 /**
  * Generate full text content from document for fulltext search
+ * Includes metadata fields and OCR extracted data from form_data
  */
-function generateFullText(document: Document): string {
+function generateFullText(document: Document & { form_data?: Record<string, any> }): string {
   const parts: string[] = [
     document.name,
     document.type,
@@ -204,7 +223,64 @@ function generateFullText(document: Document): string {
     ...(document.metadata.participants || []),
   ];
 
+  // Add OCR extracted data from form_data if available
+  if (document.form_data) {
+    const extractedText = extractTextFromObject(document.form_data);
+    parts.push(extractedText);
+  }
+
   return parts.filter(Boolean).join(' ');
+}
+
+/**
+ * Recursively extract all string values from an object
+ * Used to include OCR extracted data in fulltext search
+ */
+function extractTextFromObject(obj: Record<string, any>, maxDepth: number = 3, currentDepth: number = 0): string {
+  if (currentDepth >= maxDepth) {
+    return '';
+  }
+
+  const textParts: string[] = [];
+
+  for (const value of Object.values(obj)) {
+    if (value === null || value === undefined) {
+      continue;
+    }
+
+    // Extract strings
+    if (typeof value === 'string' && value.trim()) {
+      textParts.push(value.trim());
+    }
+    // Extract numbers (convert to string)
+    else if (typeof value === 'number') {
+      textParts.push(value.toString());
+    }
+    // Recursively extract from nested objects
+    else if (typeof value === 'object' && !Array.isArray(value)) {
+      const nestedText = extractTextFromObject(value, maxDepth, currentDepth + 1);
+      if (nestedText) {
+        textParts.push(nestedText);
+      }
+    }
+    // Extract from arrays
+    else if (Array.isArray(value)) {
+      for (const item of value) {
+        if (typeof item === 'string' && item.trim()) {
+          textParts.push(item.trim());
+        } else if (typeof item === 'number') {
+          textParts.push(item.toString());
+        } else if (typeof item === 'object' && item !== null) {
+          const itemText = extractTextFromObject(item, maxDepth, currentDepth + 1);
+          if (itemText) {
+            textParts.push(itemText);
+          }
+        }
+      }
+    }
+  }
+
+  return textParts.join(' ');
 }
 
 /**
@@ -234,23 +310,46 @@ export async function searchDocuments(
     // Build OpenSearch query
     const must: any[] = [];
     const filter: any[] = [];
+    const should: any[] = [];
 
-    // Fulltext search across multiple fields
+    // Fulltext and prefix search across multiple fields
     if (query.search) {
-      must.push({
+      const fields = [
+        'name^2',
+        'full_text',
+        'metadata.restaurant_name^1.5',
+        'metadata.business_purpose',
+        'metadata.participants',
+      ];
+
+      should.push({
         multi_match: {
           query: query.search,
-          fields: [
-            'name^2', // Boost name field
-            'full_text',
-            'metadata.restaurant_name^1.5',
-            'metadata.business_purpose',
-            'metadata.participants',
-          ],
+          fields,
           type: 'best_fields',
           fuzziness: 'AUTO',
         },
       });
+
+      should.push({
+        multi_match: {
+          query: query.search,
+          fields,
+          type: 'phrase_prefix',
+        },
+      });
+
+      must.push({
+        bool: {
+          should,
+          minimum_should_match: 1,
+        },
+      });
+    }
+
+    // ID filter
+    if (query.documentId) {
+      filter.push({ term: { _id: query.documentId } });
     }
 
     // Type filter
@@ -312,6 +411,8 @@ export async function searchDocuments(
         user_id: source.user_id,
         metadata: source.metadata,
         gobd_compliant: source.gobd_compliant,
+        gobd_validated_at: source.gobd_validated_at,
+        gobd_check_url: source.gobd_check_url,
         signature_hash: source.signature_hash,
       };
     });
@@ -356,6 +457,88 @@ export async function deleteDocument(
     console.error(`[OpenSearch] Error deleting document ${documentId}:`, error);
     return false;
   }
+}
+
+/**
+ * Delete multiple documents from user's index by their IDs
+ */
+export async function deleteDocumentsByIds(
+  userId: string,
+  documentIds: string[]
+): Promise<boolean> {
+  const indexName = getUserIndexName(userId);
+  const client = getOpenSearchClient();
+
+  if (!client) {
+    console.warn('[OpenSearch] Client not available, cannot delete documents');
+    return false;
+  }
+
+  if (documentIds.length === 0) {
+    return true;
+  }
+
+  try {
+    await client.deleteByQuery({
+      index: indexName,
+      body: {
+        query: {
+          terms: {
+            _id: documentIds,
+          },
+        },
+      },
+      refresh: true,
+    });
+
+    console.log(`[OpenSearch] Deleted ${documentIds.length} documents successfully`);
+    return true;
+  } catch (error) {
+    console.error(`[OpenSearch] Error deleting documents by IDs:`, error);
+    return false;
+  }
+}
+
+/**
+ * Get all document IDs from user's index
+ */
+export async function getAllDocumentIds(userId: string): Promise<string[]> {
+  const indexName = getUserIndexName(userId);
+  const client = getOpenSearchClient();
+
+  if (!client) {
+    console.warn('[OpenSearch] Client not available, cannot get all document IDs');
+    return [];
+  }
+
+  const documentIds: string[] = [];
+  try {
+    let response = await client.search({
+      index: indexName,
+      scroll: '1m',
+      _source: false,
+      body: {
+        query: { match_all: {} },
+      },
+    });
+
+    while (response.body.hits.hits.length > 0) {
+      documentIds.push(...response.body.hits.hits.map((hit: any) => hit._id));
+
+      if (!response.body._scroll_id) {
+        break;
+      }
+
+      response = await client.scroll({
+        scroll_id: response.body._scroll_id,
+        scroll: '1m',
+      });
+    }
+  } catch (error) {
+    console.error(`[OpenSearch] Error getting all document IDs for user ${userId}:`, error);
+  }
+
+  return documentIds;
 }
 
 /**

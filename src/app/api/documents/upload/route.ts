@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { randomUUID } from 'crypto';
 import { authOptions } from '@/lib/auth';
 import { uploadDocumentSet } from '@/lib/spaces';
 import { generateDocumentEmbedding, generateEmbeddingText } from '@/lib/embeddings';
 import { indexDocument } from '@/lib/opensearch';
 import { ensureUserIndexMiddleware } from '@/middleware/ensure-user-index';
+import { validateSpacesConfig } from '@/lib/env';
+import { convertToProxyUrl } from '@/lib/url';
 import type { Document } from '@/types/document';
 
 /**
@@ -57,12 +60,26 @@ export async function POST(request: NextRequest) {
 
     const userId = session.user.id || session.user.email || 'user-1';
 
+    // Check if DigitalOcean Spaces is configured
+    const spacesConfig = validateSpacesConfig();
+    if (!spacesConfig.configured) {
+      console.error('[Upload API] DigitalOcean Spaces not configured:', spacesConfig.missingVars);
+      return NextResponse.json(
+        {
+          error: 'Cloud-Speicher ist nicht konfiguriert',
+          details: `Fehlende Konfiguration: ${spacesConfig.missingVars.join(', ')}`,
+          code: 'SPACES_NOT_CONFIGURED',
+        },
+        { status: 503 }
+      );
+    }
+
     // Ensure user has an OpenSearch index
     await ensureUserIndexMiddleware(userId);
 
     // Parse request body
     const body = await request.json();
-    const { pdfBase64, pngBase64, metadata } = body;
+    const { pdfBase64, pngBase64, metadata, extractedJson, gobdCheckJson } = body;
 
     // Validate required fields
     if (!pdfBase64 || !pngBase64 || !metadata) {
@@ -78,9 +95,15 @@ export async function POST(request: NextRequest) {
     const pdfBuffer = Buffer.from(pdfBase64, 'base64');
     const pngBuffer = Buffer.from(pngBase64, 'base64');
 
-    // Step 1: Upload files to DigitalOcean Spaces
+    const documentId = randomUUID();
+    metadata.id = documentId;
+
+    // Step 1: Upload files to DigitalOcean Spaces (PDF, PNG, metadata, and optionally extracted + GoBD JSONs)
     console.log('[Upload API] Uploading to DigitalOcean Spaces...');
-    const uploadResult = await uploadDocumentSet(userId, pdfBuffer, pngBuffer, metadata);
+    const uploadResult = await uploadDocumentSet(userId, pdfBuffer, pngBuffer, metadata, {
+      extractedData: extractedJson || undefined,
+      gobdCheckData: gobdCheckJson || undefined,
+    });
 
     if (!uploadResult || !uploadResult.success) {
       console.error('[Upload API] Failed to upload files to Spaces');
@@ -90,21 +113,49 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { pdfUrl, pngUrl, metadataUrl } = uploadResult;
+    const { pdfUrl, pngUrl, metadataUrl, extractedUrl, gobdCheckUrl } = uploadResult;
+
+    // Convert Spaces URLs to API proxy URLs for secure access
+    const pdfProxyUrl = pdfUrl ? convertToProxyUrl(pdfUrl) : null;
+    const pngProxyUrl = pngUrl ? convertToProxyUrl(pngUrl) : null;
+    const metadataProxyUrl = metadataUrl ? convertToProxyUrl(metadataUrl) : null;
+    const extractedProxyUrl = extractedUrl ? convertToProxyUrl(extractedUrl) : null;
+    const gobdCheckProxyUrl = gobdCheckUrl ? convertToProxyUrl(gobdCheckUrl) : null;
+
+    // Verify critical URLs are present
+    if (!pdfProxyUrl || !pngProxyUrl) {
+      console.error('[Upload API] Missing critical URLs:', { pdfProxyUrl, pngProxyUrl });
+      return NextResponse.json(
+        { error: 'Fehler beim Generieren der Dokument-URLs' },
+        { status: 500 }
+      );
+    }
 
     // Step 2: Generate vector embedding for semantic search
-    console.log('[Upload API] Generating vector embedding...');
-    const embedding = await generateDocumentEmbedding(metadata);
+    console.log('[Upload API] Generating vector embedding for document...');
+    const embeddingStartTime = Date.now();
+    let embedding: number[] | null = null;
 
-    if (!embedding) {
-      console.warn('[Upload API] Failed to generate embedding, continuing without it');
+    try {
+      embedding = await generateDocumentEmbedding(metadata);
+
+      if (embedding) {
+        const embeddingTime = Date.now() - embeddingStartTime;
+        console.log(`[Upload API] Vector embedding generated successfully (${embedding.length} dimensions, ${embeddingTime}ms)`);
+      } else {
+        console.warn('[Upload API] Failed to generate embedding - semantic search will not be available for this document');
+        console.warn('[Upload API] Possible causes: OpenAI API key not configured, empty metadata, or API error');
+      }
+    } catch (error) {
+      console.error('[Upload API] Exception during embedding generation:', error);
+      console.warn('[Upload API] Continuing without embedding - document will still be indexed with fulltext search');
+      embedding = null;
     }
 
     // Step 3: Generate fulltext content
     const fullText = generateEmbeddingText(metadata);
 
     // Step 4: Create document object for OpenSearch
-    const documentId = `doc-${userId}-${Date.now()}`;
     const document: Document = {
       id: documentId,
       name: metadata.fileName || `Bewirtungsbeleg_${metadata.restaurantName}_${metadata.datum}.pdf`,
@@ -112,9 +163,9 @@ export async function POST(request: NextRequest) {
       status: 'completed',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
-      thumbnail_url: pngUrl!,
-      pdf_url: pdfUrl!,
-      original_url: pdfUrl || undefined,
+      thumbnail_url: pngProxyUrl,
+      pdf_url: pdfProxyUrl,
+      original_url: pdfProxyUrl,
       user_id: userId,
       metadata: {
         total_amount: parseFloat(metadata.gesamtbetrag) || 0,
@@ -135,23 +186,31 @@ export async function POST(request: NextRequest) {
         tip: parseFloat(metadata.trinkgeld) || 0,
         is_eigenbeleg: metadata.istEigenbeleg || false,
       },
-      gobd_compliant: true,
+      gobd_compliant: gobdCheckJson ? (gobdCheckJson.compliant === true) : false,
+      gobd_validated_at: gobdCheckJson && gobdCheckJson.compliant ? new Date().toISOString() : undefined,
+      gobd_check_url: gobdCheckProxyUrl || undefined,
       signature_hash: generateSignatureHash(metadata),
     };
 
     // Step 5: Index document in OpenSearch with embedding
     console.log('[Upload API] Indexing document in OpenSearch...');
-    const indexSuccess = await indexDocument(userId, {
+    const documentToIndex = {
       ...document,
-      // Add embedding to document for OpenSearch
       embedding,
       full_text: fullText,
-      // Add complete form data for detailed queries
       form_data: metadata,
-    } as any);
+    };
 
-    if (!indexSuccess) {
-      console.error('[Upload API] Failed to index document in OpenSearch');
+    console.log('[Upload API] Document to index:', JSON.stringify(documentToIndex, null, 2));
+
+    try {
+      const indexSuccess = await indexDocument(userId, documentToIndex as any);
+
+      if (!indexSuccess) {
+        throw new Error('indexDocument returned false');
+      }
+    } catch (error) {
+      console.error('[Upload API] Failed to index document in OpenSearch:', error);
       // Don't fail the request, files are already uploaded
       console.warn('[Upload API] Document uploaded to Spaces but not indexed in OpenSearch');
     }
@@ -163,9 +222,11 @@ export async function POST(request: NextRequest) {
       success: true,
       document: {
         id: documentId,
-        pdfUrl: pdfUrl!,
-        pngUrl: pngUrl!,
-        metadataUrl: metadataUrl!,
+        pdfUrl: pdfProxyUrl,
+        pngUrl: pngProxyUrl,
+        metadataUrl: metadataProxyUrl,
+        extractedUrl: extractedProxyUrl,
+        gobdCheckUrl: gobdCheckProxyUrl,
       },
     });
   } catch (error) {

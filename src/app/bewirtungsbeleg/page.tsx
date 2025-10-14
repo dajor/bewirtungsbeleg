@@ -1,9 +1,15 @@
 'use client';
 
+import { isMobile } from 'react-device-detect';
+import BewirtungsbelegPWAPage from './pwa/page';
 import { Container, Image, Stack } from '@mantine/core';
 import BewirtungsbelegForm from '../components/BewirtungsbelegForm';
 
 export default function BewirtungsbelegPage() {
+  if (isMobile) {
+    return <BewirtungsbelegPWAPage />;
+  }
+
   return (
     <Container size="lg" py="xl">
       <Stack align="center" mb="xl">
@@ -19,4 +25,4 @@ export default function BewirtungsbelegPage() {
       <BewirtungsbelegForm />
     </Container>
   );
-} 
+}

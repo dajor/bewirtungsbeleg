@@ -35,6 +35,8 @@ export interface Document {
   organization_id?: string;
   metadata: DocumentMetadata;
   gobd_compliant?: boolean;
+  gobd_validated_at?: string; // Timestamp when GoBD validation was performed
+  gobd_check_url?: string; // URL to GoBD validation result JSON
   signature_hash?: string;
 }
 
@@ -49,6 +51,7 @@ export interface DocumentListResponse {
 }
 
 export interface DocumentListQuery {
+  documentId?: string;
   search?: string;
   page?: number;
   limit?: number;
