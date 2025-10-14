@@ -3,7 +3,7 @@ import OpenAI from 'openai';
 import { env } from '@/lib/env';
 import { apiRatelimit, checkRateLimit, getIdentifier } from '@/lib/rate-limit';
 import { classifyReceiptSchema, classifyReceiptResponseSchema, sanitizeObject } from '@/lib/validation';
-import { detectLocale, getLocaleConfig } from '@/lib/locale-config';
+import { detectLocale } from '@/lib/locale-config';
 import { z } from 'zod';
 
 let openai: OpenAI | null = null;
@@ -18,20 +18,85 @@ try {
   console.error('Failed to initialize OpenAI:', error);
 }
 
+const CREDIT_CARD_KEYWORDS = [
+  'credit',
+  'kredit',
+  'card',
+  'karte',
+  'visa',
+  'mastercard',
+  'amex',
+  'terminal',
+  'pos',
+  'kartenbeleg',
+  'cc',
+  'cardreceipt',
+  'transaction',
+  'chip',
+  'tap'
+];
+
+const INVOICE_KEYWORDS = [
+  'rechnung',
+  'invoice',
+  'bewirtungs',
+  'bill',
+  'faktura',
+  'receipt'
+];
+
+function buildHeuristicClassification(fileName?: string, fileType?: string) {
+  const normalizedName = (fileName || '').toLowerCase();
+  const normalizedType = (fileType || '').toLowerCase();
+
+  let type: 'Rechnung' | 'Kreditkartenbeleg' = 'Rechnung';
+  let confidence = 0.55;
+  let reason = 'Standardklassifizierung basierend auf Dateiinformationen';
+
+  if (CREDIT_CARD_KEYWORDS.some(keyword => normalizedName.includes(keyword))) {
+    type = 'Kreditkartenbeleg';
+    confidence = 0.75;
+    reason = 'Dateiname deutet auf Kreditkartenzahlung hin';
+  } else if (INVOICE_KEYWORDS.some(keyword => normalizedName.includes(keyword))) {
+    type = 'Rechnung';
+    confidence = 0.75;
+    reason = 'Dateiname enthält typische Rechnungsbegriffe';
+  } else if (normalizedType.includes('png') || normalizedType.includes('jpg') || normalizedType.includes('jpeg')) {
+    type = 'Kreditkartenbeleg';
+    confidence = 0.6;
+    reason = 'Bilddatei ohne weitere Hinweise – Kreditkartenbeleg als wahrscheinlicher angenommen';
+  } else if (normalizedType.includes('pdf')) {
+    type = 'Rechnung';
+    confidence = 0.6;
+    reason = 'PDF-Datei ohne weitere Hinweise – Rechnung als Standard angenommen';
+  }
+
+  return {
+    type,
+    confidence,
+    reason,
+    details: {
+      rechnungProbability: type === 'Rechnung' ? confidence : 1 - confidence,
+      kreditkartenbelegProbability: type === 'Kreditkartenbeleg' ? confidence : 1 - confidence
+    },
+    language: 'de',
+    region: 'DE',
+    locale: 'de-DE'
+  };
+}
+
+function isLikelyImageDataUrl(value: unknown): value is string {
+  if (typeof value !== 'string') {
+    return false;
+  }
+
+  return /^data:image\/(png|jpe?g|gif|webp);base64,/i.test(value.trim());
+}
+
 export async function POST(request: Request) {
+  let heuristicFallback = buildHeuristicClassification();
+
   try {
-    // Check if OpenAI is available
-    if (!openai) {
-      console.error('OpenAI not initialized - API key may be missing');
-      return NextResponse.json(
-        { 
-          type: 'Rechnung',
-          confidence: 0.5,
-          reason: 'Klassifizierung nicht verfügbar - Standard: Rechnung'
-        },
-        { status: 200 } // Return 200 with default to avoid breaking the flow
-      );
-    }
     // Check rate limit
     const identifier = getIdentifier(request, undefined);
     const rateLimitResponse = await checkRateLimit(apiRatelimit.general, identifier);
@@ -54,6 +119,22 @@ export async function POST(request: Request) {
     }
     
     const { fileName, fileType, image } = sanitizeObject(validatedInput);
+    heuristicFallback = buildHeuristicClassification(fileName, fileType);
+
+    // Check if OpenAI is available
+    if (!openai) {
+      console.error('OpenAI not initialized - using heuristic fallback');
+      return NextResponse.json(heuristicFallback);
+    }
+
+    let preparedImage: string | null = image ?? null;
+    if (preparedImage) {
+      console.log('Validating image data for OpenAI...');
+      if (!isLikelyImageDataUrl(preparedImage)) {
+        console.error('Image validation failed: Invalid image data URL format');
+        preparedImage = null;
+      }
+    }
 
     // Prepare messages based on whether we have image content
     const messages: any[] = [
@@ -93,7 +174,7 @@ export async function POST(request: Request) {
       }
     ];
 
-    if (image) {
+    if (preparedImage) {
       // If we have an image, analyze its content
       messages.push({
         role: "user",
@@ -133,7 +214,7 @@ export async function POST(request: Request) {
           {
             type: "image_url",
             image_url: {
-              url: image
+              url: preparedImage
             }
           }
         ]
@@ -161,14 +242,43 @@ export async function POST(request: Request) {
       });
     }
 
-    const completion = await openai.chat.completions.create({
-      model: image ? "gpt-4o" : "gpt-3.5-turbo",
-      messages: messages,
-      response_format: { type: "json_object" },
-      max_tokens: 500
-    });
+    let completion;
+    try {
+      completion = await openai.chat.completions.create({
+        model: preparedImage ? "gpt-4o" : "gpt-3.5-turbo",
+        messages: messages,
+        response_format: { type: "json_object" },
+        max_tokens: 500
+      });
+    } catch (apiError) {
+      console.error('OpenAI API error:', apiError);
+      return NextResponse.json({
+        ...heuristicFallback,
+        reason: `${heuristicFallback.reason} (OpenAI nicht erreichbar)`
+      });
+    }
 
-    const result = JSON.parse(completion.choices[0].message.content || '{}');
+    const rawContent = completion?.choices?.[0]?.message?.content;
+    let result: any = null;
+
+    try {
+      if (rawContent) {
+        result = JSON.parse(rawContent);
+      }
+    } catch (parseError) {
+      console.error('Failed to parse OpenAI response:', parseError);
+      return NextResponse.json({
+        ...heuristicFallback,
+        reason: `${heuristicFallback.reason} (OpenAI Antwort ungültig)`
+      });
+    }
+
+    if (!result) {
+      return NextResponse.json({
+        ...heuristicFallback,
+        reason: `${heuristicFallback.reason} (keine verwertbare Antwort erhalten)`
+      });
+    }
 
     // If language/region detected, validate and enhance with locale config
     if (result.language && result.region) {
@@ -198,15 +308,9 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error in classify-receipt:', error);
     
-    // Return a default classification instead of error to avoid breaking the flow
     return NextResponse.json({
-      type: 'Rechnung',
-      confidence: 0.3,
-      reason: 'Fehler bei der Klassifizierung - Standard: Rechnung',
-      details: {
-        rechnungProbability: 0.7,
-        kreditkartenbelegProbability: 0.3
-      }
+      ...heuristicFallback,
+      reason: `${heuristicFallback.reason} (Fehler bei der Klassifizierung)`
     });
   }
-} 
+}
