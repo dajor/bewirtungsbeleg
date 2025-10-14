@@ -33,3 +33,8 @@ When modifying the codebase, please adhere to the following principles:
 -   **Core Logic & Utilities**: `src/lib/`
 -   **Type Definitions**: `src/types/`
 -   **Tests**: The project uses both Jest/Vitest for unit/integration tests (`src/**/__tests__/`) and Playwright for end-to-end tests (`test/`).
+
+## Deployment
+
+- **Dev App ID:** `f75cb63f-d548-419f-95aa-c3b9a9ac53a3`
+- **Prod App ID:** `35e0d2dd-82ab-4c1d-8da6-67057301433c`
