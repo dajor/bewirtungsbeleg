@@ -79,6 +79,11 @@ export const mockDeleteDocumentResponse = {
   },
 };
 
+// Simple mock function that returns a resolved promise with appropriate default values
+const mockFn = (returnValue?: any) => {
+  return () => Promise.resolve(returnValue || {});
+};
+
 /**
  * Create mock OpenSearch client with default behavior
  */
@@ -95,12 +100,12 @@ export function createMockOpenSearchClient(options: {
 
   return {
     indices: {
-      exists: vi.fn().mockResolvedValue(indexExists ? mockIndexExistsResponse : mockIndexNotExistsResponse),
-      create: vi.fn().mockResolvedValue(mockCreateIndexResponse),
-      delete: vi.fn().mockResolvedValue({ acknowledged: true }),
+      exists: mockFn(indexExists ? mockIndexExistsResponse : mockIndexNotExistsResponse),
+      create: mockFn(mockCreateIndexResponse),
+      delete: mockFn({ acknowledged: true }),
     },
-    index: vi.fn().mockResolvedValue(indexSuccess ? mockIndexDocumentResponse : { result: 'error' }),
-    search: vi.fn().mockResolvedValue(searchResults),
-    delete: vi.fn().mockResolvedValue(mockDeleteDocumentResponse),
+    index: mockFn(indexSuccess ? mockIndexDocumentResponse : { result: 'error' }),
+    search: mockFn(searchResults),
+    delete: mockFn(mockDeleteDocumentResponse),
   };
 }
