@@ -2,6 +2,16 @@
  * Environment variable validation and access
  */
 
+type EnvValidationResult = {
+  configured: boolean;
+  missingVars: string[];
+};
+
+function sanitizeEnvKey(key: string): boolean {
+  const value = process.env[key];
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
 export function getEnvVariable(name: string, required: boolean = true): string {
   const value = process.env[name];
   
@@ -66,3 +76,27 @@ export const env = {
   DIGITALOCEAN_SPACES_FOLDER: getEnvVariable('DIGITALOCEAN_SPACES_FOLDER', false) || 'bewir-documents',
   DIGITALOCEAN_SPACES_REGION: getEnvVariable('DIGITALOCEAN_SPACES_REGION', false) || 'fra1',
 };
+
+/**
+ * Validate DigitalOcean Spaces configuration
+ * @returns EnvValidationResult with configured status and missing variables
+ */
+export function validateSpacesConfig(): EnvValidationResult {
+  const requiredVars = [
+    'DIGITALOCEAN_SPACES_ENDPOINT',
+    'DIGITALOCEAN_SPACES_BUCKET',
+    'DIGITALOCEAN_SPACES_KEY',
+    'DIGITALOCEAN_SPACES_SECRET',
+  ];
+  
+  const missingVars = requiredVars.filter(
+    (varName) => !env[varName as keyof typeof env] || 
+    (typeof env[varName as keyof typeof env] === 'string' && 
+     (env[varName as keyof typeof env] as string).trim().length === 0)
+  );
+  
+  return {
+    configured: missingVars.length === 0,
+    missingVars,
+  };
+}

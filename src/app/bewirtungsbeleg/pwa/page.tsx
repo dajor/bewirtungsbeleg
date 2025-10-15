@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Container, Stack, Button, Title, Paper } from '@mantine/core';
 import { isMobile } from 'react-device-detect';
 import DocumentScanner from '@/components/DocumentScanner';
+import BewirtungsbelegForm from '../../components/BewirtungsbelegForm';
 
 export default function BewirtungsbelegPWAPage() {
   const [showCamera, setShowCamera] = useState(false);

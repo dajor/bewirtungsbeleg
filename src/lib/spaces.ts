@@ -297,3 +297,41 @@ export async function uploadDocumentSet(
     return null;
   }
 }
+
+/**
+ * List all documents for a user
+ */
+export async function listDocuments(userId: string): Promise<string[]> {
+  const client = getSpacesClient();
+  if (!client || !env.DIGITALOCEAN_SPACES_BUCKET) {
+    console.warn('[Spaces] List failed: client not configured');
+    return [];
+  }
+
+  try {
+    // Import ListObjectsV2Command inside the function to avoid build issues with serverless
+    const { ListObjectsV2Command } = await import('@aws-sdk/client-s3');
+
+    const prefix = `${env.DIGITALOCEAN_SPACES_FOLDER}/${userId}/`;
+    
+    const command = new ListObjectsV2Command({
+      Bucket: env.DIGITALOCEAN_SPACES_BUCKET,
+      Prefix: prefix,
+    });
+
+    const response = await client.send(command);
+    
+    if (!response.Contents) {
+      return [];
+    }
+
+    // Return the object keys (file paths)
+    const files = response.Contents.map(obj => obj.Key!).filter(key => key !== undefined) as string[];
+    console.log(`[Spaces] Found ${files.length} documents for user: ${userId}`);
+    
+    return files;
+  } catch (error) {
+    console.error(`[Spaces] Error listing documents for user ${userId}:`, error);
+    return [];
+  }
+}
