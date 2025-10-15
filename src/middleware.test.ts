@@ -5,11 +5,16 @@ import { getToken } from 'next-auth/jwt';
 // Mock next-auth/jwt only during test execution
 // This approach avoids issues during build when test frameworks are not available
 const mockJest = typeof jest !== 'undefined' ? jest : null;
+let mockGetTokenFn: any = null;
 
 if (mockJest) {
+  mockGetTokenFn = mockJest.fn();
   mockJest.mock('next-auth/jwt', () => ({
-    getToken: mockJest.fn(),
+    getToken: mockGetTokenFn,
   }));
+} else {
+  // For build context, provide a simple mock function
+  mockGetTokenFn = () => Promise.resolve(null);
 }
 
 describe('Middleware', () => {
@@ -18,6 +23,10 @@ describe('Middleware', () => {
   beforeEach(() => {
     if (typeof jest !== 'undefined') {
       jest.clearAllMocks();
+    }
+    // Reset the mock function for non-jest environments
+    if (mockGetTokenFn && typeof mockGetTokenFn.mockReset === 'function') {
+      mockGetTokenFn.mockReset();
     }
   });
 
