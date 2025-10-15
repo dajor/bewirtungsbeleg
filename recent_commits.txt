@@ -1,3 +1,5 @@
+Switch DigitalOcean build to Dockerfile with Node 20 (Claude Assistant)
+Bump version to 0.39.2 #auto-release (dajor)
 Stabilize DO build dependencies and health checks (Claude Assistant)
 Bump version to 0.39.1 #auto-release (dajor)
 Align DO deploy template with production build (Claude Assistant)
