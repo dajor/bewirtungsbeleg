@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button, Stack, Paper, Text } from '@mantine/core';
-import type { Mat, MatVector } from '@techstark/opencv-js';
 
 interface DocumentScannerProps {
   onCapture: (dataUrl: string) => void;
@@ -11,7 +10,7 @@ interface DocumentScannerProps {
 export default function DocumentScannerClient({ onCapture }: DocumentScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [detectedCorners, setDetectedCorners] = useState<Mat | null>(null);
+  const [detectedCorners, setDetectedCorners] = useState<any | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isClient, setIsClient] = useState(false);
 
