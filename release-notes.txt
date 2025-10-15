@@ -1,3 +1,16 @@
+# Version 0.39.2
+Datum: 15.10.2025
+
+## Änderungen
+- Stabilisierung der Build-Abhängigkeiten und Gesundheitsprüfungen für DO (DigitalOcean)
+- Anpassung der DO (DigitalOcean) Deploy-Vorlage an die Produktionsbuilds
+
+## Technische Details
+- Build: 18518694557
+- Commit: 2b29cd8af763115e53aba1a5f270b4b15d809b18
+
+---
+
 # Version 0.39.1
 Datum: 15.10.2025
 

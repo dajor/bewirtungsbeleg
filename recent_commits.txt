@@ -1,1 +1,3 @@
+Stabilize DO build dependencies and health checks (Claude Assistant)
+Bump version to 0.39.1 #auto-release (dajor)
 Align DO deploy template with production build (Claude Assistant)

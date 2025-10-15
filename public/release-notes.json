@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.39.2",
+      "date": "15.10.2025",
+      "changes": [
+        "Stabilisierung der Build-Abhängigkeiten und Gesundheitsprüfungen für DO (DigitalOcean)",
+        "Anpassung der DO (DigitalOcean) Deploy-Vorlage an die Produktionsbuilds"
+      ],
+      "build": "18518694557",
+      "commit": "2b29cd8af763115e53aba1a5f270b4b15d809b18"
+    },
+    {
       "version": "0.39.1",
       "date": "15.10.2025",
       "changes": [
