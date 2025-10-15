@@ -17,14 +17,35 @@ export async function POST(request: Request) {
     // const rateLimitResponse = await checkRateLimit(apiRatelimit.pdf, identifier);
     // if (rateLimitResponse) return rateLimitResponse;
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+      console.log('Request body:', JSON.stringify(body, null, 2));
+    } catch (parseError) {
+      console.error('Error parsing request body:', parseError);
+      return NextResponse.json(
+        { error: 'Ungültige Anfrage: Konnte JSON nicht parsen' },
+        { status: 400 }
+      );
+    }
 
     // Validate input
     let data;
     try {
       // Convert date string to Date object if needed
-      if (body.datum && typeof body.datum === 'string') {
-        body.datum = new Date(body.datum);
+      if (body && body.datum && typeof body.datum === 'string') {
+        // Handle both ISO format (YYYY-MM-DD) and German format (DD.MM.YYYY)
+        if (body.datum.includes('-')) {
+          // ISO format: YYYY-MM-DD
+          body.datum = new Date(body.datum);
+        } else if (body.datum.includes('.')) {
+          // German format: DD.MM.YYYY
+          const parts = body.datum.split('.');
+          body.datum = new Date(parseInt(parts[2]), parseInt(parts[1]) - 1, parseInt(parts[0]));
+        } else {
+          // Try to parse as Date
+          body.datum = new Date(body.datum);
+        }
       }
       const validatedInput = generatePdfSchema.parse(body);
       data = sanitizeObject(validatedInput);

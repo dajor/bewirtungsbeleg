@@ -10,6 +10,11 @@ import { PDFDocument } from 'pdf-lib';
 
 describe('PDF Generation E2E Test', () => {
   it('CRITICAL: Must generate a valid PDF with image attachments', async () => {
+    // Set test scenario
+    if (typeof setTestScenario === 'function') {
+      setTestScenario('single-attachment');
+    }
+
     // Use real data that matches what the form sends
     const formData = {
       datum: '2025-06-04', // Date as string (as sent by form)
@@ -67,23 +72,28 @@ describe('PDF Generation E2E Test', () => {
     try {
       const pdfDoc = await PDFDocument.load(pdfBuffer);
       const pages = pdfDoc.getPages();
-      
+
       // Should have at least 2 pages (main + 1 attachment)
       expect(pages.length).toBeGreaterThanOrEqual(2);
-      
+
       // First page should exist
       const firstPage = pages[0];
       expect(firstPage).toBeDefined();
-      
+
       // Get page count
       const pageCount = pdfDoc.getPageCount();
       expect(pageCount).toBe(2); // 1 main page + 1 attachment page
     } catch (error) {
-      fail(`Failed to parse generated PDF: ${error}`);
+      expect(error).toBeUndefined(); // This will fail the test with a clear message
     }
   });
 
   it('Must handle multiple attachments including PDFs', async () => {
+    // Set test scenario
+    if (typeof setTestScenario === 'function') {
+      setTestScenario('multiple-attachments');
+    }
+
     const formData = {
       datum: new Date().toISOString().split('T')[0],
       restaurantName: 'Multi Attachment Test',
@@ -128,6 +138,11 @@ describe('PDF Generation E2E Test', () => {
   });
 
   it('Must generate PDF without attachments (backward compatibility)', async () => {
+    // Set test scenario
+    if (typeof setTestScenario === 'function') {
+      setTestScenario('no-attachments');
+    }
+
     const formData = {
       datum: new Date().toISOString().split('T')[0],
       restaurantName: 'No Attachment Test',

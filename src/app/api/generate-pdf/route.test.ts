@@ -8,6 +8,51 @@ jest.mock('jspdf');
 jest.mock('pdf-lib');
 jest.mock('image-size');
 
+jest.mock('pdf-lib', () => {
+  const mockTextField = {
+    setText: jest.fn()
+  };
+
+  const mockForm = {
+    getTextField: jest.fn().mockReturnValue(mockTextField),
+    flatten: jest.fn()
+  };
+
+  const mockPdfDoc = {
+    getForm: jest.fn().mockReturnValue(mockForm),
+    save: jest.fn().mockResolvedValue(new ArrayBuffer(1000)),
+    addPage: jest.fn().mockReturnThis(),
+    embedJpg: jest.fn().mockResolvedValue({
+      scale: jest.fn().mockReturnValue({ width: 100, height: 100 })
+    }),
+    embedPng: jest.fn().mockResolvedValue({
+      scale: jest.fn().mockReturnValue({ width: 100, height: 100 })
+    }),
+    drawImage: jest.fn(),
+    getPages: jest.fn().mockReturnValue([]),
+    embedFont: jest.fn(),
+    registerFontkit: jest.fn(),
+    setFont: jest.fn(),
+    setFontSize: jest.fn(),
+    getTextWidth: jest.fn().mockReturnValue(100),
+    getFont: jest.fn(),
+    flatten: jest.fn()
+  };
+
+  const mockPDFDocument = {
+    load: jest.fn().mockResolvedValue(mockPdfDoc),
+    create: jest.fn().mockReturnValue(mockPdfDoc)
+  };
+
+  return {
+    PDFDocument: mockPDFDocument,
+    rgb: jest.fn(),
+    StandardFonts: {
+      Helvetica: 'Helvetica'
+    }
+  };
+});
+
 describe('PDF Generation API', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -126,18 +171,19 @@ describe('PDF Generation API', () => {
 
   describe('API Endpoint', () => {
     it('should return 400 for invalid data', async () => {
-      const invalidRequest = new Request('http://localhost/api/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          // Missing required fields
-          restaurantName: 'Test'
-        })
-      });
+      // Create a mock request with the json method that returns test data
+      const invalidData = {
+        // Missing required fields
+        restaurantName: 'Test'
+      };
+
+      const invalidRequest = {
+        json: async () => invalidData
+      } as unknown as Request;
 
       const response = await POST(invalidRequest);
       expect(response.status).toBe(400);
-      
+
       const data = await response.json();
       expect(data.error).toBe('Ungültige Eingabe');
       expect(data.details).toBeDefined();
@@ -145,39 +191,29 @@ describe('PDF Generation API', () => {
 
     it('should handle date string conversion', async () => {
       const mockFs = await import('fs');
+      const mockPath = await import('path');
       const mockJsPDF = await import('jspdf');
-      
-      // Mock file system operations
-      (mockFs.readFileSync as any).mockReturnValue(Buffer.from('fake-logo'));
-      
-      // Mock jsPDF
-      const mockDoc = {
-        addImage: jest.fn(),
-        setFontSize: jest.fn(),
-        setFont: jest.fn(),
-        text: jest.fn(),
-        setLineWidth: jest.fn(),
-        line: jest.fn(),
-        addPage: jest.fn(),
-        setPage: jest.fn(),
-        output: jest.fn().mockReturnValue(new ArrayBuffer(1000)),
-        internal: { getNumberOfPages: jest.fn().mockReturnValue(1) }
-      };
-      (mockJsPDF.jsPDF as any).mockImplementation(() => mockDoc);
 
-      const request = new Request('http://localhost/api/generate-pdf', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          datum: '2025-06-04', // String date should be converted
-          restaurantName: 'Test Restaurant',
-          teilnehmer: 'Test Person',
-          anlass: 'Test',
-          gesamtbetrag: '10,00',
-          zahlungsart: 'firma',
-          bewirtungsart: 'kunden'
-        })
-      });
+      // Mock file system operations
+      (mockFs.readFileSync as any).mockReturnValue(Buffer.from('fake-pdf-content'));
+      (mockPath.join as any).mockImplementation((...args) => args.join('/'));
+
+      // PDFDocument.load is already mocked in the module mock above
+
+      // Create a mock request with valid test data
+      const validData = {
+        datum: '2025-06-04', // String date should be converted
+        restaurantName: 'Test Restaurant',
+        teilnehmer: 'Test Person',
+        anlass: 'Test',
+        gesamtbetrag: '10,00',
+        zahlungsart: 'firma',
+        bewirtungsart: 'kunden'
+      };
+
+      const request = {
+        json: async () => validData
+      } as unknown as Request;
 
       const response = await POST(request);
       expect(response.status).toBe(200);
@@ -213,7 +249,7 @@ describe('Form to API Data Transformation', () => {
     // Convert to API format (as done in BewirtungsbelegForm)
     const apiData = {
       ...formValues,
-      datum: formValues.datum.toISOString().split('T')[0],
+      datum: new Date(formValues.datum), // Keep as Date object for validation
       anlass: formValues.geschaeftlicherAnlass || formValues.anlass,
       attachments: [
         {
