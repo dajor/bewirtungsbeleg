@@ -11,6 +11,13 @@
     "**/vitest.config.*",
     "**/tests/**/*",
     "test/**/*",
-    "e2e/**/*"
+    "e2e/**/*",
+    "**/__tests__/**/*",
+    "**/__mocks__/**/*",
+    "**/__snapshots__/**/*",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
   ]
 }
