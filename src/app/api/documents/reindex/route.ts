@@ -86,8 +86,8 @@ export async function POST(request: NextRequest) {
         const pdfUrl = group.pdf ? getDocumentUrl(group.pdf) : metadata.pdf_url;
         const thumbnailUrl = group.png ? getDocumentUrl(group.png) : metadata.thumbnail_url;
 
-        const pdfProxyUrl = pdfUrl ? convertToProxyUrl(pdfUrl) : null;
-        const thumbnailProxyUrl = thumbnailUrl ? convertToProxyUrl(thumbnailUrl) : null;
+        const pdfProxyUrl = pdfUrl ? convertToProxyUrl(pdfUrl) : undefined;
+        const thumbnailProxyUrl = thumbnailUrl ? convertToProxyUrl(thumbnailUrl) : undefined;
 
         const document: Document = {
           id: documentId,
