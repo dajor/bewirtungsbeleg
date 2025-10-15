@@ -23,10 +23,10 @@ export default function BewirtungsbelegPWAPage() {
   return (
     <Container size="lg" py="xl">
       <Stack align="center">
-        <Title order={2} align="center" mb="xl">
+        <Title order={2} mb="xl" style={{ textAlign: 'center' }}>
           Weiterleitung...
         </Title>
-        <Title order={4} align="center" mb="xl">
+        <Title order={4} mb="xl" style={{ textAlign: 'center' }}>
           Sie werden zur entsprechenden Seite weitergeleitet.
         </Title>
         {/* Force rebuild to clear cached build artifacts - round 3 */}

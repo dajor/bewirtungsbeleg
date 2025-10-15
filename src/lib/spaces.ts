@@ -256,15 +256,23 @@ export function getDocumentUrl(fileKey: string): string {
  * Upload all document files at once
  * Returns URLs for PDF, PNG, and JSON files
  */
+interface UploadDocumentSetOptions {
+  extractedData?: Record<string, any> | string;
+  gobdCheckData?: Record<string, any> | string;
+}
+
 export async function uploadDocumentSet(
   userId: string,
   pdfBuffer: Buffer,
   pngBuffer: Buffer,
-  metadata: Record<string, any>
+  metadata: Record<string, any>,
+  options?: UploadDocumentSetOptions
 ): Promise<{
   pdfUrl: string | null;
   pngUrl: string | null;
   metadataUrl: string | null;
+  extractedUrl?: string | null;
+  gobdCheckUrl?: string | null;
   success: boolean;
 } | null> {
   try {
