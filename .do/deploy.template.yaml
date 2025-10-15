@@ -9,8 +9,21 @@ spec:
     run_command: yarn start
     build_command: |
       apt-get update
-      apt-get install -y imagemagick ghostscript poppler-utils libmagickwand-dev
-      sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+      apt-get install -y \
+        build-essential \
+        pkg-config \
+        imagemagick \
+        ghostscript \
+        poppler-utils \
+        libmagickwand-dev \
+        libcairo2-dev \
+        libpango1.0-dev \
+        libjpeg-dev \
+        libgif-dev \
+        librsvg2-dev
+      if [ -f /etc/ImageMagick-6/policy.xml ]; then
+        sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+      fi
       yarn install --frozen-lockfile
       yarn build
     environment_slug: node-js
@@ -25,5 +38,9 @@ spec:
         value: ${NEXTAUTH_SECRET}
       - key: OPENAI_API_KEY
         value: ${OPENAI_API_KEY}
+      - key: SKIP_OPENAI_HEALTHCHECK
+        value: "true"
+      - key: SKIP_TESTS_FOR_BUILD
+        value: "true"
     routes:
     - path: /

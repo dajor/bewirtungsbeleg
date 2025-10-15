@@ -3,6 +3,11 @@ import { env } from './env';
 
 export async function checkOpenAIKey(): Promise<{ valid: boolean; error?: string }> {
   try {
+    if (env.SKIP_OPENAI_HEALTHCHECK === 'true') {
+      console.log('🔑 Überspringe OpenAI API-Prüfung (SKIP_OPENAI_HEALTHCHECK aktiv).');
+      return { valid: true };
+    }
+
     if (!env.OPENAI_API_KEY) {
       return { 
         valid: false, 

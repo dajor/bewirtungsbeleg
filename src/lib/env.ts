@@ -20,6 +20,7 @@ export function getEnvVariable(name: string, required: boolean = true): string {
 export const env = {
   // OpenAI
   OPENAI_API_KEY: getEnvVariable('OPENAI_API_KEY'),
+  SKIP_OPENAI_HEALTHCHECK: getEnvVariable('SKIP_OPENAI_HEALTHCHECK', false),
 
   // NextAuth
   NEXTAUTH_URL: getEnvVariable('NEXTAUTH_URL', false) || 'http://localhost:3000',
