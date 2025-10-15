@@ -4,29 +4,23 @@
 
 import type { Session } from 'next-auth';
 
-// Type for our mock sessions with role property
-type MockSession = Session & {
-  user: Session['user'] & {
-    role?: string;
-  };
-};
-
 export const mockUser = {
   id: 'user-1',
   email: 'test@example.com',
   name: 'Test User',
+  role: 'user', // Default role
 };
 
-export const mockSession: MockSession = {
+export const mockSession: Session = {
   user: {
     ...mockUser,
   },
   expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours from now
 };
 
-export const mockUnauthenticatedSession: MockSession | null = null;
+export const mockUnauthenticatedSession: Session | null = null;
 
-export const mockAdminSession: MockSession = {
+export const mockAdminSession: Session = {
   user: {
     ...mockUser,
     email: 'admin@example.com',
@@ -38,7 +32,7 @@ export const mockAdminSession: MockSession = {
 /**
  * Mock getServerSession for API route tests
  */
-export function createMockGetServerSession(session: MockSession | null) {
+export function createMockGetServerSession(session: Session | null) {
   // Simple mock function that returns a resolved promise
   return () => Promise.resolve(session);
 }
