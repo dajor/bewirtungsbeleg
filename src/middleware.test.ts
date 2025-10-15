@@ -7,18 +7,50 @@ import { getToken } from 'next-auth/jwt';
 const mockJest = typeof jest !== 'undefined' ? jest : null;
 let mockGetTokenFn: any = null;
 
+// Create a mock function that works in both test and build contexts
+const createMockFunction = () => {
+  const fn: any = () => Promise.resolve(null);
+  // Add mock methods for test context
+  if (mockJest) {
+    Object.assign(fn, mockJest.fn());
+  } else {
+    // For build context, provide minimal mock functionality
+    fn.mockResolvedValue = (value: any) => {
+      fn.mockReturnValue = () => fn;
+      fn.mockImplementation = () => fn;
+      return fn;
+    };
+    fn.mockReturnValue = (value: any) => {
+      fn.mockResolvedValue = () => fn;
+      fn.mockImplementation = () => fn;
+      return fn;
+    };
+    fn.mockImplementation = (impl: any) => {
+      fn.mockResolvedValue = () => fn;
+      fn.mockReturnValue = () => fn;
+      return fn;
+    };
+    fn.mockReset = () => {};
+    fn.mockClear = () => {};
+  }
+  return fn;
+};
+
 if (mockJest) {
-  mockGetTokenFn = mockJest.fn();
+  mockGetTokenFn = createMockFunction();
   mockJest.mock('next-auth/jwt', () => ({
     getToken: mockGetTokenFn,
   }));
 } else {
   // For build context, provide a simple mock function
-  mockGetTokenFn = () => Promise.resolve(null);
+  mockGetTokenFn = createMockFunction();
 }
 
 describe('Middleware', () => {
-  const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
+  // Use the mock function we created, or fall back to the actual getToken function
+  const mockGetToken = typeof jest !== 'undefined' ?
+    getToken as jest.MockedFunction<typeof getToken> :
+    mockGetTokenFn;
 
   beforeEach(() => {
     if (typeof jest !== 'undefined') {
