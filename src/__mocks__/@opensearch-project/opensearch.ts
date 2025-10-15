@@ -3,7 +3,11 @@
  * Used in unit tests to simulate OpenSearch operations
  */
 
-// Mock implementation without using vi to avoid TypeScript errors
+// Simple mock function that returns a resolved promise with appropriate default values
+const mockFn = (returnValue?: any) => {
+  return () => Promise.resolve(returnValue || {});
+};
+
 export class Client {
   indices: any;
   index: any;
@@ -12,25 +16,25 @@ export class Client {
 
   constructor(config: any) {
     this.indices = {
-      exists: jest.fn ? jest.fn() : (() => Promise.resolve({ body: true })),
-      create: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
-      delete: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
+      exists: mockFn({ body: true }),
+      create: mockFn({ acknowledged: true }),
+      delete: mockFn({ acknowledged: true }),
     };
 
-    this.index = jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'created' }));
-    this.search = jest.fn ? jest.fn() : (() => Promise.resolve({ body: { hits: { hits: [], total: 0 } } }));
-    this.delete = jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'deleted' }));
+    this.index = mockFn({ result: 'created' });
+    this.search = mockFn({ body: { hits: { hits: [], total: 0 } } });
+    this.delete = mockFn({ result: 'deleted' });
   }
 }
 
 // Export mock client for tests
 export const mockOpenSearchClient = {
   indices: {
-    exists: jest.fn ? jest.fn() : (() => Promise.resolve({ body: true })),
-    create: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
-    delete: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
+    exists: mockFn({ body: true }),
+    create: mockFn({ acknowledged: true }),
+    delete: mockFn({ acknowledged: true }),
   },
-  index: jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'created' })),
-  search: jest.fn ? jest.fn() : (() => Promise.resolve({ body: { hits: { hits: [], total: 0 } } })),
-  delete: jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'deleted' })),
+  index: mockFn({ result: 'created' }),
+  search: mockFn({ body: { hits: { hits: [], total: 0 } } }),
+  delete: mockFn({ result: 'deleted' }),
 };

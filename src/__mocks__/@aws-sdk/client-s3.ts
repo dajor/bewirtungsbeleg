@@ -3,6 +3,11 @@
  * Used in unit tests to simulate DigitalOcean Spaces operations
  */
 
+// Simple mock function that returns a resolved promise
+const mockFn = (returnValue?: any) => {
+  return () => Promise.resolve(returnValue || {});
+};
+
 export class S3Client {
   constructor(config: any) {
     // Mock constructor
@@ -33,8 +38,8 @@ export class DeleteObjectCommand {
   }
 }
 
-// Mock send function for testing (without using vi to avoid TypeScript errors)
-export const mockSend = jest.fn ? jest.fn() : (() => Promise.resolve({}));
+// Mock send function for testing (without using vi or jest to avoid TypeScript errors)
+export const mockSend = mockFn({});
 
 // Export mock implementation
 export const mockS3Client = {
