@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button, Stack, Paper, Text } from '@mantine/core';
-import { loadOpenCv, isOpencvLoaded } from '@/lib/opencv-loader';
 
 interface DocumentScannerProps {
   onCapture: (dataUrl: string) => void;
@@ -11,11 +10,10 @@ interface DocumentScannerProps {
 export default function DocumentScannerClient({ onCapture }: DocumentScannerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [detectedCorners, setDetectedCorners] = useState<any | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isClient, setIsClient] = useState(false);
-  const [opencvLoaded, setOpencvLoaded] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState('Lade OpenCV...');
+  const [loadingState, setLoadingState] = useState<'initializing' | 'loading' | 'ready' | 'error'>('initializing');
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
   useEffect(() => {
     // Mark that we're on the client-side
@@ -27,15 +25,10 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
 
     let animationFrameId: number;
     
-    // Dynamically load OpenCV
-    const loadAndInitCamera = async () => {
+    const initCamera = async () => {
       try {
-        // Load OpenCV
-        setLoadingMessage('Lade OpenCV...');
-        await loadOpenCv();
-        setOpencvLoaded(true);
-        setLoadingMessage('Initialisiere Kamera...');
-
+        setLoadingState('loading');
+        
         const startCamera = async () => {
           try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -45,23 +38,19 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
             if (videoRef.current) {
               videoRef.current.srcObject = mediaStream;
             }
+            setLoadingState('ready');
           } catch (error) {
             console.error('Error accessing camera:', error);
+            setErrorMessage('Kamerazugriff fehlgeschlagen: ' + (error as Error).message);
+            setLoadingState('error');
           }
         };
 
         startCamera();
 
-        // Process frames
+        // Process frames (without OpenCV for now)
         const processFrame = () => {
-          if (!videoRef.current || !canvasRef.current || !isOpencvLoaded()) {
-            animationFrameId = requestAnimationFrame(processFrame);
-            return;
-          }
-
-          // Get cv from window since we loaded it dynamically
-          const cv = (window as any).cv;
-          if (!cv) {
+          if (!videoRef.current || !canvasRef.current) {
             animationFrameId = requestAnimationFrame(processFrame);
             return;
           }
@@ -78,63 +67,9 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
           if (context) {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-
-            const src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-            const cap = new cv.VideoCapture(video);
-            cap.read(src);
-
-            const gray = new cv.Mat();
-            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-
-            const blurred = new cv.Mat();
-            cv.GaussianBlur(gray, blurred, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
-
-            const edged = new cv.Mat();
-            cv.Canny(blurred, edged, 75, 200);
-
-            const contours = new cv.MatVector();
-            const hierarchy = new cv.Mat();
-            cv.findContours(edged, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
-
-            if (contours.size() > 0) {
-              let largestContour = contours.get(0);
-              let maxArea = 0;
-              for (let i = 0; i < contours.size(); i++) {
-                const contour = contours.get(i);
-                const area = cv.contourArea(contour, false);
-                if (area > maxArea) {
-                  maxArea = area;
-                  largestContour = contour;
-                }
-              }
-
-              const peri = cv.arcLength(largestContour, true);
-              const approx = new cv.Mat();
-              cv.approxPolyDP(largestContour, approx, 0.02 * peri, true);
-
-              if (approx.rows === 4) {
-                setDetectedCorners(approx.clone());
-                const points = [];
-                for (let i = 0; i < approx.rows; i++) {
-                  points.push(new cv.Point(approx.data32S[i * 2], approx.data32S[i * 2 + 1]));
-                }
-                const color = new cv.Scalar(0, 255, 0, 255);
-                for (let i = 0; i < 4; i++) {
-                  cv.line(src, points[i], points[(i + 1) % 4], color, 2, cv.LINE_AA, 0);
-                }
-              } else {
-                setDetectedCorners(null);
-              }
-              approx.delete();
-            }
-
-            cv.imshow(canvas, src);
-            src.delete();
-            gray.delete();
-            blurred.delete();
-            edged.delete();
-            contours.delete();
-            hierarchy.delete();
+            
+            // Draw the video frame to canvas
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
           }
 
           animationFrameId = requestAnimationFrame(processFrame);
@@ -157,63 +92,34 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
           }
         };
       } catch (error) {
-        console.error('Error initializing OpenCV or camera:', error);
-        setLoadingMessage('Fehler beim Laden: ' + (error as Error).message);
+        console.error('Error initializing camera:', error);
+        setErrorMessage('Fehler: ' + (error as Error).message);
+        setLoadingState('error');
       }
     };
 
-    loadAndInitCamera();
+    initCamera();
 
   }, [isClient]);
 
   const handleCapture = () => {
-    if (!isClient || !videoRef.current || !detectedCorners || !isOpencvLoaded()) return;
+    if (!isClient || !videoRef.current) return;
 
-    import('@techstark/opencv-js').then((module) => {
-      const cv = module.default;
-      const video = videoRef.current!;
-      const src = new cv.Mat(video.videoHeight, video.videoWidth, cv.CV_8UC4);
-      const cap = new cv.VideoCapture(video);
-      cap.read(src);
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-      const corners = [];
-      for (let i = 0; i < detectedCorners.rows; i++) {
-        corners.push({ x: detectedCorners.data32S[i * 2], y: detectedCorners.data32S[i * 2 + 1] });
-      }
-
-      // Order the corners
-      corners.sort((a, b) => a.y - b.y);
-      const topCorners = corners.slice(0, 2).sort((a, b) => a.x - b.x);
-      const bottomCorners = corners.slice(2, 4).sort((a, b) => a.x - b.x);
-      const [tl, tr] = topCorners;
-      const [bl, br] = bottomCorners;
-
-      const widthA = Math.sqrt(Math.pow(br.x - bl.x, 2) + Math.pow(br.y - bl.y, 2));
-      const widthB = Math.sqrt(Math.pow(tr.x - tl.x, 2) + Math.pow(tr.y - tl.y, 2));
-      const maxWidth = Math.max(widthA, widthB);
-
-      const heightA = Math.sqrt(Math.pow(tr.x - br.x, 2) + Math.pow(tr.y - br.y, 2));
-      const heightB = Math.sqrt(Math.pow(tl.x - bl.x, 2) + Math.pow(tl.y - bl.y, 2));
-      const maxHeight = Math.max(heightA, heightB);
-
-      const dst = new cv.Mat();
-      const dsize = new cv.Size(maxWidth, maxHeight);
-      const srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [tl.x, tl.y, tr.x, tr.y, br.x, br.y, bl.x, bl.y]);
-      const dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, maxWidth, 0, maxWidth, maxHeight, 0, maxHeight]);
-      const M = cv.getPerspectiveTransform(srcTri, dstTri);
-      cv.warpPerspective(src, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
-
-      const outputCanvas = document.createElement('canvas');
-      cv.imshow(outputCanvas, dst);
-      const dataUrl = outputCanvas.toDataURL('image/jpeg');
+    // Create a temporary canvas for the capture
+    const captureCanvas = document.createElement('canvas');
+    captureCanvas.width = video.videoWidth;
+    captureCanvas.height = video.videoHeight;
+    const captureContext = captureCanvas.getContext('2d');
+    
+    if (captureContext) {
+      captureContext.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+      const dataUrl = captureCanvas.toDataURL('image/jpeg');
       onCapture(dataUrl);
-
-      src.delete();
-      dst.delete();
-      M.delete();
-      srcTri.delete();
-      dstTri.delete();
-    });
+    }
   };
 
   // Don't render anything until we're on the client
@@ -229,14 +135,30 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
     );
   }
 
-  if (!opencvLoaded) {
+  if (loadingState === 'initializing' || loadingState === 'loading') {
     return (
       <Stack align="center">
         <Paper withBorder shadow="md" style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
           <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Text>{loadingMessage}</Text>
+            <Text>
+              {loadingState === 'initializing' && 'Initialisiere...'}
+              {loadingState === 'loading' && 'Zugriff auf Kamera...'}
+            </Text>
           </div>
         </Paper>
+      </Stack>
+    );
+  }
+
+  if (loadingState === 'error') {
+    return (
+      <Stack align="center">
+        <Paper withBorder shadow="md" style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
+          <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Text c="red">{errorMessage || 'Unbekannter Fehler'}</Text>
+          </div>
+        </Paper>
+        <Button onClick={() => window.location.reload()}>Erneut versuchen</Button>
       </Stack>
     );
   }

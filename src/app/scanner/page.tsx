@@ -3,7 +3,13 @@
 import { useState, useEffect } from 'react';
 import { Container, Stack, Button, Title, Paper, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
-import DocumentScanner from '@/components/DocumentScanner';
+import dynamic from 'next/dynamic';
+
+// Dynamically import the scanner component to prevent server-side rendering issues
+const DocumentScanner = dynamic(
+  () => import('@/components/DocumentScanner'),
+  { ssr: false, loading: () => <div>Lade Scanner...</div> }
+);
 
 export default function ScannerPage() {
   const [imageData, setImageData] = useState<string | null>(null);
