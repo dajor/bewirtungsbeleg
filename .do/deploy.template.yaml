@@ -4,24 +4,26 @@ spec:
   - name: web
     source_dir: /
     github:
-      repo: your-repo/bewirtungsbeleg-app
+      repo: dajor/bewirtungsbeleg
       branch: main
     run_command: yarn start
-    build_command: yarn build
+    build_command: |
+      apt-get update
+      apt-get install -y imagemagick ghostscript poppler-utils libmagickwand-dev
+      sed -i 's/rights="none" pattern="PDF"/rights="read|write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+      yarn install --frozen-lockfile
+      yarn build
     environment_slug: node-js
     instance_count: 1
     instance_size_slug: basic-xxs
-    # Add system dependencies for PDF processing
-    buildpacks:
-      - heroku/nodejs
-    env:
+    envs:
       - key: NODE_ENV
         value: production
-    # System dependencies for PDF processing
-    apt_packages:
-      - imagemagick
-      - ghostscript
-      - poppler-utils
-      - libmagickwand-dev
+      - key: NEXTAUTH_URL
+        value: ${APP_URL}
+      - key: NEXTAUTH_SECRET
+        value: ${NEXTAUTH_SECRET}
+      - key: OPENAI_API_KEY
+        value: ${OPENAI_API_KEY}
     routes:
     - path: /
