@@ -2,10 +2,15 @@ import { NextRequest } from 'next/server';
 import { middleware } from './middleware';
 import { getToken } from 'next-auth/jwt';
 
-// Mock next-auth/jwt
-jest.mock('next-auth/jwt', () => ({
-  getToken: jest.fn(),
-}));
+// Mock next-auth/jwt only during test execution
+// This approach avoids issues during build when test frameworks are not available
+const mockJest = typeof jest !== 'undefined' ? jest : null;
+
+if (mockJest) {
+  mockJest.mock('next-auth/jwt', () => ({
+    getToken: mockJest.fn(),
+  }));
+}
 
 describe('Middleware', () => {
   const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;

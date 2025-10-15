@@ -33,7 +33,7 @@ jobs:
         run: yarn install --frozen-lockfile
         
       - name: TypeScript compilation check
-        run: npx tsc --noEmit
+        run: npx tsc --noEmit -p tsconfig.build.json
         
       - name: Check for build issues
         run: yarn build

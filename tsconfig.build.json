@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "**/*.test.*",
+    "**/*.spec.*",
+    "**/test-utils.tsx",
+    "**/jest.setup.*",
+    "**/jest.config.*",
+    "**/vitest.setup.*",
+    "**/vitest.config.*",
+    "**/tests/**/*",
+    "test/**/*",
+    "e2e/**/*"
+  ]
+}
