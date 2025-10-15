@@ -48,12 +48,12 @@ export default function ScannerPage() {
   return (
     <Container size="xs" py="xl" style={{ height: '100%' }}>
       <Stack justify="space-between" style={{ height: '100%' }}>
-        <Title order={2} align="center" mb="xl">
+        <Title order={2} ta="center" mb="xl">
           Dokument Scanner
         </Title>
-        
+
         <Paper withBorder shadow="md" p="md">
-          <Text align="center" mb="md">
+          <Text ta="center" mb="md">
             Richten Sie das Dokument in den Bereich ein und drücken Sie auf Aufnehmen
           </Text>
         </Paper>

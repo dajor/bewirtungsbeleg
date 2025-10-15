@@ -18,11 +18,11 @@ export async function loadOpenCv() {
   
   // Wait for OpenCV to fully initialize
   await new Promise((resolve) => {
-    if (cv.getBuildInformation) {
+    if (typeof cv.getBuildInformation === 'function' && cv.getBuildInformation()) {
       resolve(true);
     } else {
       const checkCvReady = () => {
-        if (cv.getBuildInformation) {
+        if (typeof cv.getBuildInformation === 'function' && cv.getBuildInformation()) {
           resolve(true);
         } else {
           setTimeout(checkCvReady, 100);

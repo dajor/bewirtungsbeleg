@@ -194,8 +194,9 @@ export async function indexDocument(
       refresh: true, // Make document searchable immediately
     });
 
-    if (response.body.result === 'error') {
-      console.error(`[OpenSearch] Error indexing document ${document.id}:`, response.body.error);
+    // Check if the response indicates an error
+    if (response.statusCode && response.statusCode >= 400) {
+      console.error(`[OpenSearch] Error indexing document ${document.id}:`, response);
       return false;
     }
 

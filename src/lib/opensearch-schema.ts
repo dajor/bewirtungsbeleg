@@ -37,6 +37,8 @@ export interface OpenSearchDocumentSchema {
 
   // GoBD compliance
   gobd_compliant?: boolean;
+  gobd_validated_at?: string;
+  gobd_check_url?: string;
   signature_hash?: string;
   gobd_signature?: string; // Additional signature field for GoBD archival
 
@@ -170,6 +172,13 @@ export const DOCUMENT_INDEX_MAPPING = {
       // GoBD fields
       gobd_compliant: {
         type: 'boolean',
+      },
+      gobd_validated_at: {
+        type: 'date',
+      },
+      gobd_check_url: {
+        type: 'keyword',
+        index: false,
       },
       signature_hash: {
         type: 'keyword',
