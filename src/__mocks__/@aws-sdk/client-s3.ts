@@ -33,8 +33,8 @@ export class DeleteObjectCommand {
   }
 }
 
-// Mock send function for testing
-export const mockSend = vi.fn();
+// Mock send function for testing (without using vi to avoid TypeScript errors)
+export const mockSend = jest.fn ? jest.fn() : (() => Promise.resolve({}));
 
 // Export mock implementation
 export const mockS3Client = {

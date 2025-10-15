@@ -3,6 +3,7 @@
  * Used in unit tests to simulate OpenSearch operations
  */
 
+// Mock implementation without using vi to avoid TypeScript errors
 export class Client {
   indices: any;
   index: any;
@@ -11,25 +12,25 @@ export class Client {
 
   constructor(config: any) {
     this.indices = {
-      exists: vi.fn(),
-      create: vi.fn(),
-      delete: vi.fn(),
+      exists: jest.fn ? jest.fn() : (() => Promise.resolve({ body: true })),
+      create: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
+      delete: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
     };
 
-    this.index = vi.fn();
-    this.search = vi.fn();
-    this.delete = vi.fn();
+    this.index = jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'created' }));
+    this.search = jest.fn ? jest.fn() : (() => Promise.resolve({ body: { hits: { hits: [], total: 0 } } }));
+    this.delete = jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'deleted' }));
   }
 }
 
 // Export mock client for tests
 export const mockOpenSearchClient = {
   indices: {
-    exists: vi.fn(),
-    create: vi.fn(),
-    delete: vi.fn(),
+    exists: jest.fn ? jest.fn() : (() => Promise.resolve({ body: true })),
+    create: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
+    delete: jest.fn ? jest.fn() : (() => Promise.resolve({ acknowledged: true })),
   },
-  index: vi.fn(),
-  search: vi.fn(),
-  delete: vi.fn(),
+  index: jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'created' })),
+  search: jest.fn ? jest.fn() : (() => Promise.resolve({ body: { hits: { hits: [], total: 0 } } })),
+  delete: jest.fn ? jest.fn() : (() => Promise.resolve({ result: 'deleted' })),
 };
