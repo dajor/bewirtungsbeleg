@@ -29,7 +29,7 @@ export default function BewirtungsbelegPWAPage() {
         <Title order={4} align="center" mb="xl">
           Sie werden zur entsprechenden Seite weitergeleitet.
         </Title>
-        {/* Force rebuild to clear cached build artifacts */}
+        {/* Force rebuild to clear cached build artifacts - round 2 */}
       </Stack>
     </Container>
   );
