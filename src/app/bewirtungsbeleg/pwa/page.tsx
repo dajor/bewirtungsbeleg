@@ -5,7 +5,7 @@ import { Container, Stack, Button, Title, Paper } from '@mantine/core';
 import { isMobile } from 'react-device-detect';
 import { useRouter } from 'next/navigation';
 import DocumentScanner from '@/components/DocumentScanner';
-import { BewirtungsbelegForm } from '@/components/BewirtungsbelegForm';
+import { BewirtungsbelegForm } from '@/app/components/BewirtungsbelegForm';
 
 export default function BewirtungsbelegPWAPage() {
   const router = useRouter();
