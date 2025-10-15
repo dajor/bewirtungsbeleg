@@ -16,7 +16,9 @@ describe('Middleware', () => {
   const mockGetToken = getToken as jest.MockedFunction<typeof getToken>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    if (typeof jest !== 'undefined') {
+      jest.clearAllMocks();
+    }
   });
 
   const createRequest = (pathname: string) => {
