@@ -62,7 +62,10 @@ export async function POST(request: NextRequest) {
     let errorCount = 0;
     const reindexedIds: string[] = [];
 
-    for (const [_, group] of groupedFiles) {
+    // Convert Map to array for iteration to avoid TypeScript downlevelIteration issues
+    // This fix ensures compatibility with older TypeScript targets
+    const groupedFilesArray = Array.from(groupedFiles.entries());
+    for (const [_, group] of groupedFilesArray) {
       if (!group.json) {
         continue;
       }
