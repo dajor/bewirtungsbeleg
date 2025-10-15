@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Button, Stack, Paper, Text } from '@mantine/core';
+import { loadOpenCv, isOpencvLoaded } from '@/lib/opencv-loader';
 
 interface DocumentScannerProps {
   onCapture: (dataUrl: string) => void;
@@ -13,6 +14,8 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
   const [detectedCorners, setDetectedCorners] = useState<any | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const [opencvLoaded, setOpencvLoaded] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('Lade OpenCV...');
 
   useEffect(() => {
     // Mark that we're on the client-side
@@ -22,30 +25,16 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
   useEffect(() => {
     if (!isClient) return;
 
+    let animationFrameId: number;
+    
     // Dynamically load OpenCV
-    let cv: any;
     const loadAndInitCamera = async () => {
       try {
-        const opencvModule = await import('@techstark/opencv-js');
-        cv = opencvModule.default;
-        
-        // Wait for OpenCV to be loaded
-        await new Promise((resolve) => {
-          if (cv.getBuildInformation) {
-            // OpenCV is ready
-            resolve(true);
-          } else {
-            // Wait for initialization
-            const checkCvReady = () => {
-              if (cv.getBuildInformation) {
-                resolve(true);
-              } else {
-                setTimeout(checkCvReady, 100);
-              }
-            };
-            checkCvReady();
-          }
-        });
+        // Load OpenCV
+        setLoadingMessage('Lade OpenCV...');
+        await loadOpenCv();
+        setOpencvLoaded(true);
+        setLoadingMessage('Initialisiere Kamera...');
 
         const startCamera = async () => {
           try {
@@ -65,14 +54,21 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
 
         // Process frames
         const processFrame = () => {
-          if (!videoRef.current || !canvasRef.current || !cv) {
-            requestAnimationFrame(processFrame);
+          if (!videoRef.current || !canvasRef.current || !isOpencvLoaded()) {
+            animationFrameId = requestAnimationFrame(processFrame);
+            return;
+          }
+
+          // Get cv from window since we loaded it dynamically
+          const cv = (window as any).cv;
+          if (!cv) {
+            animationFrameId = requestAnimationFrame(processFrame);
             return;
           }
 
           const video = videoRef.current;
           if (video.readyState !== 4) {
-            requestAnimationFrame(processFrame);
+            animationFrameId = requestAnimationFrame(processFrame);
             return;
           }
 
@@ -141,17 +137,20 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
             hierarchy.delete();
           }
 
-          requestAnimationFrame(processFrame);
+          animationFrameId = requestAnimationFrame(processFrame);
         };
 
         const video = videoRef.current;
         const onCanPlay = () => {
-          requestAnimationFrame(processFrame);
+          animationFrameId = requestAnimationFrame(processFrame);
         };
         video?.addEventListener('canplay', onCanPlay);
 
         // Clean up
         return () => {
+          if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+          }
           video?.removeEventListener('canplay', onCanPlay);
           if (stream) {
             stream.getTracks().forEach(track => track.stop());
@@ -159,6 +158,7 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
         };
       } catch (error) {
         console.error('Error initializing OpenCV or camera:', error);
+        setLoadingMessage('Fehler beim Laden: ' + (error as Error).message);
       }
     };
 
@@ -167,7 +167,7 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
   }, [isClient]);
 
   const handleCapture = () => {
-    if (!isClient || !videoRef.current || !detectedCorners) return;
+    if (!isClient || !videoRef.current || !detectedCorners || !isOpencvLoaded()) return;
 
     import('@techstark/opencv-js').then((module) => {
       const cv = module.default;
@@ -223,6 +223,18 @@ export default function DocumentScannerClient({ onCapture }: DocumentScannerProp
         <Paper withBorder shadow="md" style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
           <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Text>Lade Kamera...</Text>
+          </div>
+        </Paper>
+      </Stack>
+    );
+  }
+
+  if (!opencvLoaded) {
+    return (
+      <Stack align="center">
+        <Paper withBorder shadow="md" style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
+          <div style={{ width: '100%', height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Text>{loadingMessage}</Text>
           </div>
         </Paper>
       </Stack>
