@@ -1,3 +1,15 @@
+# Version 0.39.1
+Datum: 15.10.2025
+
+## Änderungen
+- Angepasstes Deployment-Template für DigitalOcean, um es mit der Produktionsbuild-Konfiguration zu synchronisieren.
+
+## Technische Details
+- Build: 18518219614
+- Commit: 568ad563e58550436029094ba3a9b6a2dbe1138f
+
+---
+
 # Version 0.39.0
 Datum: 09.10.2025
 

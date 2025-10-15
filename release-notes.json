@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.39.1",
+      "date": "15.10.2025",
+      "changes": [
+        "Angepasstes Deployment-Template für DigitalOcean, um es mit der Produktionsbuild-Konfiguration zu synchronisieren."
+      ],
+      "build": "18518219614",
+      "commit": "568ad563e58550436029094ba3a9b6a2dbe1138f"
+    },
+    {
       "version": "0.39.0",
       "date": "09.10.2025",
       "changes": [
