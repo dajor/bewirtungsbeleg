@@ -1,3 +1,5 @@
+Fix multi-page PDF extraction by passing page parameter to convertClientSide (Claude Assistant)
+Bump version to 0.42.0 #auto-release (dajor)
 Fix multi-page PDF extraction by using client-side conversion method (Claude Assistant)
 Fix TypeScript error and add pdfjs-dist dependency for production build (Claude Assistant)
 Bump version to 0.41.0 #auto-release (dajor)

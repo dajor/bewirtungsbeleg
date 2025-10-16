@@ -1,6 +1,19 @@
 {
   "versions": [
     {
+      "version": "0.43.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Fehler bei der Extraktion von mehrseitigen PDFs durch Weitergabe des Seitenparameters an convertClientSide behoben.",
+        "Fehler bei der Extraktion von mehrseitigen PDFs durch Verwendung der clientseitigen Konvertierungsmethode behoben.",
+        "TypeScript-Fehler behoben und pdfjs-dist Abhängigkeit für den Produktionsaufbau hinzugefügt.",
+        "Integrationstests für die Extraktion von mehrseitigen PDFs hinzugefügt.",
+        "Mehrfache PDF-Extraktion für Belege ermöglicht."
+      ],
+      "build": "18554913688",
+      "commit": "71e65379c8100a1cfc31244546121773d9c317be"
+    },
+    {
       "version": "0.42.0",
       "date": "16.10.2025",
       "changes": [
