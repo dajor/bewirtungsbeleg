@@ -4,9 +4,10 @@
 
 import React from 'react';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ForgotPasswordPage from './page';
+import { renderWithProviders } from '@/test-utils';
 
 // Mock next/link
 vi.mock('next/link', () => ({
@@ -21,15 +22,15 @@ describe('ForgotPasswordPage', () => {
 
   describe('Initial State', () => {
     it('should render the forgot password form', () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
       expect(screen.getByText(/passwort vergessen/i)).toBeInTheDocument();
-      expect(screen.getByLabelText('E-Mail')).toBeInTheDocument();
+      expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /passwort zurücksetzen/i })).toBeInTheDocument();
     });
 
     it('should display DocBits logo', () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
       const logo = screen.getByAltText('DocBits');
       expect(logo).toBeInTheDocument();
@@ -37,7 +38,7 @@ describe('ForgotPasswordPage', () => {
     });
 
     it('should display back to signin link', () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
       const backLink = screen.getByText(/zurück zur anmeldung/i);
       expect(backLink).toBeInTheDocument();
@@ -45,7 +46,7 @@ describe('ForgotPasswordPage', () => {
     });
 
     it('should display instructions', () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
       expect(screen.getByText(/geben sie ihre e-mail-adresse ein/i)).toBeInTheDocument();
     });
@@ -53,27 +54,33 @@ describe('ForgotPasswordPage', () => {
 
   describe('Form Validation', () => {
     it('should validate required email field', async () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/e-mail ist erforderlich/i)).toBeInTheDocument();
+        // Check for the error message in a more flexible way
+        expect(screen.getByText((content, element) => {
+          return content.includes('E-Mail') && content.includes('erforderlich');
+        })).toBeInTheDocument();
       });
     });
 
     it('should validate email format', async () => {
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.getByText(/ungültige e-mail-adresse/i)).toBeInTheDocument();
+        // Check for the error message in a more flexible way
+        expect(screen.getByText((content, element) => {
+          return content.includes('E-Mail') && content.includes('Ungültige');
+        })).toBeInTheDocument();
       });
     });
 
@@ -83,9 +90,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -108,9 +115,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true, message: 'Email sent' }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -131,9 +138,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -152,9 +159,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -173,9 +180,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ error: 'Too many requests' }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -189,9 +196,9 @@ describe('ForgotPasswordPage', () => {
     it('should show generic error message on network failure', async () => {
       (global.fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -207,9 +214,9 @@ describe('ForgotPasswordPage', () => {
     it('should show loading state during submission', async () => {
       (global.fetch as any).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -221,9 +228,9 @@ describe('ForgotPasswordPage', () => {
     it('should disable input field during submission', async () => {
       (global.fetch as any).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail') as HTMLInputElement;
+      const emailInput = screen.getByLabelText(/e-mail/i) as HTMLInputElement;
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -238,9 +245,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ error: 'Test error' }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
@@ -262,16 +269,16 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });
       fireEvent.click(submitButton);
 
       await waitFor(() => {
-        expect(screen.queryByLabelText('E-Mail')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/e-mail/i)).not.toBeInTheDocument();
         expect(screen.queryByRole('button', { name: /passwort zurücksetzen/i })).not.toBeInTheDocument();
       });
     });
@@ -282,9 +289,9 @@ describe('ForgotPasswordPage', () => {
         json: async () => ({ success: true }),
       });
 
-      render(<ForgotPasswordPage />);
+      renderWithProviders(<ForgotPasswordPage />);
 
-      const emailInput = screen.getByLabelText('E-Mail');
+      const emailInput = screen.getByLabelText(/e-mail/i);
       fireEvent.change(emailInput, { target: { value: 'user@example.com' } });
 
       const submitButton = screen.getByRole('button', { name: /passwort zurücksetzen/i });

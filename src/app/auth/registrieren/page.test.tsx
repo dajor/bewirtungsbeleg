@@ -4,11 +4,12 @@
 
 import React from 'react';
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import RegisterPage from './page';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { renderWithProviders } from '@/test-utils';
 
 // Mock next-auth
 vi.mock('next-auth/react', () => ({
@@ -45,7 +46,7 @@ describe('RegisterPage', () => {
 
   describe('Form Validation', () => {
     it('should validate required first name', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const submitButton = screen.getByRole('button', { name: /registrieren/i });
       fireEvent.click(submitButton);
@@ -56,7 +57,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate required last name', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const submitButton = screen.getByRole('button', { name: /registrieren/i });
       fireEvent.click(submitButton);
@@ -67,7 +68,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate required email', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const submitButton = screen.getByRole('button', { name: /registrieren/i });
       fireEvent.click(submitButton);
@@ -78,7 +79,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate email format', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const emailInput = screen.getByLabelText('E-Mail');
       fireEvent.change(emailInput, { target: { value: 'invalid-email' } });
@@ -92,7 +93,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate required password', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const submitButton = screen.getByRole('button', { name: /registrieren/i });
       fireEvent.click(submitButton);
@@ -103,7 +104,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate minimum password length (8 characters)', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const passwordInput = screen.getByLabelText('Passwort');
       fireEvent.change(passwordInput, { target: { value: '1234567' } });
@@ -117,7 +118,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate password confirmation match', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const passwordInput = screen.getByLabelText('Passwort');
       const confirmPasswordInput = screen.getByLabelText('Passwort bestätigen');
@@ -134,7 +135,7 @@ describe('RegisterPage', () => {
     });
 
     it('should validate terms acceptance', async () => {
-      render(<RegisterPage />);
+      renderWithProviders(<RegisterPage />);
 
       const firstNameInput = screen.getByLabelText('Vorname');
       const lastNameInput = screen.getByLabelText('Nachname');

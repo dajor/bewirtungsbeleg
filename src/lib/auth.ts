@@ -155,6 +155,19 @@ export const authOptions: NextAuthOptions = {
         if (user.refreshToken) {
           token.refreshToken = user.refreshToken;
         }
+        // Store additional user properties for session callback
+        if ((user as any).firstName) {
+          token.firstName = (user as any).firstName;
+        }
+        if ((user as any).lastName) {
+          token.lastName = (user as any).lastName;
+        }
+        if ((user as any).email) {
+          token.email = (user as any).email;
+        }
+        if ((user as any).name) {
+          token.name = (user as any).name;
+        }
 
         // Ensure user has OpenSearch index for document search
         // This runs asynchronously on login to create user-specific index
@@ -178,6 +191,13 @@ export const authOptions: NextAuthOptions = {
         }
         if (token.refreshToken) {
           session.refreshToken = token.refreshToken as string;
+        }
+        // Add additional user properties
+        if (token.firstName) {
+          (session.user as any).firstName = token.firstName as string;
+        }
+        if (token.lastName) {
+          (session.user as any).lastName = token.lastName as string;
         }
       }
       return session;
