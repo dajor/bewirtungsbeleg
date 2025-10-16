@@ -1,18 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from './middleware';
 
-// Mock NextResponse.next()
-jest.mock('next/server', () => {
-  const actual = jest.requireActual('next/server');
-  return {
-    ...actual,
-    NextResponse: {
-      next: jest.fn(() => ({
-        status: 200,
-      })),
-    },
-  };
-});
+// Mock NextResponse.next() - compatible with both Jest and Vitest
+if (typeof vi !== 'undefined') {
+  // Vitest
+  vi.mock('next/server', () => {
+    const actual = vi.importActual('next/server');
+    return {
+      ...actual,
+      NextResponse: {
+        next: vi.fn(() => ({
+          status: 200,
+        })),
+      },
+    };
+  });
+} else {
+  // Jest
+  jest.mock('next/server', () => {
+    const actual = jest.requireActual('next/server');
+    return {
+      ...actual,
+      NextResponse: {
+        next: jest.fn(() => ({
+          status: 200,
+        })),
+      },
+    };
+  });
+}
 
 describe('Middleware', () => {
   const createRequest = (pathname: string) => {
