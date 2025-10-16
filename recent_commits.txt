@@ -1,3 +1,5 @@
+Fix PDF.js worker CORS issue by serving worker file locally (Claude Assistant)
+Bump version to 0.43.0 #auto-release (dajor)
 Fix multi-page PDF extraction by passing page parameter to convertClientSide (Claude Assistant)
 Bump version to 0.42.0 #auto-release (dajor)
 Fix multi-page PDF extraction by using client-side conversion method (Claude Assistant)

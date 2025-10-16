@@ -1,6 +1,20 @@
 {
   "versions": [
     {
+      "version": "0.44.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Behoben: CORS-Problem mit PDF.js Worker durch lokales Bereitstellen der Worker-Datei.",
+        "Behoben: Fehler bei der Extraktion mehrseitiger PDFs durch Übergabe des Seitenparameters an convertClientSide.",
+        "Behoben: Fehler bei der Extraktion mehrseitiger PDFs durch Verwendung der clientseitigen Konvertierungsmethode.",
+        "Behoben: TypeScript-Fehler und Hinzufügen der pdfjs-dist-Abhängigkeit für den Produktionsbuild.",
+        "Neues Feature: Integrationstests für die Extraktion mehrseitiger PDFs hinzugefügt.",
+        "Neues Feature: Mehrseitige PDF-Extraktion für Belege ermöglicht."
+      ],
+      "build": "18555592545",
+      "commit": "6966521140941833e595af1e91111a191ea1303d"
+    },
+    {
       "version": "0.43.0",
       "date": "16.10.2025",
       "changes": [
