@@ -430,7 +430,7 @@ export default function BewirtungsbelegForm() {
       for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
         console.log(`🔄 Converting page ${pageNum}/${pageCount}...`);
         const imageData = await PDFToImageConverter.convert(file, {
-          method: 'local',
+          method: 'client',  // Use client-side conversion to support page parameter
           page: pageNum
         });
 
@@ -463,7 +463,7 @@ export default function BewirtungsbelegForm() {
           // Convert first page only for classification (we'll process all pages later)
           try {
             const firstPageData = await PDFToImageConverter.convert(file, {
-              method: 'local',
+              method: 'client',  // Use client-side conversion to support page parameter
               page: pageNumber || 1
             });
             imageData = firstPageData;
