@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { ModalsProvider } from '@mantine/modals';
+import { LocaleProvider } from './contexts/LocaleContext';
 
 class ResizeObserver {
   observe() {}
@@ -16,25 +17,28 @@ const mockMatchMedia = (matches: boolean = false) => ({
   matches,
   media: '',
   onchange: null,
-  addListener: jest.fn(),
-  removeListener: jest.fn(),
-  addEventListener: jest.fn(),
-  removeEventListener: jest.fn(),
-  dispatchEvent: jest.fn(),
+  addListener: typeof vi !== 'undefined' ? vi.fn() : jest.fn(),
+  removeListener: typeof vi !== 'undefined' ? vi.fn() : jest.fn(),
+  addEventListener: typeof vi !== 'undefined' ? vi.fn() : jest.fn(),
+  removeEventListener: typeof vi !== 'undefined' ? vi.fn() : jest.fn(),
+  dispatchEvent: typeof vi !== 'undefined' ? vi.fn() : jest.fn(),
 });
 
 // Apply matchMedia mock
 if (typeof window !== 'undefined') {
-  window.matchMedia = window.matchMedia || jest.fn().mockImplementation(() => mockMatchMedia());
+  const mockFn = typeof vi !== 'undefined' ? vi.fn() : jest.fn();
+  window.matchMedia = window.matchMedia || mockFn.mockImplementation(() => mockMatchMedia());
   (globalThis as any).matchMedia = window.matchMedia;
 }
 
 export function renderWithProviders(ui: React.ReactElement) {
   return render(
     <MantineProvider>
-      <ModalsProvider>
-        {ui}
-      </ModalsProvider>
+      <LocaleProvider>
+        <ModalsProvider>
+          {ui}
+        </ModalsProvider>
+      </LocaleProvider>
     </MantineProvider>
   );
 } 
