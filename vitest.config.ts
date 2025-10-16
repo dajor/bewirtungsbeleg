@@ -18,8 +18,7 @@ export default defineConfig({
       '**/dist/**',
       '**/.{idea,git,cache,output,temp}/**',
       '**/test-utils.tsx',
-      '**/*.spec.ts',
-      '**/*.test.ts',
+      'src/**/*.{spec,test}.{js,jsx}', // Exclude JS/JSX test files that might use Jest-specific APIs
     ],
     coverage: {
       provider: 'v8',
@@ -33,8 +32,7 @@ export default defineConfig({
         '**/dist/**',
         '**/.{idea,git,cache,output,temp}/**',
         '**/test-utils.tsx',
-        '**/*.spec.ts',
-        '**/*.test.ts',
+        'src/**/*.{spec,test}.{js,jsx}', // Exclude JS/JSX test files that might use Jest-specific APIs
       ],
       include: ['src/**/*.{test,spec}.{ts,tsx}'],
     },
