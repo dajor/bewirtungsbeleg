@@ -1,3 +1,20 @@
+# Version 0.45.0
+Datum: 16.10.2025
+
+## Änderungen
+- Integrationstests f\u00fcr die OCR-Extraktion von Osteria del Parco-Belegen hinzugef\u00fcgt, um die Qualit\u00e4t und Zuverl\u00e4ssigkeit der Extraktion zu verbessern.
+- Ein Problem mit CORS-Fehlern des PDF.js-Workers wurde behoben, indem die Worker-Datei lokal bereitgestellt wird, was eine bessere Kompatibilit\u00e4t mit Sicherheitsrichtlinien im Web erm\u00f6glicht.
+- Die Extraktion von mehrseitigen PDFs wurde verbessert, indem ein Fehler behoben wurde, der die korrekte Verarbeitung aller Seiten verhinderte. Jetzt wird ein Seitenparameter zur Konvertierungsfunktion hinzugef\u00fcgt.
+- Ein TypeScript-Fehler wurde behoben und die pdfjs-dist-Abh\u00e4ngigkeit f\u00fcr den Produktionsbau hinzugef\u00fcgt, was die Stabilit\u00e4t und Kompatibilit\u00e4t des Codes verbessert.
+- Integrationstests f\u00fcr die Extraktion von mehrseitigen PDFs wurden hinzugef\u00fcgt, um die Zuverl\u00e4ssigkeit dieser Funktionalit\u00e4t zu gew\u00e4hrleisten.
+- Die Extraktion von mehrseitigen PDF-Belegen wurde aktiviert, was die Funktionalit\u00e4t des Systems erweitert und es Benutzern erm\u00f6glicht, komplexere Dokumente zu verarbeiten.
+
+## Technische Details
+- Build: 18556172427
+- Commit: c9b78bd24eb7a4a20401935375d6c8851eabf25e
+
+---
+
 # Version 0.44.0
 Datum: 16.10.2025
 

@@ -1,3 +1,5 @@
+Add comprehensive integration tests for Osteria del Parco receipt OCR extraction (Claude Assistant)
+Bump version to 0.44.0 #auto-release (dajor)
 Fix PDF.js worker CORS issue by serving worker file locally (Claude Assistant)
 Bump version to 0.43.0 #auto-release (dajor)
 Fix multi-page PDF extraction by passing page parameter to convertClientSide (Claude Assistant)
