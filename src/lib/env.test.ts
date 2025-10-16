@@ -4,7 +4,11 @@ describe('Environment Variable Utils', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    if (typeof vi !== 'undefined') {
+      vi.resetModules();
+    } else {
+      jest.resetModules();
+    }
     process.env = { ...originalEnv };
   });
 
@@ -43,7 +47,11 @@ describe('Environment Variable Utils', () => {
       process.env.NEXTAUTH_SECRET = 'test-secret';
       
       // Re-import to get fresh env object
-      jest.resetModules();
+      if (typeof vi !== 'undefined') {
+        vi.resetModules();
+      } else {
+        jest.resetModules();
+      }
       const { env } = require('./env');
       
       expect(env.OPENAI_API_KEY).toBe('test-openai-key');
@@ -55,7 +63,11 @@ describe('Environment Variable Utils', () => {
       delete process.env.NEXTAUTH_URL;
       
       // Re-import to get fresh env object
-      jest.resetModules();
+      if (typeof vi !== 'undefined') {
+        vi.resetModules();
+      } else {
+        jest.resetModules();
+      }
       process.env.OPENAI_API_KEY = 'test-key';
       process.env.NEXTAUTH_SECRET = 'test-secret';
       
