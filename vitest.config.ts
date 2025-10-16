@@ -55,6 +55,7 @@ export default defineConfig({
       'src/lib/__tests__/embeddings.test.ts',
       'src/lib/pdf-to-image.test.ts',
       'src/lib/pdf-to-image-multipage.test.ts',
+      'src/lib/__tests__/opensearch.test.ts',
     ],
     coverage: {
       provider: 'v8',
@@ -105,6 +106,7 @@ export default defineConfig({
         'src/lib/__tests__/embeddings.test.ts',
         'src/lib/pdf-to-image.test.ts',
         'src/lib/pdf-to-image-multipage.test.ts',
+        'src/lib/__tests__/opensearch.test.ts',
       ],
       include: ['src/**/*.{test,spec}.{ts,tsx}'],
     },
