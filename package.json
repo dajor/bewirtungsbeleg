@@ -15,7 +15,7 @@
     "test:watch": "jest --watch --config jest.config.cjs",
     "test:vitest": "vitest run",
     "test:vitest:watch": "vitest",
-    "test:vitest:coverage": "vitest run --coverage",
+    "test:vitest:coverage": "vitest run --coverage --exclude \"**/test/**\" --exclude \"**/e2e/**\"",
     "test:e2e": "playwright test",
     "test:e2e:auth": "playwright test playwright-1-register playwright-2-login --workers=1",
     "test:e2e:auth:clean": "./test/run-auth-tests.sh",
