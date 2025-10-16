@@ -105,6 +105,7 @@ const config = {
     'src/__tests__/magic-link-integration.test.ts',
     'src/app/components/BewirtungsbelegForm.unit.test.tsx',
     'src/app/page.test.tsx',
+    'src/components/Header.test.tsx',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   testMatch: [

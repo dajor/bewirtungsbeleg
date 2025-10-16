@@ -24,6 +24,7 @@ export function Header() {
 
   const navLinks = [
     { href: '/bewirtungsbeleg', label: 'Beleg erstellen' },
+    { href: '/scanner', label: 'Dokument scannen' },
     { href: '/#features', label: 'Features' },
     { href: '/gobd', label: 'GoBD' },
     { href: '/release-notes', label: 'Release Notes' },
@@ -151,8 +152,17 @@ export function Header() {
             <Stack gap="sm">
               <Button
                 component={Link}
-                href="/profile"
+                href="/meine-belege"
                 variant="light"
+                fullWidth
+                onClick={closeDrawer}
+              >
+                Meine Belege
+              </Button>
+              <Button
+                component={Link}
+                href="/profile"
+                variant="subtle"
                 fullWidth
                 onClick={closeDrawer}
               >
