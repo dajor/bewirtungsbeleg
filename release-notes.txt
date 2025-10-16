@@ -1,3 +1,20 @@
+# Version 0.49.0
+Datum: 16.10.2025
+
+## Änderungen
+- Behoben: Das OCR-Prompt extrahiert jetzt keinen Gesamtbetrag mehr aus reinen Kreditkartenbelegen.
+- Behoben: Mehrseitige PDFs behalten jetzt Felder korrekt bei und erlauben manuelle Trinkgeldberechnung.
+- Behoben: Ein TypeScript-Fehler in den PDF.js Render-Parametern wurde behoben, indem die fehlende Canvas-Eigenschaft hinzugefügt wurde.
+- Behoben: Das CORS-Problem mit dem PDF.js Worker wurde behoben, indem die Worker-Datei lokal bereitgestellt wird.
+- Neu: Mehrseitige PDF-Anzeigefunktion hinzugefügt, mit separaten Dateikarten pro Seite.
+- Neu: Umfassende Integrationstests für die OCR-Extraktion von Belegen der Osteria del Parco hinzugefügt.
+
+## Technische Details
+- Build: 18572831390
+- Commit: 573acf3c7292532ceb98378c5d3cbc754a99d731
+
+---
+
 # Version 0.48.0
 Datum: 16.10.2025
 
