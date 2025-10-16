@@ -30,8 +30,8 @@ const FONTS = {
 
 const SPACING = {
   margin: 20,
-  sectionGap: 8,  // Reduced from 12 to 8
-  lineHeight: 6,  // Reduced from 7 to 6
+  sectionGap: 6,  // Reduced from 8 to 6 for tighter layout
+  lineHeight: 5,  // Reduced from 6 to 5 for tighter layout
   indent: 10,
 };
 
@@ -275,7 +275,7 @@ export async function POST(request: Request) {
     // ========================================
     // SECTION 1: ALLGEMEINE ANGABEN
     // ========================================
-    yPosition += 8;  // Reduced from 15 to 8
+    yPosition += 5;  // Reduced from 8 to 5 for tighter layout
     yPosition = addSectionHeader(doc, 'Allgemeine Angaben', yPosition);
 
     addLabelValuePair(doc, 'Datum:', new Date(data.datum).toLocaleDateString('de-DE'), SPACING.margin, yPosition);
@@ -294,7 +294,7 @@ export async function POST(request: Request) {
     // ========================================
     // SECTION 2: GESCHÄFTLICHER ANLASS
     // ========================================
-    yPosition += 5;  // Reduced from 8 to 5
+    yPosition += 3;  // Reduced from 5 to 3 for tighter layout
     yPosition = addSectionHeader(
       doc,
       data.bewirtungsart === 'kunden' ? 'Geschäftlicher Anlass' : 'Anlass',
@@ -310,7 +310,7 @@ export async function POST(request: Request) {
     // ========================================
     // SECTION 3: FINANZIELLE DETAILS (PROFESSIONAL TABLE)
     // ========================================
-    yPosition += 5;  // Reduced from 8 to 5
+    yPosition += 3;  // Reduced from 5 to 3 for tighter layout
     yPosition = addSectionHeader(doc, 'Finanzielle Details', yPosition);
 
     const [borderR, borderG, borderB] = hexToRgb(COLORS.border);
@@ -405,7 +405,7 @@ export async function POST(request: Request) {
     // SECTION 4: GESCHÄFTSPARTNER (nur bei Kundenbewirtung)
     // ========================================
     if (data.bewirtungsart === 'kunden') {
-      yPosition += 5;  // Reduced from 8 to 5
+      yPosition += 3;  // Reduced from 5 to 3 for tighter layout
       yPosition = addSectionHeader(doc, 'Geschäftspartner', yPosition);
 
       addLabelValuePair(doc, 'Namen:', data.geschaeftspartnerNamen, SPACING.margin, yPosition);
@@ -416,7 +416,7 @@ export async function POST(request: Request) {
     }
 
     // Ensure we have enough space for signature (check if we need a new page)
-    if (yPosition > 240) {
+    if (yPosition > 250) {  // Increased threshold from 240 to 250 for tighter layout
       doc.addPage();
       yPosition = 20;
     }
@@ -424,14 +424,14 @@ export async function POST(request: Request) {
     // ========================================
     // SECTION 5: UNTERSCHRIFT
     // ========================================
-    yPosition += 8;  // Reduced from 15 to 8
+    yPosition += 5;  // Reduced from 8 to 5 for tighter layout
     yPosition = addSectionHeader(doc, 'Unterschrift', yPosition);
 
     // Signature box with border
     const [sigBorderR, sigBorderG, sigBorderB] = hexToRgb(COLORS.border);
     doc.setDrawColor(sigBorderR, sigBorderG, sigBorderB);
     doc.setLineWidth(0.5);
-    doc.rect(SPACING.margin, yPosition, 100, 16);  // Reduced height from 20 to 16
+    doc.rect(SPACING.margin, yPosition, 100, 14);  // Reduced height from 16 to 14 for tighter layout
 
     // Signature line inside box
     doc.setLineWidth(0.3);
@@ -447,7 +447,7 @@ export async function POST(request: Request) {
     doc.text('Unterschrift des Bewirtenden', SPACING.margin + 50, yPosition + 14, { align: 'center' });  // Adjusted
     doc.setTextColor(0, 0, 0);
 
-    yPosition += 20;  // Reduced from 25 to 20
+    yPosition += 15;  // Reduced from 20 to 15 for tighter layout
 
     // Important notice
     doc.setFontSize(7);  // Reduced from 8 to 7

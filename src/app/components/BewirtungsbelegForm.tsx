@@ -82,6 +82,12 @@ export default function BewirtungsbelegForm() {
   // This persists across async state updates
   const lastInvoiceAmountRef = useRef<string>('');
 
+  // Track credit card and tip data to prevent loss during multi-page PDF processing
+  // These refs store values synchronously and persist across async state updates
+  const lastCreditCardAmountRef = useRef<string>('');
+  const lastTipAmountRef = useRef<string>('');
+  const lastTipMwstRef = useRef<string>('');
+
   // Helper function to create a PDF thumbnail
   const createPdfThumbnail = () => {
     // Create a canvas to draw PDF icon
@@ -357,12 +363,18 @@ export default function BewirtungsbelegForm() {
         }
         if (kreditkartenbetrag) {
           form.setFieldValue('kreditkartenBetrag', kreditkartenbetrag);
+          // Store in ref for preservation during multi-page processing
+          lastCreditCardAmountRef.current = kreditkartenbetrag;
         }
         if (tipToUse) {
           form.setFieldValue('trinkgeld', tipToUse);
+          // Store in ref for preservation during multi-page processing
+          lastTipAmountRef.current = tipToUse;
         }
         if (tipMwstToUse) {
           form.setFieldValue('trinkgeldMwst', tipMwstToUse);
+          // Store in ref for preservation during multi-page processing
+          lastTipMwstRef.current = tipMwstToUse;
         }
 
         console.log('✅ Credit card data added:', {
@@ -377,8 +389,10 @@ export default function BewirtungsbelegForm() {
           }
         });
       } else {
-        // For Rechnung, update all financial fields
-        // IMPORTANT: Rechnung data should OVERWRITE Kreditkartenbeleg data
+        // For Rechnung, update invoice fields but PRESERVE credit card/tip fields
+        // IMPORTANT: Rechnung is authoritative for invoice amounts (gesamtbetrag, MwSt, Netto)
+        // BUT it should NOT clear credit card and tip data that was set by Kreditkartenbeleg
+
         // Store invoice amount in ref for later tip calculation
         if (finalGesamtbetrag) {
           lastInvoiceAmountRef.current = finalGesamtbetrag;
@@ -386,23 +400,59 @@ export default function BewirtungsbelegForm() {
         }
 
         console.log('📋 Setting Rechnung data...');
-        console.log('📋 Before: form.values.gesamtbetrag =', form.values.gesamtbetrag);
-
-        // FIXED: Always use Rechnung data if available (don't fall back to existing values)
-        // Rechnung is the authoritative source of truth for invoice amounts
-        form.setValues({
-          ...form.values,
-          restaurantName: data.restaurantName || form.values.restaurantName,
-          restaurantAnschrift: data.restaurantAnschrift || form.values.restaurantAnschrift,
-          gesamtbetrag: finalGesamtbetrag || form.values.gesamtbetrag,
-          gesamtbetragMwst: finalMwst || form.values.gesamtbetragMwst,
-          gesamtbetragNetto: finalNetto || form.values.gesamtbetragNetto,
-          datum: data.datum ? new Date(data.datum.split('.').reverse().join('-')) : form.values.datum,
-          trinkgeld: trinkgeld || form.values.trinkgeld,
-          kreditkartenBetrag: form.values.kreditkartenBetrag, // Keep existing value for Rechnung
+        console.log('📋 Before: form.values =', {
+          gesamtbetrag: form.values.gesamtbetrag,
+          kreditkartenBetrag: form.values.kreditkartenBetrag,
+          trinkgeld: form.values.trinkgeld,
+          trinkgeldMwst: form.values.trinkgeldMwst
         });
-        console.log('📋 After setValues: gesamtbetrag should be updated to', finalGesamtbetrag);
-        console.log('📋 Note: React state updates are async - value will be available in next render');
+        console.log('📋 Before: refs =', {
+          lastCreditCardAmountRef: lastCreditCardAmountRef.current,
+          lastTipAmountRef: lastTipAmountRef.current,
+          lastTipMwstRef: lastTipMwstRef.current
+        });
+
+        // CRITICAL FIX: Use setFieldValue for individual fields instead of setValues
+        // setValues with ...form.values spreads STALE values and causes data loss
+        // setFieldValue updates ONLY the specified field without touching others
+
+        // Update invoice-specific fields (Rechnung is authoritative source)
+        if (data.restaurantName) {
+          form.setFieldValue('restaurantName', data.restaurantName);
+        }
+        if (data.restaurantAnschrift) {
+          form.setFieldValue('restaurantAnschrift', data.restaurantAnschrift);
+        }
+        if (finalGesamtbetrag) {
+          form.setFieldValue('gesamtbetrag', finalGesamtbetrag);
+        }
+        if (finalMwst) {
+          form.setFieldValue('gesamtbetragMwst', finalMwst);
+        }
+        if (finalNetto) {
+          form.setFieldValue('gesamtbetragNetto', finalNetto);
+        }
+        if (data.datum) {
+          form.setFieldValue('datum', new Date(data.datum.split('.').reverse().join('-')));
+        }
+
+        // PRESERVE credit card and tip fields using REFS (synchronous, always current)
+        // Only update if we have ref values (from previous Kreditkartenbeleg processing)
+        if (lastCreditCardAmountRef.current) {
+          console.log('✅ Preserving kreditkartenBetrag from ref:', lastCreditCardAmountRef.current);
+          form.setFieldValue('kreditkartenBetrag', lastCreditCardAmountRef.current);
+        }
+        if (lastTipAmountRef.current || trinkgeld) {
+          const tipValue = trinkgeld || lastTipAmountRef.current;
+          console.log('✅ Preserving trinkgeld from ref/OCR:', tipValue);
+          form.setFieldValue('trinkgeld', tipValue);
+        }
+        if (lastTipMwstRef.current) {
+          console.log('✅ Preserving trinkgeldMwst from ref:', lastTipMwstRef.current);
+          form.setFieldValue('trinkgeldMwst', lastTipMwstRef.current);
+        }
+
+        console.log('✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values');
       }
     } catch (err) {
       console.error('Fehler bei der OCR-Verarbeitung:', err);
@@ -1001,17 +1051,24 @@ export default function BewirtungsbelegForm() {
   const handleKreditkartenBetragChange = (value: string | number) => {
     console.log('🔍 handleKreditkartenBetragChange CALLED with value:', value, 'type:', typeof value);
     console.log('🔍 Current form.values.gesamtbetrag:', form.values.gesamtbetrag, 'type:', typeof form.values.gesamtbetrag);
+    console.log('🔍 Current lastInvoiceAmountRef.current:', lastInvoiceAmountRef.current);
 
     const kkBetrag = String(value).replace(',', '.');
     console.log('🔍 kkBetrag after conversion:', kkBetrag);
 
     form.setFieldValue('kreditkartenBetrag', kkBetrag);
+    // Store in ref for preservation during multi-page processing
+    lastCreditCardAmountRef.current = kkBetrag;
 
-    if (kkBetrag && form.values.gesamtbetrag) {
-      console.log('🔍 Condition passed: kkBetrag && form.values.gesamtbetrag');
+    // Use ref for invoice amount (synchronous, always current) instead of form.values
+    const invoiceAmount = lastInvoiceAmountRef.current || form.values.gesamtbetrag;
+    console.log('🔍 invoiceAmount from ref/form:', invoiceAmount);
+
+    if (kkBetrag && invoiceAmount) {
+      console.log('🔍 Condition passed: kkBetrag && invoiceAmount');
 
       // Handle both string and number values from form (NumberInput can return either)
-      const gesamtbetrag = Number(String(form.values.gesamtbetrag).replace(',', '.'));
+      const gesamtbetrag = Number(String(invoiceAmount).replace(',', '.'));
       const kkBetragNum = Number(kkBetrag);
 
       console.log('🔍 Parsed values - gesamtbetrag:', gesamtbetrag, 'kkBetragNum:', kkBetragNum);
@@ -1020,10 +1077,14 @@ export default function BewirtungsbelegForm() {
       if (kkBetragNum > gesamtbetrag) {
         const trinkgeld = (kkBetragNum - gesamtbetrag).toFixed(2);
         form.setFieldValue('trinkgeld', trinkgeld);
+        // Store in ref for preservation during multi-page processing
+        lastTipAmountRef.current = trinkgeld;
 
         // Also calculate MwSt for Trinkgeld
         const { mwst } = calculateMwst(Number(trinkgeld));
         form.setFieldValue('trinkgeldMwst', mwst);
+        // Store in ref for preservation during multi-page processing
+        lastTipMwstRef.current = mwst;
 
         console.log('💰 Auto-calculated tip:', trinkgeld, '=', kkBetragNum, '-', gesamtbetrag);
         console.log('💰 Auto-calculated tip MwSt:', mwst);
@@ -1031,7 +1092,7 @@ export default function BewirtungsbelegForm() {
         console.log('🔍 Tip NOT calculated: kkBetragNum <= gesamtbetrag');
       }
     } else {
-      console.log('🔍 Condition FAILED: kkBetrag:', !!kkBetrag, 'form.values.gesamtbetrag:', !!form.values.gesamtbetrag);
+      console.log('🔍 Condition FAILED: kkBetrag:', !!kkBetrag, 'invoiceAmount:', !!invoiceAmount);
     }
   };
 
@@ -1047,6 +1108,9 @@ export default function BewirtungsbelegForm() {
   const handleGesamtbetragChange = (value: string | number) => {
     const brutto = String(value).replace(',', '.');
     form.setFieldValue('gesamtbetrag', brutto);
+
+    // Store in ref for manual tip calculation (synchronous, always current)
+    lastInvoiceAmountRef.current = brutto;
 
     if (brutto) {
       const bruttoNum = Number(brutto);

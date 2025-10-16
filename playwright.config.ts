@@ -12,7 +12,8 @@ export default defineConfig({
     '**/e2e-zugferd.spec.ts',
     '**/e2e-eigenbeleg-workflow.spec.ts',
     '**/eigenbeleg-validation-simple.spec.ts',
-    '**/e2e-tip-calculation.spec.ts'
+    '**/e2e-tip-calculation.spec.ts',
+    '**/multipage-pdf-field-preservation.spec.ts'
   ],
   fullyParallel: true,
   forbidOnly: !!process.env.CI,

@@ -19,6 +19,8 @@ describe('Osteria del Parco Receipt OCR Extraction', () => {
   const testFilesDir = path.join(process.cwd(), 'test', 'test-files');
 
   const testFiles = [
+    '14102025 (Paul1).pdf',
+    '14102025 (Paul2).pdf',
     '14102025 (Paul3).jpg',
     '14102025 (Paul4).pdf',
     '14102025 (Paul5).pdf',

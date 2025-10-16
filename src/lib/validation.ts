@@ -38,6 +38,16 @@ export const signInSchema = z.object({
   password: z.string().min(6, 'Passwort muss mindestens 6 Zeichen lang sein'),
 });
 
+// Receipt classification types
+export const CLASSIFICATION_TYPES = {
+  RECHNUNG: 'Rechnung',
+  KREDITKARTENBELEG: 'Kreditkartenbeleg',
+  COMBINED: 'Rechnung&Kreditkartenbeleg',  // Both invoice and card receipt on same page
+  UNKNOWN: 'Unbekannt'
+} as const;
+
+export type ClassificationType = typeof CLASSIFICATION_TYPES[keyof typeof CLASSIFICATION_TYPES];
+
 // Receipt classification schema
 export const classifyReceiptSchema = z.object({
   fileName: z.string().min(1, 'Dateiname erforderlich').max(255),

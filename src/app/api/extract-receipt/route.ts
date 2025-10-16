@@ -69,11 +69,19 @@ Antworte im folgenden JSON-Format:
 }
 
 Wichtige Hinweise:
-- GESAMTBETRAG: Suche nach "Total", "Gesamtbetrag", "Summe", "Brutto", "Endsumme", "Zahlung"
-- MWST: Suche nach "MwSt", "MwSt.", "USt", "Steuer", "Tax", "Steuersumme", "Verkäufe XX% inkl"
+- GESAMTBETRAG: Suche nach "Total", "Gesamtbetrag", "Summe", "Brutto", "Endsumme", "Zahlung", "Betrag", "Amount", "Pay"
+  * Die Beträge können an BELIEBIGEN Positionen im Dokument stehen
+  * Scanne das GESAMTE Dokument nach allen Zahlenbeträgen im Format XX,XX oder XX.XX
+  * Der Gesamtbetrag ist meist der GRÖSSTE Betrag auf der Rechnung
+- MWST: Suche nach "MwSt", "MwSt.", "USt", "Steuer", "Tax", "Steuersumme", "Verkäufe XX% inkl", "VAT"
   * Bei "Verkäufe 19% inkl. XX,XX €" ist der Betrag der MwSt-Anteil (berechne 19% vom Gesamtbetrag)
-- NETTO: Suche nach "Netto", "Nettoumsatz", "Nettobetrag", "Net"
-- Achte auf verschiedene Schreibweisen und Sprachen (DE/EN)
+  * Die MwSt. kann ÜBERALL im Dokument stehen, nicht nur in bestimmten Bereichen
+- NETTO: Suche nach "Netto", "Nettoumsatz", "Nettobetrag", "Net", "Subtotal"
+  * Der Nettobetrag kann ÜBERALL im Dokument stehen
+- FLEXIBILITÄT:
+  * Achte auf verschiedene Schreibweisen und Sprachen (DE/EN/FR/IT)
+  * Beträge können in verschiedenen Bereichen des Dokuments verteilt sein
+  * Ignoriere die Position - finde die Felder anhand ihrer Beschriftung
 - Wenn MwSt. oder Netto nicht gefunden werden, lass diese Felder leer
 - Verwende Komma als Dezimaltrennzeichen (z.B. "51,90" statt "51.90")
 - Wenn nur zwei der drei Beträge (Brutto, MwSt., Netto) gefunden werden, lass das dritte Feld leer
@@ -160,17 +168,23 @@ export async function POST(request: Request) {
       extractionPrompt = `Dies ist ein Kreditkartenbeleg. Extrahiere:
       - restaurantName: Name des Händlers/Restaurants
       - datum: Transaktionsdatum (Format: DD.MM.YYYY)
-      - gesamtbetrag: Der RECHNUNGSBETRAG (meist der kleinere Betrag, z.B. "Total", "Summe")
+      - gesamtbetrag: Der RECHNUNGSBETRAG (meist der kleinere Betrag, z.B. "Total", "Summe", "Betrag", "Amount", "Rechnung")
       - kreditkartenbetrag: Der BEZAHLTE Betrag auf der Kreditkarte (der größere Betrag, inkl. Trinkgeld)
       - trinkgeld: Falls separat aufgeführt, oder berechne aus Differenz
 
       WICHTIG: Bei Kreditkartenbelegen gibt es oft ZWEI Beträge:
       1. RECHNUNGSBETRAG (z.B. 29,90€) → gesamtbetrag
+         - Suche nach: "Total", "Betrag", "Zahlung", "Summe", "Amount", "Rechnung", "Bill", "Check"
+         - Dies ist der KLEINERE Betrag (ohne Trinkgeld)
       2. BEZAHLTER BETRAG (z.B. 35,00€) → kreditkartenbetrag
+         - Suche nach: dem HÖCHSTEN/GRÖSSTEN Betrag auf dem Beleg
+         - Oft gekennzeichnet mit "Betrag", "Zahlung", "Paid", "Total", "Gesamt"
+         - Dies ist der GRÖSSERE Betrag (mit Trinkgeld)
+
       - Wenn beide vorhanden: trinkgeld = kreditkartenbetrag - gesamtbetrag
 
-      Suche nach Begriffen wie "Total", "Betrag", "Zahlung", "Summe" für den Rechnungsbetrag.
-      Suche nach dem höchsten Betrag für den Kreditkartenbetrag.
+      FLEXIBILITÄT: Die Beträge können an verschiedenen Positionen im Dokument stehen.
+      Achte auf ALLE Zahlenbeträge im Format XX,XX oder XX.XX und identifiziere die beiden Hauptbeträge.
 
       Antworte NUR mit einem JSON-Objekt.`;
     } else if (classificationType === 'Rechnung') {
@@ -191,6 +205,29 @@ export async function POST(request: Request) {
       - Der kleinere Betrag ist der Rechnungsbetrag (gesamtbetrag)
       - Der größere Betrag ist der gezahlte Betrag
       - Die Differenz ist das Trinkgeld (trinkgeld)
+
+      Antworte NUR mit einem JSON-Objekt.`;
+    } else if (classificationType === 'Rechnung&Kreditkartenbeleg') {
+      extractionPrompt = `Dies ist ein kombiniertes Dokument mit SOWOHL Rechnung ALS AUCH Kreditkartenbeleg auf derselben Seite.
+
+      Extrahiere ALLE verfügbaren Informationen:
+
+      VON DER RECHNUNG:
+      - restaurantName, restaurantAnschrift, datum (DD.MM.YYYY)
+      - gesamtbetrag: Der Rechnungsbetrag (z.B. "Total", "Summe")
+      - mwst: "MwSt", "Steuer", "Steuersumme"
+      - netto: "Netto", "Nettoumsatz"
+
+      VOM KREDITKARTENBELEG:
+      - kreditkartenbetrag: Der BEZAHLTE Betrag (meist größer, inkl. Trinkgeld)
+      - trinkgeld: Falls separat aufgeführt, oder berechne: kreditkartenbetrag - gesamtbetrag
+
+      WICHTIG:
+      - Suche nach BEIDEN Dokumenttypen auf derselben Seite
+      - Der Rechnungsbetrag (gesamtbetrag) ist meist kleiner als der bezahlte Betrag (kreditkartenbetrag)
+      - Trinkgeld = kreditkartenbetrag - gesamtbetrag
+      - Scanne das GESAMTE Dokument - die Informationen können ÜBERALL stehen
+      - Beträge können in verschiedenen Bereichen verteilt sein
 
       Antworte NUR mit einem JSON-Objekt.`;
     }

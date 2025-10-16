@@ -69,12 +69,12 @@ export function ImageEditor({ file, onImageUpdate }: ImageEditorProps) {
         setLoading(true);
         setError(null);
         
-        // Convert PDF to image using bewirt-func
+        // Convert PDF to image using server-side API
         const convertPdf = async () => {
           try {
-            // Use PDFToImageConverter with DigitalOcean method (PDF.js + bewirt-func)
+            // Use PDFToImageConverter with local method (server-side pdftoppm - most reliable)
             const imageUrl = await PDFToImageConverter.convert(file, {
-              method: 'digitalocean',
+              method: 'local',
               page: 1
             });
 

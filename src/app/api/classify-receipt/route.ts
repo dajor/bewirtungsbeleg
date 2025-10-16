@@ -59,23 +59,35 @@ export async function POST(request: Request) {
     const messages: any[] = [
       {
         role: "system",
-        content: `Du bist ein Experte für die Klassifizierung von Belegen.
-        Eine Rechnung enthält typischerweise:
-        - Restaurantname und Adresse
-        - Datum
-        - Positionen mit Preisen
-        - Gesamtbetrag
-        - Mehrwertsteuer
+        content: `Du bist ein Experte für die Klassifizierung von Belegen. Es gibt DREI Haupttypen:
 
-        Ein Kreditkartenbeleg enthält typischerweise:
-        - Kreditkartennummer (teilweise maskiert)
-        - Datum und Uhrzeit
-        - Betrag
-        - Transaktionsnummer
-        - Händlername
-        - Oft kompakter und schmaler als eine Rechnung
+        1. RECHNUNG (Invoice):
+           - Restaurantname und Adresse
+           - Datum
+           - Detaillierte Positionen mit Preisen (Speisen, Getränke)
+           - Zwischensummen, Gesamtbetrag
+           - Mehrwertsteuer, Netto
+           - Oft mehrere Seiten
+           - KEINE Kreditkartennummer sichtbar
 
-        Analysiere den Beleg und bestimme den Typ basierend auf diesen Merkmalen.`
+        2. KREDITKARTENBELEG (Credit Card Receipt):
+           - Kreditkartennummer (teilweise maskiert, z.B. **** 1234)
+           - Datum und Uhrzeit
+           - Betrag (oft zwei: Rechnungsbetrag + bezahlter Betrag)
+           - Transaktionsnummer, Terminal-ID
+           - Händlername
+           - Oft kompakter und schmaler als eine Rechnung
+           - KEINE detaillierten Positionen
+
+        3. RECHNUNG&KREDITKARTENBELEG (Combined):
+           - BEIDE Dokumenttypen auf DERSELBEN Seite
+           - Erkennbar an: Rechnung mit Positionen UND Kreditkartendetails auf einer Seite
+           - Kann eine Rechnung mit eingebettetem Kreditkartenbeleg sein
+           - Oder zwei separate Bereiche auf einem gescannten Dokument
+
+        WICHTIG: Prüfe sorgfältig auf BEIDE Merkmale gleichzeitig für Typ 3.
+
+        Analysiere das Dokument und bestimme den Typ basierend auf diesen Merkmalen.`
       }
     ];
 
@@ -117,18 +129,27 @@ export async function POST(request: Request) {
         content: [
           {
             type: "text",
-            text: `Analysiere dieses Dokument und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
+            text: `Analysiere dieses Dokument und bestimme den Typ.
 
             Antworte nur mit einem JSON-Objekt im folgenden Format:
             {
-              "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
+              "type": "Rechnung" | "Kreditkartenbeleg" | "Rechnung&Kreditkartenbeleg" | "Unbekannt",
               "confidence": 0-1,
               "reason": "Kurze Begründung auf Deutsch",
               "details": {
                 "rechnungProbability": 0-1,
-                "kreditkartenbelegProbability": 0-1
+                "kreditkartenbelegProbability": 0-1,
+                "combinedProbability": 0-1,
+                "hasDetailedItems": boolean,
+                "hasCreditCardNumber": boolean
               }
-            }`
+            }
+
+            WICHTIG für Typ-Erkennung:
+            - Wenn NUR detaillierte Positionen sichtbar → "Rechnung"
+            - Wenn NUR Kreditkartennummer sichtbar → "Kreditkartenbeleg"
+            - Wenn BEIDE sichtbar → "Rechnung&Kreditkartenbeleg"
+            - Wenn unklar → "Unbekannt"`
           },
           {
             type: "image_url",
@@ -140,18 +161,19 @@ export async function POST(request: Request) {
       });
     } else {
       // Fallback to filename analysis
-      const prompt = `Analysiere den folgenden Dateinamen und bestimme, ob es sich um eine Rechnung oder einen Kreditkartenbeleg handelt.
+      const prompt = `Analysiere den folgenden Dateinamen und bestimme den Typ.
       Dateiname: ${fileName}
       Dateityp: ${fileType}
-      
+
       Antworte nur mit einem JSON-Objekt im folgenden Format:
       {
-        "type": "Rechnung" | "Kreditkartenbeleg" | "Unbekannt",
+        "type": "Rechnung" | "Kreditkartenbeleg" | "Rechnung&Kreditkartenbeleg" | "Unbekannt",
         "confidence": 0-1,
         "reason": "Kurze Begründung",
         "details": {
           "rechnungProbability": 0-1,
-          "kreditkartenbelegProbability": 0-1
+          "kreditkartenbelegProbability": 0-1,
+          "combinedProbability": 0-1
         }
       }`;
       
