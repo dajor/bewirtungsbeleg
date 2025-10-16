@@ -1,3 +1,5 @@
+Add multi-page PDF display feature with separate file cards per page (Claude Assistant)
+Bump version to 0.45.0 #auto-release (dajor)
 Add comprehensive integration tests for Osteria del Parco receipt OCR extraction (Claude Assistant)
 Bump version to 0.44.0 #auto-release (dajor)
 Fix PDF.js worker CORS issue by serving worker file locally (Claude Assistant)

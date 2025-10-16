@@ -1,3 +1,20 @@
+# Version 0.46.0
+Datum: 16.10.2025
+
+## Änderungen
+- Neue Funktion zur Anzeige von mehrseitigen PDF-Dokumenten mit separaten Karten für jede Seite hinzugefügt
+- Umfassende Integrationstests für die OCR-Extraktion von Kassenbelegen des Osteria del Parco hinzugefügt
+- Problem mit PDF.js Worker CORS behoben, indem die Worker-Datei lokal bereitgestellt wird
+- Mehrseitige PDF-Extraktion durch Weitergabe des Seitenparameters an convertClientSide verbessert
+- Mehrseitige PDF-Extraktion durch Verwendung der clientseitigen Konvertierungsmethode verbessert
+- TypeScript-Fehler behoben und die pdfjs-dist-Abhängigkeit für den Produktionsbuild hinzugefügt
+
+## Technische Details
+- Build: 18570430335
+- Commit: 16b451ac2a4521c01329cec48b1804d99ffab14d
+
+---
+
 # Version 0.45.0
 Datum: 16.10.2025
 
