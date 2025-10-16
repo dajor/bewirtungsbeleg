@@ -1,6 +1,24 @@
 {
   "versions": [
     {
+      "version": "0.48.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Verbesserte Erhaltung von Feldern in mehrseitigen PDF-Dokumenten und manuelle Trinkgeldberechnung.",
+        "Behobener TypeScript-Fehler in den Render-Parametern von PDF.js durch Hinzufügen der fehlenden Canvas-Eigenschaft.",
+        "Hinzugef&#252;gte Anzeigefunktion f&#252;r mehrseitige PDFs mit separaten Dateikarten pro Seite.",
+        "Hinzugef&#252;gte umfassende Integrationstests f&#252;r die OCR-Extraktion von Belegen der Osteria del Parco.",
+        "Behobenes CORS-Problem des PDF.js-Workers durch lokales Bereitstellen der Worker-Datei.",
+        "Behobene Extraktion aus mehrseitigen PDFs durch &#220;bergeben des Seitenparameters an convertClientSide.",
+        "Behobene Extraktion aus mehrseitigen PDFs durch Verwendung der clientseitigen Konvertierungsmethode.",
+        "Behobener TypeScript-Fehler und hinzugef&#252;gte pdfjs-dist-Abh&#228;ngigkeit f&#252;r den Produktionsbuild.",
+        "Hinzugef&#252;gte Integrationstests f&#252;r die Extraktion aus mehrseitigen PDFs.",
+        "Aktivierte Extraktion aus mehrseitigen PDFs f&#252;r Belege."
+      ],
+      "build": "18572511665",
+      "commit": "3cc25210dae04767b552d798eebc847e16319e90"
+    },
+    {
       "version": "0.47.0",
       "date": "16.10.2025",
       "changes": [

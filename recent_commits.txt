@@ -1,3 +1,5 @@
+Fix multi-page PDF field preservation and manual tip calculation (Claude Assistant)
+Bump version to 0.47.0 #auto-release (dajor)
 Fix TypeScript error in PDF.js render parameters - add missing canvas property (Claude Assistant)
 Bump version to 0.46.0 #auto-release (dajor)
 Add multi-page PDF display feature with separate file cards per page (Claude Assistant)
