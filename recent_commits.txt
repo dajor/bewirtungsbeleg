@@ -1,3 +1,5 @@
+Fix TypeScript error in PDF.js render parameters - add missing canvas property (Claude Assistant)
+Bump version to 0.46.0 #auto-release (dajor)
 Add multi-page PDF display feature with separate file cards per page (Claude Assistant)
 Bump version to 0.45.0 #auto-release (dajor)
 Add comprehensive integration tests for Osteria del Parco receipt OCR extraction (Claude Assistant)

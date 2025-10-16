@@ -1,6 +1,17 @@
 {
   "versions": [
     {
+      "version": "0.47.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Fehler behoben: TypeScript-Fehler in den Render-Parametern von PDF.js durch Hinzufügen der fehlenden Canvas-Eigenschaft.",
+        "Neues Feature: Unterstützung für die Anzeige von mehrseitigen PDFs mit separaten Karten für jede Seite hinzugefügt.",
+        "Fehler behoben: CORS-Problem mit dem PDF.js-Worker durch lokales Bereitstellen der Worker-Datei."
+      ],
+      "build": "18570790794",
+      "commit": "241b700a6e56ec0e8b3872caef35dedca57d7463"
+    },
+    {
       "version": "0.46.0",
       "date": "16.10.2025",
       "changes": [
