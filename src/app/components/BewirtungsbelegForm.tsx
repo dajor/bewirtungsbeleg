@@ -426,7 +426,7 @@ export default function BewirtungsbelegForm() {
       console.log(`📄 PDF has ${pageCount} page(s)`);
 
       // Convert each page
-      const convertedPages = [];
+      const convertedPages: { pageNumber: number; data: string; name: string }[] = [];
       for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
         console.log(`🔄 Converting page ${pageNum}/${pageCount}...`);
         const imageData = await PDFToImageConverter.convert(file, {
