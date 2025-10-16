@@ -1,3 +1,16 @@
+# Version 0.41.0
+Datum: 16.10.2025
+
+## Änderungen
+- Integrationstests für die Extraktion von mehrseitigen PDFs wurden hinzugefügt.
+- Die Extraktion von mehrseitigen PDFs für Belege wurde aktiviert.
+
+## Technische Details
+- Build: 18552533756
+- Commit: 34699a820e221dfe6ec54741058c912f86ad9e04
+
+---
+
 # Version 0.40.0
 Datum: 16.10.2025
 

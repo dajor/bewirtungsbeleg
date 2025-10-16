@@ -1,6 +1,16 @@
 {
   "versions": [
     {
+      "version": "0.41.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Integrationstests für die Extraktion von mehrseitigen PDFs wurden hinzugefügt.",
+        "Die Extraktion von mehrseitigen PDFs für Belege wurde aktiviert."
+      ],
+      "build": "18552533756",
+      "commit": "34699a820e221dfe6ec54741058c912f86ad9e04"
+    },
+    {
       "version": "0.40.0",
       "date": "16.10.2025",
       "changes": [
