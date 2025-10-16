@@ -410,35 +410,63 @@ export default function BewirtungsbelegForm() {
     }
   };
 
-  // PDF to image conversion using server-side API
-  const convertPdfToImage = async (file: File): Promise<string> => {
-    console.log('🔄 Starting PDF conversion for:', file.name);
+  // PDF to image conversion using server-side API - converts all pages
+  const convertPdfToImages = async (file: File): Promise<{ pageNumber: number; data: string; name: string }[]> => {
+    console.log('🔄 Starting PDF conversion for all pages:', file.name);
 
     try {
-      // Use server-side conversion (more reliable than client-side)
-      const imageData = await PDFToImageConverter.convert(file, {
-        method: 'local', // Use local server-side conversion
-        page: 1
-      });
+      // Read the PDF file to get page count
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-      console.log('✅ PDF conversion successful via server-side API');
-      return imageData;
+      // Use pdf-lib to get page count
+      const { PDFDocument } = await import('pdf-lib');
+      const pdfDoc = await PDFDocument.load(buffer);
+      const pageCount = pdfDoc.getPageCount();
+      console.log(`📄 PDF has ${pageCount} page(s)`);
+
+      // Convert each page
+      const convertedPages = [];
+      for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+        console.log(`🔄 Converting page ${pageNum}/${pageCount}...`);
+        const imageData = await PDFToImageConverter.convert(file, {
+          method: 'local',
+          page: pageNum
+        });
+
+        const baseName = file.name.replace('.pdf', '');
+        const pageName = pageCount > 1 ? `${baseName}_Seite_${pageNum}` : baseName;
+
+        convertedPages.push({
+          pageNumber: pageNum,
+          data: imageData,
+          name: `${pageName}.jpg`
+        });
+        console.log(`✅ Page ${pageNum} converted successfully`);
+      }
+
+      console.log(`✅ All ${pageCount} page(s) converted successfully`);
+      return convertedPages;
     } catch (error) {
       console.error('❌ PDF conversion failed:', error);
       throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
-  const classifyDocument = async (fileId: string, file: File) => {
+  const classifyDocument = async (fileId: string, file: File, pageNumber?: number) => {
     try {
       let imageData: string | undefined;
-      
+
       // For images and PDFs, prepare image data for classification
       if (file.type.startsWith('image/') || file.type === 'application/pdf') {
         if (file.type === 'application/pdf') {
-          // Convert PDF to image using improved conversion with fallback
+          // Convert first page only for classification (we'll process all pages later)
           try {
-            imageData = await convertPdfToImage(file);
+            const firstPageData = await PDFToImageConverter.convert(file, {
+              method: 'local',
+              page: pageNumber || 1
+            });
+            imageData = firstPageData;
           } catch (error) {
             console.error('PDF conversion failed for classification:', error);
             // Continue without image data - classification might still work based on filename
@@ -582,7 +610,7 @@ export default function BewirtungsbelegForm() {
         setSelectedImage(fileToProcess);
       }
 
-      // If it's a PDF, convert it to image first for OCR
+      // If it's a PDF, convert ALL pages to images for OCR
       if (fileToProcess.type === 'application/pdf') {
         setError(null);
         setSuccess(false);
@@ -593,23 +621,43 @@ export default function BewirtungsbelegForm() {
         ));
 
         try {
-          console.log(`Converting PDF: ${fileToProcess.name} (${result.type})`);
+          console.log(`Converting PDF: ${fileToProcess.name}`);
 
-          // Convert PDF to image using improved conversion with fallback
-          const imageData = await convertPdfToImage(fileToProcess);
+          // Convert ALL pages of the PDF
+          const convertedPages = await convertPdfToImages(fileToProcess);
+          console.log(`Converted ${convertedPages.length} page(s) from PDF`);
 
-          // Create a temporary file object with the converted image
-          console.log('Creating blob from base64 image...');
-          const convertedImageBlob = await fetch(imageData).then(r => r.blob());
-          const convertedImageFile = new File([convertedImageBlob], fileToProcess.name.replace('.pdf', '.jpg'), {
-            type: 'image/jpeg'
-          });
-          console.log('Converted image file created:', convertedImageFile.size, 'bytes');
+          // Process each page separately
+          for (let pageIndex = 0; pageIndex < convertedPages.length; pageIndex++) {
+            const pageData = convertedPages[pageIndex];
 
-          console.log('PDF Classification:', result.type);
+            // Add delay between pages to ensure form state updates
+            if (pageIndex > 0) {
+              console.log(`⏳ Waiting 1 second before processing page ${pageIndex + 1}...`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
 
-          // Extract data from the converted image with proper classification
-          await extractDataFromImage(convertedImageFile, result.type);
+            console.log(`Processing page ${pageData.pageNumber}/${convertedPages.length}: ${pageData.name}`);
+
+            // Create a temporary file object for this page
+            const convertedImageBlob = await fetch(pageData.data).then(r => r.blob());
+            const convertedImageFile = new File([convertedImageBlob], pageData.name, {
+              type: 'image/jpeg'
+            });
+
+            // Classify this specific page
+            const pageClassification = await classifyDocument(
+              `${result.fileId}_page_${pageData.pageNumber}`,
+              fileToProcess,
+              pageData.pageNumber
+            );
+            console.log(`Page ${pageData.pageNumber} classified as:`, pageClassification);
+
+            // Extract data from this page with proper classification
+            await extractDataFromImage(convertedImageFile, pageClassification);
+
+            console.log(`✅ Page ${pageData.pageNumber} processed successfully`);
+          }
 
           // Update the file status
           setAttachedFiles(prev => prev.map(f =>
