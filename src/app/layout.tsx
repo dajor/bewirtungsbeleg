@@ -6,6 +6,7 @@ import { theme } from './theme';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { Providers } from './providers';
+import { ConsoleLoggerInit } from './components/ConsoleLoggerInit';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -40,6 +41,7 @@ export default function RootLayout({
         <ColorSchemeScript />
       </head>
       <body className={inter.className}>
+        <ConsoleLoggerInit />
         <Providers>
           <MantineProvider theme={theme}>
             {children}

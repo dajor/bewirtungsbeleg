@@ -9,6 +9,7 @@ async function handlePOST(request: Request) {
     const formData = await request.formData();
     const file = formData.get('file') as File;
     const formatParam = formData.get('format') as string | null;
+    const pageParam = formData.get('page') as string | null;
 
     if (!file) {
       return NextResponse.json(
@@ -28,7 +29,8 @@ async function handlePOST(request: Request) {
 
     // Determine format (default to JPEG, but allow PNG via parameter)
     const format = (formatParam === 'png' ? 'png' : 'jpeg') as 'jpeg' | 'png';
-    console.log(`Using format: ${format.toUpperCase()}`);
+    const requestedPage = pageParam ? parseInt(pageParam, 10) : null;
+    console.log(`Using format: ${format.toUpperCase()}`, requestedPage ? `page: ${requestedPage}` : 'all pages');
 
     // Convert file to buffer
     const bytes = await file.arrayBuffer();
@@ -39,21 +41,41 @@ async function handlePOST(request: Request) {
       const convertedPages = await convertPdfToImagesAllPages(buffer, file.name, { format });
       
       console.log(`Converted ${convertedPages.length} page(s) from PDF`);
-      
-      // For OCR, we'll use the first page
-      if (convertedPages.length > 0) {
-        return NextResponse.json({
-          success: true,
-          image: convertedPages[0].data,
-          pageCount: convertedPages.length,
-          allPages: convertedPages // Include all pages for potential future use
-        });
-      } else {
+
+      if (convertedPages.length === 0) {
         return NextResponse.json(
           { error: 'Keine Seiten im PDF gefunden' },
           { status: 400 }
         );
       }
+
+      // If specific page requested, return only that page
+      if (requestedPage !== null) {
+        const page = convertedPages.find(p => p.pageNumber === requestedPage);
+
+        if (!page) {
+          return NextResponse.json(
+            { error: `Seite ${requestedPage} existiert nicht (PDF hat ${convertedPages.length} Seite(n))` },
+            { status: 404 }
+          );
+        }
+
+        console.log(`✅ Returning page ${requestedPage} of ${convertedPages.length}`);
+        return NextResponse.json({
+          success: true,
+          image: page.data,
+          pageNumber: page.pageNumber,
+          totalPages: convertedPages.length
+        });
+      }
+
+      // Return first page by default (for OCR compatibility)
+      return NextResponse.json({
+        success: true,
+        image: convertedPages[0].data,
+        pageCount: convertedPages.length,
+        allPages: convertedPages // Include all pages for potential future use
+      });
     } catch (pdfError) {
       console.error('PDF conversion failed:', pdfError);
 

@@ -228,12 +228,6 @@ export default function BewirtungsbelegForm() {
   });
 
   const extractDataFromImage = async (file: File, classificationType?: string) => {
-    // Skip PDFs from OCR extraction - they need to be converted first
-    if (file.type === 'application/pdf') {
-      console.log('Skipping OCR for PDF file - needs conversion first');
-      return;
-    }
-    
     setIsProcessing(true);
     setError(null);
 
@@ -295,6 +289,21 @@ export default function BewirtungsbelegForm() {
         // For credit card receipts: extract both bill amount and paid amount
         const kreditkartenbetrag = data.kreditkartenbetrag ? data.kreditkartenbetrag.replace(',', '.') : '';
 
+        // Check if the Kreditkartenbeleg contains invoice data (gesamtbetrag)
+        // If it does, populate invoice fields (for combined receipts or when no separate invoice exists)
+        const hasInvoiceData = finalGesamtbetrag && !form.values.gesamtbetrag;
+
+        if (hasInvoiceData) {
+          console.log('📋 Kreditkartenbeleg contains invoice data - populating all fields');
+          // Store invoice amount in ref for later calculations
+          lastInvoiceAmountRef.current = finalGesamtbetrag;
+
+          // Populate invoice fields from OCR data
+          form.setFieldValue('gesamtbetrag', finalGesamtbetrag);
+          form.setFieldValue('gesamtbetragMwst', finalMwst);
+          form.setFieldValue('gesamtbetragNetto', finalNetto);
+        }
+
         // Calculate tip if we have both amounts
         // Use lastInvoiceAmountRef (from invoice) since credit card receipt won't have bill amount
         // This ref persists across async state updates, unlike form.values.gesamtbetrag
@@ -338,7 +347,7 @@ export default function BewirtungsbelegForm() {
           tipMwstToUse = (Number(tipToUse) * 0.19).toFixed(2);
         }
 
-        // For credit card receipts: ONLY update card-specific fields, DO NOT touch invoice data
+        // Update credit card specific fields
         // Update ONLY the fields we want to change, don't touch the rest
         if (data.restaurantName) {
           form.setFieldValue('restaurantName', data.restaurantName);
@@ -356,24 +365,31 @@ export default function BewirtungsbelegForm() {
           form.setFieldValue('trinkgeldMwst', tipMwstToUse);
         }
 
-        console.log('✅ Credit card data added (invoice fields untouched):', {
+        console.log('✅ Credit card data added:', {
+          invoiceFieldsPopulated: hasInvoiceData,
           kreditkartenBetrag: kreditkartenbetrag,
           trinkgeld: tipToUse,
           trinkgeldMwst: tipMwstToUse,
-          preservedInvoice: {
-            gesamtbetrag: form.values.gesamtbetrag,
-            mwst: form.values.gesamtbetragMwst,
-            netto: form.values.gesamtbetragNetto,
+          invoice: {
+            gesamtbetrag: form.values.gesamtbetrag || finalGesamtbetrag,
+            mwst: form.values.gesamtbetragMwst || finalMwst,
+            netto: form.values.gesamtbetragNetto || finalNetto,
           }
         });
       } else {
         // For Rechnung, update all financial fields
+        // IMPORTANT: Rechnung data should OVERWRITE Kreditkartenbeleg data
         // Store invoice amount in ref for later tip calculation
         if (finalGesamtbetrag) {
           lastInvoiceAmountRef.current = finalGesamtbetrag;
           console.log('💾 Stored invoice amount in ref:', finalGesamtbetrag);
         }
 
+        console.log('📋 Setting Rechnung data...');
+        console.log('📋 Before: form.values.gesamtbetrag =', form.values.gesamtbetrag);
+
+        // FIXED: Always use Rechnung data if available (don't fall back to existing values)
+        // Rechnung is the authoritative source of truth for invoice amounts
         form.setValues({
           ...form.values,
           restaurantName: data.restaurantName || form.values.restaurantName,
@@ -385,6 +401,8 @@ export default function BewirtungsbelegForm() {
           trinkgeld: trinkgeld || form.values.trinkgeld,
           kreditkartenBetrag: form.values.kreditkartenBetrag, // Keep existing value for Rechnung
         });
+        console.log('📋 After setValues: gesamtbetrag should be updated to', finalGesamtbetrag);
+        console.log('📋 Note: React state updates are async - value will be available in next render');
       }
     } catch (err) {
       console.error('Fehler bei der OCR-Verarbeitung:', err);
@@ -415,22 +433,21 @@ export default function BewirtungsbelegForm() {
     console.log('🔄 Starting PDF conversion for all pages:', file.name);
 
     try {
-      // Read the PDF file to get page count
+      // Read the PDF file to get page count using pdf-lib (browser-compatible)
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
 
-      // Use pdf-lib to get page count
+      // Use pdf-lib to get page count (works in browser)
       const { PDFDocument } = await import('pdf-lib');
-      const pdfDoc = await PDFDocument.load(buffer);
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
       const pageCount = pdfDoc.getPageCount();
       console.log(`📄 PDF has ${pageCount} page(s)`);
 
-      // Convert each page
+      // Convert each page using server-side API (reliable)
       const convertedPages: { pageNumber: number; data: string; name: string }[] = [];
       for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
         console.log(`🔄 Converting page ${pageNum}/${pageCount}...`);
         const imageData = await PDFToImageConverter.convert(file, {
-          method: 'client',  // Use client-side conversion to support page parameter
+          method: 'local',  // Use server-side conversion (pdftoppm)
           page: pageNum
         });
 
@@ -449,6 +466,9 @@ export default function BewirtungsbelegForm() {
       return convertedPages;
     } catch (error) {
       console.error('❌ PDF conversion failed:', error);
+      console.error('❌ Error type:', error instanceof Error ? error.constructor.name : typeof error);
+      console.error('❌ Error message:', error instanceof Error ? error.message : String(error));
+      console.error('❌ Error stack:', error instanceof Error ? error.stack : 'No stack trace');
       throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
@@ -463,7 +483,7 @@ export default function BewirtungsbelegForm() {
           // Convert first page only for classification (we'll process all pages later)
           try {
             const firstPageData = await PDFToImageConverter.convert(file, {
-              method: 'client',  // Use client-side conversion to support page parameter
+              method: 'local',  // Use server-side conversion (reliable pdftoppm)
               page: pageNumber || 1
             });
             imageData = firstPageData;
@@ -627,9 +647,45 @@ export default function BewirtungsbelegForm() {
           const convertedPages = await convertPdfToImages(fileToProcess);
           console.log(`Converted ${convertedPages.length} page(s) from PDF`);
 
+          // Create separate FileWithPreview entries for each page
+          // This allows each page to be displayed as a separate card in the UI
+          const pageFileEntries: FileWithPreview[] = [];
+
+          for (let pageIndex = 0; pageIndex < convertedPages.length; pageIndex++) {
+            const pageData = convertedPages[pageIndex];
+
+            // Create a File object for this page
+            const convertedImageBlob = await fetch(pageData.data).then(r => r.blob());
+            const convertedImageFile = new File([convertedImageBlob], pageData.name, {
+              type: 'image/jpeg'
+            });
+
+            // Create a FileWithPreview entry for this page
+            const pageFileData: FileWithPreview = {
+              file: convertedImageFile,
+              id: `${result.fileId}_page_${pageData.pageNumber}`,
+              preview: pageData.data, // Use the converted image as preview
+              isConverting: false,
+              classification: { type: '', confidence: 0, isProcessing: true }
+            };
+
+            pageFileEntries.push(pageFileData);
+          }
+
+          // Replace the original PDF entry with the page entries
+          setAttachedFiles(prev => {
+            // Remove the original PDF file entry
+            const withoutPdf = prev.filter(f => f.id !== result.fileId);
+            // Add the page entries
+            return [...withoutPdf, ...pageFileEntries];
+          });
+
+          console.log(`✅ Created ${pageFileEntries.length} separate file entries for PDF pages`);
+
           // Process each page separately
           for (let pageIndex = 0; pageIndex < convertedPages.length; pageIndex++) {
             const pageData = convertedPages[pageIndex];
+            const pageFileData = pageFileEntries[pageIndex];
 
             // Add delay between pages to ensure form state updates
             if (pageIndex > 0) {
@@ -639,22 +695,80 @@ export default function BewirtungsbelegForm() {
 
             console.log(`Processing page ${pageData.pageNumber}/${convertedPages.length}: ${pageData.name}`);
 
-            // Create a temporary file object for this page
-            const convertedImageBlob = await fetch(pageData.data).then(r => r.blob());
-            const convertedImageFile = new File([convertedImageBlob], pageData.name, {
-              type: 'image/jpeg'
-            });
+            // Use the pageFileData we already created
+            const convertedImageFile = pageFileData.file;
 
             // Classify this specific page
             const pageClassification = await classifyDocument(
-              `${result.fileId}_page_${pageData.pageNumber}`,
+              pageFileData.id,
               fileToProcess,
               pageData.pageNumber
             );
             console.log(`Page ${pageData.pageNumber} classified as:`, pageClassification);
 
-            // Extract data from this page with proper classification
-            await extractDataFromImage(convertedImageFile, pageClassification);
+            // Handle combined documents (Rechnung&Kreditkartenbeleg)
+            if (pageClassification === 'Rechnung&Kreditkartenbeleg') {
+              console.log('🔍 Combined document detected - attempting to detect embedded regions...');
+
+              try {
+                // Import the image detection utility
+                const { detectEmbeddedDocuments } = await import('@/lib/image-detection');
+                const { extractMultipleRegionsFromPdfPage } = await import('@/lib/extract-pdf-regions');
+
+                // Detect regions within the combined document
+                const detection = await detectEmbeddedDocuments(pageData.data);
+
+                if (detection.hasMultipleDocuments && detection.regions.length > 1) {
+                  console.log(`✅ Found ${detection.regions.length} embedded regions:`, detection.regions);
+
+                  // Extract each region as a separate image
+                  const extractedRegions = await extractMultipleRegionsFromPdfPage(
+                    fileToProcess,
+                    pageData.pageNumber,
+                    detection.regions
+                  );
+
+                  console.log(`✅ Extracted ${extractedRegions.length} regions successfully`);
+
+                  // Process each extracted region separately with OCR
+                  for (let regionIndex = 0; regionIndex < extractedRegions.length; regionIndex++) {
+                    const region = extractedRegions[regionIndex];
+
+                    // Add delay between regions
+                    if (regionIndex > 0) {
+                      console.log(`⏳ Waiting 1 second before processing region ${regionIndex + 1}...`);
+                      await new Promise(resolve => setTimeout(resolve, 1000));
+                    }
+
+                    console.log(`📄 Processing region ${regionIndex + 1}/${extractedRegions.length}: ${region.type}`);
+
+                    // Create a temporary file object for this region
+                    const regionBlob = await fetch(region.imageDataUrl).then(r => r.blob());
+                    const regionFile = new File([regionBlob], `${pageData.name}_${region.type}.jpg`, {
+                      type: 'image/jpeg'
+                    });
+
+                    // Extract data from this region with its specific type
+                    await extractDataFromImage(regionFile, region.type);
+
+                    console.log(`✅ Region ${regionIndex + 1} (${region.type}) processed successfully`);
+                  }
+                } else {
+                  // No multiple regions detected, treat as single combined document
+                  console.log('⚠️ No multiple regions detected, processing as single combined document');
+                  await extractDataFromImage(convertedImageFile, pageClassification);
+                }
+              } catch (error) {
+                console.error('❌ Failed to detect/extract regions:', error);
+                // Fallback: process the whole page as combined document
+                console.log('⚠️ Falling back to processing whole page as combined document');
+                await extractDataFromImage(convertedImageFile, pageClassification);
+              }
+            } else {
+              // Normal single-type document
+              // Extract data from this page with proper classification
+              await extractDataFromImage(convertedImageFile, pageClassification);
+            }
 
             console.log(`✅ Page ${pageData.pageNumber} processed successfully`);
           }
@@ -674,6 +788,9 @@ export default function BewirtungsbelegForm() {
               errorMessage = 'PDF-Konvertierung abgebrochen: Zeitüberschreitung. Die Datei ist möglicherweise zu groß.';
             } else if (error.message.includes('timeout')) {
               errorMessage = 'PDF-Konvertierung dauerte zu lange. Bitte versuchen Sie eine kleinere Datei.';
+            } else {
+              // Include actual error for debugging
+              errorMessage = `Fehler bei der PDF-Konvertierung: ${error.message}. Bitte füllen Sie die Felder manuell aus.`;
             }
           }
 
@@ -689,7 +806,7 @@ export default function BewirtungsbelegForm() {
         await extractDataFromImage(fileToProcess, result.type);
       }
     }
-  }, [selectedImage, attachedFiles]);
+  }, [selectedImage]); // Removed attachedFiles from dependencies to avoid stale closures
 
   const handleFileRemove = useCallback((id: string) => {
     setAttachedFiles(prev => {

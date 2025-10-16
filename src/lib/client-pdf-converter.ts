@@ -1,8 +1,39 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Set worker path - use locally served worker file to avoid CORS issues
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
+// Initialize worker - use bundled worker to avoid path/CORS issues
+let workerInitialized = false;
+let workerInitPromise: Promise<void> | null = null;
+
+async function initializeWorker(): Promise<void> {
+  if (workerInitialized) return;
+  if (workerInitPromise) return workerInitPromise;
+
+  workerInitPromise = (async () => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      // Import the worker module directly - Next.js will bundle it properly
+      const pdfjsWorker = await import('pdfjs-dist/build/pdf.worker.mjs');
+
+      // Create a blob URL from the worker module
+      const workerBlob = new Blob(
+        [pdfjsWorker.default || pdfjsWorker],
+        { type: 'application/javascript' }
+      );
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(workerBlob);
+      workerInitialized = true;
+      console.log('✅ PDF.js worker initialized successfully');
+    } catch (error) {
+      console.error('❌ Failed to initialize PDF.js worker:', error);
+      // Fallback to CDN worker as last resort
+      pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+      console.log('⚠️ Using CDN fallback worker');
+      workerInitialized = true;
+    }
+  })();
+
+  await workerInitPromise;
 }
 
 export interface ConvertedPdfPage {
@@ -33,10 +64,22 @@ export async function convertPdfToImageClientSide(
 
   try {
     console.log('🔄 Starting client-side PDF conversion...');
+    console.log(`📁 File: ${file.name} (${(file.size / 1024).toFixed(1)}KB)`);
+
+    // Ensure worker is initialized before processing PDF
+    await initializeWorker();
 
     // Load PDF document
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    console.log('📦 ArrayBuffer created, loading PDF...');
+
+    const loadingTask = pdfjsLib.getDocument({
+      data: arrayBuffer,
+      verbosity: 0 // Reduce console noise
+    });
+
+    const pdf = await loadingTask.promise;
+    console.log('✅ PDF loaded successfully');
 
     const totalPages = pdf.numPages;
     console.log(`📄 PDF has ${totalPages} page(s)`);
@@ -54,47 +97,58 @@ export async function convertPdfToImageClientSide(
 
       console.log(`🖼️ Converting page ${pageNum}...`);
 
-      // Get the page
-      const page = await pdf.getPage(pageNum);
+      try {
+        // Get the page
+        const page = await pdf.getPage(pageNum);
+        console.log(`📄 Page ${pageNum} loaded`);
 
-      // Calculate viewport
-      const viewport = page.getViewport({ scale });
+        // Calculate viewport
+        const viewport = page.getViewport({ scale });
+        console.log(`📐 Viewport: ${viewport.width}x${viewport.height}`);
 
-      // Create canvas
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d', { willReadFrequently: false });
 
-      if (!context) {
-        throw new Error('Failed to get canvas 2D context');
+        if (!context) {
+          throw new Error('Failed to get canvas 2D context');
+        }
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        console.log(`🎨 Canvas created: ${canvas.width}x${canvas.height}`);
+
+        // Render PDF page to canvas
+        const renderTask = page.render({
+          canvasContext: context,
+          viewport: viewport
+        });
+
+        await renderTask.promise;
+        console.log(`✅ Page ${pageNum} rendered to canvas`);
+
+        // Convert canvas to base64 data URL
+        const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+
+        // Generate page name
+        const baseNameWithoutExt = file.name.replace(/\.pdf$/i, '');
+        const pageName = totalPages > 1
+          ? `${baseNameWithoutExt}_Seite_${pageNum}.${format}`
+          : `${baseNameWithoutExt}.${format}`;
+
+        convertedPages.push({
+          pageNumber: pageNum,
+          data: dataUrl,
+          name: pageName
+        });
+
+        console.log(`✅ Page ${pageNum} converted successfully`);
+
+      } catch (pageError) {
+        console.error(`❌ Failed to convert page ${pageNum}:`, pageError);
+        throw new Error(`Page ${pageNum} conversion failed: ${pageError instanceof Error ? pageError.message : 'Unknown error'}`);
       }
-
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-
-      // Render PDF page to canvas
-      await page.render({
-        canvasContext: context,
-        viewport: viewport,
-        canvas: canvas
-      }).promise;
-
-      // Convert canvas to base64 data URL
-      const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
-      const dataUrl = canvas.toDataURL(mimeType, quality);
-
-      // Generate page name
-      const baseNameWithoutExt = file.name.replace(/\.pdf$/i, '');
-      const pageName = totalPages > 1
-        ? `${baseNameWithoutExt}_Seite_${pageNum}.${format}`
-        : `${baseNameWithoutExt}.${format}`;
-
-      convertedPages.push({
-        pageNumber: pageNum,
-        data: dataUrl,
-        name: pageName
-      });
-
-      console.log(`✅ Page ${pageNum} converted successfully`);
     }
 
     console.log(`✅ Client-side PDF conversion completed: ${convertedPages.length} page(s)`);

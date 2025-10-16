@@ -61,12 +61,17 @@ export class PDFToImageConverter {
 
   /**
    * Convert PDF to image using existing /api/convert-pdf endpoint
-   * (Current implementation)
+   * (Server-side conversion using pdftoppm - reliable and consistent)
    */
-  static async convertWithLocalAPI(pdfFile: File): Promise<string> {
+  static async convertWithLocalAPI(pdfFile: File, page?: number): Promise<string> {
     try {
       const formData = new FormData();
       formData.append('file', pdfFile);
+
+      // Add page parameter if specified
+      if (page !== undefined) {
+        formData.append('page', page.toString());
+      }
 
       const response = await fetch('/api/convert-pdf', {
         method: 'POST',
@@ -109,44 +114,44 @@ export class PDFToImageConverter {
 
   /**
    * Main conversion method with fallback strategies
+   * DEFAULT: Use server-side conversion (local API) for reliability
    */
   static async convert(pdfFile: File, options?: {
     method?: 'digitalocean' | 'local' | 'client';
     page?: number;
     operations?: Array<{type: string, [key: string]: any}>;
   }): Promise<string> {
-    const method = options?.method || 'digitalocean'; // Default to DigitalOcean now
+    const method = options?.method || 'local'; // DEFAULT: Server-side (most reliable)
     const page = options?.page || 1;
     const operations = options?.operations || [];
 
     try {
       switch (method) {
+        case 'local':
+          // Use local API endpoint (server-side conversion with pdftoppm)
+          console.log(`🔄 Converting PDF using server-side API (page ${page})...`);
+          return await this.convertWithLocalAPI(pdfFile, page);
+
         case 'digitalocean':
           // Use DigitalOcean function with client-side PDF conversion
           return await this.convertWithDigitalOcean(pdfFile, page, operations);
 
-        case 'local':
-          // Use local API endpoint
-          return await this.convertWithLocalAPI(pdfFile);
-
         case 'client':
           // Client-side conversion only (no backend processing)
+          // WARNING: This is unreliable and should only be used as last resort
+          console.warn('⚠️ Using client-side PDF conversion (unreliable)');
           return await this.convertClientSide(pdfFile, page);
 
         default:
-          // Default to DigitalOcean
-          return await this.convertWithDigitalOcean(pdfFile, page, operations);
+          // Default to server-side
+          return await this.convertWithLocalAPI(pdfFile, page);
       }
     } catch (error) {
       console.error(`PDF conversion failed with method ${method}:`, error);
 
-      // Try fallback methods
-      if (method === 'digitalocean') {
-        console.log('Falling back to local API...');
-        return await this.convertWithLocalAPI(pdfFile);
-      }
-
-      throw error;
+      // NO fallback to client-side - it's broken and causes the Object.defineProperty error
+      // Just fail cleanly and let the user know
+      throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
