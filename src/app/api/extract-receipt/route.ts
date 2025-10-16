@@ -165,26 +165,24 @@ export async function POST(request: Request) {
     let extractionPrompt = "Extrahiere diese Informationen aus der Rechnung: restaurantName, restaurantAnschrift, gesamtbetrag, mwst, netto, datum (Format: DD.MM.YYYY) und optional trinkgeld. Gib die Beträge im deutschen Format mit Komma zurück (z.B. '38,60'). Antworte NUR mit einem JSON-Objekt.";
 
     if (classificationType === 'Kreditkartenbeleg') {
-      extractionPrompt = `Dies ist ein Kreditkartenbeleg. Extrahiere:
+      extractionPrompt = `Dies ist ein Kreditkartenbeleg (NICHT eine Rechnung). Extrahiere:
       - restaurantName: Name des Händlers/Restaurants
       - datum: Transaktionsdatum (Format: DD.MM.YYYY)
-      - gesamtbetrag: Der RECHNUNGSBETRAG (meist der kleinere Betrag, z.B. "Total", "Summe", "Betrag", "Amount", "Rechnung")
-      - kreditkartenbetrag: Der BEZAHLTE Betrag auf der Kreditkarte (der größere Betrag, inkl. Trinkgeld)
-      - trinkgeld: Falls separat aufgeführt, oder berechne aus Differenz
+      - kreditkartenbetrag: Der BEZAHLTE Betrag auf der Kreditkarte
+        * Suche nach: "Betrag", "Zahlung", "Total", "Gesamt", "Amount", "Paid"
+        * Dies ist der HAUPTBETRAG auf dem Kreditkartenbeleg
+        * Oft der GRÖSSTE oder EINZIGE Betrag auf dem Beleg
 
-      WICHTIG: Bei Kreditkartenbelegen gibt es oft ZWEI Beträge:
-      1. RECHNUNGSBETRAG (z.B. 29,90€) → gesamtbetrag
-         - Suche nach: "Total", "Betrag", "Zahlung", "Summe", "Amount", "Rechnung", "Bill", "Check"
-         - Dies ist der KLEINERE Betrag (ohne Trinkgeld)
-      2. BEZAHLTER BETRAG (z.B. 35,00€) → kreditkartenbetrag
-         - Suche nach: dem HÖCHSTEN/GRÖSSTEN Betrag auf dem Beleg
-         - Oft gekennzeichnet mit "Betrag", "Zahlung", "Paid", "Total", "Gesamt"
-         - Dies ist der GRÖSSERE Betrag (mit Trinkgeld)
+      WICHTIG:
+      - Ein reiner Kreditkartenbeleg zeigt NUR den bezahlten Betrag (kreditkartenbetrag)
+      - SETZE gesamtbetrag NICHT - das ist NUR für Rechnungen
+      - Falls das Dokument BEIDE Beträge zeigt (Rechnung + Kreditkarte), dann ist es KEIN reiner Kreditkartenbeleg
+      - Der Betrag auf einem Kreditkartenbeleg ist der Gesamtbetrag INKL. Trinkgeld
+      - Trinkgeld separat: Falls "Trinkgeld", "Tip", "Gratuity" sichtbar, extrahiere es
 
-      - Wenn beide vorhanden: trinkgeld = kreditkartenbetrag - gesamtbetrag
-
-      FLEXIBILITÄT: Die Beträge können an verschiedenen Positionen im Dokument stehen.
-      Achte auf ALLE Zahlenbeträge im Format XX,XX oder XX.XX und identifiziere die beiden Hauptbeträge.
+      BEISPIEL:
+      Kreditkartenbeleg mit "Betrag: 105,00€" → kreditkartenbetrag: "105,00"
+      (NICHT gesamtbetrag setzen!)
 
       Antworte NUR mit einem JSON-Objekt.`;
     } else if (classificationType === 'Rechnung') {
