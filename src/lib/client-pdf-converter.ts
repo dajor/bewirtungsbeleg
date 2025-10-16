@@ -121,7 +121,8 @@ export async function convertPdfToImageClientSide(
         // Render PDF page to canvas
         const renderTask = page.render({
           canvasContext: context,
-          viewport: viewport
+          viewport: viewport,
+          canvas: canvas
         });
 
         await renderTask.promise;
