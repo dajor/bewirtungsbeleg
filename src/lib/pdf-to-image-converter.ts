@@ -131,7 +131,7 @@ export class PDFToImageConverter {
 
         case 'client':
           // Client-side conversion only (no backend processing)
-          return await this.convertClientSide(pdfFile);
+          return await this.convertClientSide(pdfFile, page);
 
         default:
           // Default to DigitalOcean
