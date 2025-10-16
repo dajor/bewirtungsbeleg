@@ -1,6 +1,15 @@
 {
   "versions": [
     {
+      "version": "0.40.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Neue Funktion zur Extraktion von mehrseitigen PDF-Dateien für Belege hinzugefügt."
+      ],
+      "build": "18552187748",
+      "commit": "cab0bed4e12013aa27c652a715aed1157321ee1c"
+    },
+    {
       "version": "0.39.3",
       "date": "15.10.2025",
       "changes": [
