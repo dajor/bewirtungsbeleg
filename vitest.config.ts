@@ -21,6 +21,8 @@ export default defineConfig({
       'src/**/*.{spec,test}.{js,jsx}', // Exclude JS/JSX test files that might use Jest-specific APIs
       'src/**/*e2e*.{test,spec}.{ts,tsx}', // Exclude E2E tests that require a running server
       'src/app/api/generate-pdf/e2e.test.ts', // Specific E2E test file
+      'src/__tests__/routes-validation.test.ts', // Routes validation test that requires a server
+      'src/__tests__/integration/auth-real-user.integration.test.ts', // Integration test that requires a server
     ],
     coverage: {
       provider: 'v8',
@@ -37,6 +39,8 @@ export default defineConfig({
         'src/**/*.{spec,test}.{js,jsx}', // Exclude JS/JSX test files that might use Jest-specific APIs
         'src/**/*e2e*.{test,spec}.{ts,tsx}', // Exclude E2E tests that require a running server
         'src/app/api/generate-pdf/e2e.test.ts', // Specific E2E test file
+        'src/__tests__/routes-validation.test.ts', // Routes validation test that requires a server
+        'src/__tests__/integration/auth-real-user.integration.test.ts', // Integration test that requires a server
       ],
       include: ['src/**/*.{test,spec}.{ts,tsx}'],
     },
