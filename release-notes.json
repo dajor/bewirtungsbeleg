@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.42.0",
+      "date": "16.10.2025",
+      "changes": [
+        "Bugfix: Korrigiert die Extraktion von mehrseitigen PDFs durch Verwendung einer clientseitigen Konvertierungsmethode.",
+        "Bugfix: Behebt einen TypeScript-Fehler und fügt die pdfjs-dist-Abhängigkeit für den Produktionsbuild hinzu.",
+        "Neues Feature: Ermöglicht die Extraktion von mehrseitigen PDFs für Belege.",
+        "Neues Feature: Fügt Integrationstests für die Extraktion von mehrseitigen PDFs hinzu."
+      ],
+      "build": "18552909951",
+      "commit": "2e5ee2d4598ee6095e8965488c99cd3703f4b0b4"
+    },
+    {
       "version": "0.41.0",
       "date": "16.10.2025",
       "changes": [
