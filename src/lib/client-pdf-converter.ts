@@ -1,8 +1,8 @@
 import * as pdfjsLib from 'pdfjs-dist';
 
-// Set worker path
+// Set worker path - use locally served worker file to avoid CORS issues
 if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+  pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
 }
 
 export interface ConvertedPdfPage {
