@@ -1,67 +1,20 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { middleware } from './middleware';
-import { getToken } from 'next-auth/jwt';
 
-// Mock next-auth/jwt only during test execution
-// This approach avoids issues during build when test frameworks are not available
-const mockJest = typeof jest !== 'undefined' ? jest : null;
-let mockGetTokenFn: any = null;
-
-// Create a mock function that works in both test and build contexts
-const createMockFunction = () => {
-  const fn: any = () => Promise.resolve(null);
-  // Add mock methods for test context
-  if (mockJest) {
-    Object.assign(fn, mockJest.fn());
-  } else {
-    // For build context, provide minimal mock functionality
-    fn.mockResolvedValue = (value: any) => {
-      fn.mockReturnValue = () => fn;
-      fn.mockImplementation = () => fn;
-      return fn;
-    };
-    fn.mockReturnValue = (value: any) => {
-      fn.mockResolvedValue = () => fn;
-      fn.mockImplementation = () => fn;
-      return fn;
-    };
-    fn.mockImplementation = (impl: any) => {
-      fn.mockResolvedValue = () => fn;
-      fn.mockReturnValue = () => fn;
-      return fn;
-    };
-    fn.mockReset = () => {};
-    fn.mockClear = () => {};
-  }
-  return fn;
-};
-
-if (mockJest) {
-  mockGetTokenFn = createMockFunction();
-  mockJest.mock('next-auth/jwt', () => ({
-    getToken: mockGetTokenFn,
-  }));
-} else {
-  // For build context, provide a simple mock function
-  mockGetTokenFn = createMockFunction();
-}
+// Mock NextResponse.next()
+jest.mock('next/server', () => {
+  const actual = jest.requireActual('next/server');
+  return {
+    ...actual,
+    NextResponse: {
+      next: jest.fn(() => ({
+        status: 200,
+      })),
+    },
+  };
+});
 
 describe('Middleware', () => {
-  // Use the mock function we created, or fall back to the actual getToken function
-  const mockGetToken = typeof jest !== 'undefined' ?
-    getToken as jest.MockedFunction<typeof getToken> :
-    mockGetTokenFn;
-
-  beforeEach(() => {
-    if (typeof jest !== 'undefined') {
-      jest.clearAllMocks();
-    }
-    // Reset the mock function for non-jest environments
-    if (mockGetTokenFn && typeof mockGetTokenFn.mockReset === 'function') {
-      mockGetTokenFn.mockReset();
-    }
-  });
-
   const createRequest = (pathname: string) => {
     const url = new URL(`http://localhost:3000${pathname}`);
     return {
@@ -70,86 +23,48 @@ describe('Middleware', () => {
     } as unknown as NextRequest;
   };
 
-  describe('Public routes', () => {
-    it('should allow access to home page without authentication', async () => {
-      mockGetToken.mockResolvedValue(null);
+  describe('All routes', () => {
+    it('should allow access to all routes without authentication', async () => {
       const request = createRequest('/');
       const response = await middleware(request);
-      
-      // Check that it's not a redirect (would have status 307)
-      expect(response?.status).not.toBe(307);
+
+      // Middleware should allow all requests to pass through
+      expect(response?.status).toBe(200);
     });
 
-    it('should allow access to release notes without authentication', async () => {
-      mockGetToken.mockResolvedValue(null);
+    it('should allow access to release notes', async () => {
       const request = createRequest('/release-notes');
       const response = await middleware(request);
-      
-      expect(response?.status).not.toBe(307);
+
+      expect(response?.status).toBe(200);
     });
 
-    it('should allow access to auth API routes', async () => {
-      mockGetToken.mockResolvedValue(null);
+    it('should allow access to bewirtungsbeleg page', async () => {
+      const request = createRequest('/bewirtungsbeleg');
+      const response = await middleware(request);
+
+      expect(response?.status).toBe(200);
+    });
+
+    it('should allow access to auth pages', async () => {
+      const request = createRequest('/auth/anmelden');
+      const response = await middleware(request);
+
+      expect(response?.status).toBe(200);
+    });
+
+    it('should allow access to API routes', async () => {
       const request = createRequest('/api/auth/anmelden');
       const response = await middleware(request);
-      
-      expect(response?.status).not.toBe(307);
-    });
-  });
 
-  describe('Protected routes', () => {
-    it('should redirect to signin if not authenticated', async () => {
-      mockGetToken.mockResolvedValue(null);
-      const request = createRequest('/bewirtungsbeleg');
-      const response = await middleware(request);
-      
-      expect(response?.status).toBe(307);
-      expect(response?.headers.get('location')).toContain('/auth/anmelden');
-      expect(response?.headers.get('location')).toContain('callbackUrl=%2Fbewirtungsbeleg');
+      expect(response?.status).toBe(200);
     });
 
-    it('should allow access to protected routes if authenticated', async () => {
-      mockGetToken.mockResolvedValue({
-        sub: '1',
-        role: 'admin',
-        id: '1',
-      } as any);
-      const request = createRequest('/bewirtungsbeleg');
-      const response = await middleware(request);
-      
-      expect(response?.status).not.toBe(307);
-    });
-
-    it('should protect PDF generation API', async () => {
-      mockGetToken.mockResolvedValue(null);
+    it('should allow access to PDF generation API', async () => {
       const request = createRequest('/api/generate-pdf');
       const response = await middleware(request);
-      
-      expect(response?.status).toBe(307);
-      expect(response?.headers.get('location')).toContain('/auth/anmelden');
-    });
-  });
 
-  describe('Auth pages', () => {
-    it('should redirect authenticated users away from signin page', async () => {
-      mockGetToken.mockResolvedValue({
-        sub: '1',
-        role: 'admin',
-        id: '1',
-      } as any);
-      const request = createRequest('/auth/anmelden');
-      const response = await middleware(request);
-      
-      expect(response?.status).toBe(307);
-      expect(response?.headers.get('location')).toContain('/bewirtungsbeleg');
-    });
-
-    it('should allow unauthenticated users to access signin page', async () => {
-      mockGetToken.mockResolvedValue(null);
-      const request = createRequest('/auth/anmelden');
-      const response = await middleware(request);
-      
-      expect(response?.status).not.toBe(307);
+      expect(response?.status).toBe(200);
     });
   });
 
