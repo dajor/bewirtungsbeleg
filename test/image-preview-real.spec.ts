@@ -25,7 +25,7 @@ test.describe('Image Preview Real-World Test', () => {
     console.log('Uploading PDF:', testPdfPath);
     
     // Upload the PDF file
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testPdfPath);
     
     // Wait for file to appear in the uploaded files list
@@ -123,7 +123,7 @@ test.describe('Image Preview Real-World Test', () => {
     }
     
     // Upload the image
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testImagePath);
     await page.waitForTimeout(1000);
     

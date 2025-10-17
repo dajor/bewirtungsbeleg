@@ -17,7 +17,7 @@ class BewirtungsbelegPage {
   }
 
   async uploadFile(filePath: string) {
-    const fileInput = this.page.locator('input[type="file"]');
+    const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(filePath);
   }
 
@@ -388,7 +388,7 @@ test.describe('Multiple File Handling', () => {
     }
 
     // Upload both files
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([testPngPath, testPdfPath]);
 
     // Wait for PDF conversion (PNG should be instant)

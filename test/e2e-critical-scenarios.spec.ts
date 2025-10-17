@@ -19,7 +19,8 @@ class BewirtungsbelegPage {
   }
 
   async uploadFiles(filePaths: string[]) {
-    const fileInput = this.page.locator('input[type="file"]');
+    // Use more specific selector to target the main receipt upload input (not JSON upload)
+    const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(filePaths);
     await this.page.waitForTimeout(1000);
   }

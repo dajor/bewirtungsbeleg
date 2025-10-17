@@ -69,7 +69,7 @@ test.describe('ZUGFeRD PDF Generation', () => {
       fs.writeFileSync(testImagePath, pngBuffer);
     }
     
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testImagePath);
     await page.waitForTimeout(1000);
     

@@ -18,7 +18,7 @@ test('End-to-end Bewirtungsbeleg test', async ({ page }) => {
   await page.screenshot({ path: path.join(__dirname, 'screenshot-1-initial.png'), fullPage: true });
   
   // Upload the PDF file using FileInput
-  const fileInput = page.locator('input[type="file"]');
+  const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
   await fileInput.setInputFiles(path.join(__dirname, 'input.pdf'));
   
   // Wait for file to be processed and take screenshot

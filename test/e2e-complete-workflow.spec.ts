@@ -17,7 +17,9 @@ class BewirtungsbelegWorkflow {
   }
 
   async uploadReceipt(filePath: string) {
-    const fileInput = this.page.locator('input[type="file"]');
+    // Use more specific selector to target the main receipt upload input (not JSON upload)
+    // The receipt input has accept for images/PDFs, JSON input only accepts .json
+    const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(filePath);
     await this.page.waitForTimeout(1000);
   }
@@ -246,7 +248,8 @@ test.describe('Complete Bewirtungsbeleg Workflow', () => {
       fs.writeFileSync(file2, 'PDF test content 2');
     }
 
-    const fileInput = page.locator('input[type="file"]');
+    // Use more specific selector to target the main receipt upload input (not JSON upload)
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([file1, file2]);
 
     // Fill form

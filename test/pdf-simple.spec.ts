@@ -15,7 +15,7 @@ test.describe('Simple PDF Conversion Test', () => {
     await page.waitForLoadState('networkidle');
     
     // Check if the file input exists
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await expect(fileInput).toBeAttached();
     
     // Check if dropzone area is visible
@@ -44,7 +44,7 @@ test.describe('Simple PDF Conversion Test', () => {
     console.log('Uploading PDF from:', testPdfPath);
     
     // Upload the file
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testPdfPath);
     
     // Wait a bit for processing
