@@ -12,10 +12,11 @@ test.describe('Image Preview Real-World Test', () => {
     // Navigate to the actual page
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
-    
+    await page.waitForTimeout(500);
+
     // Create a real PDF file for testing
     const testPdfPath = path.join(process.cwd(), 'test', '08042025_kreditbeleg_Pareo.pdf');
-    
+
     if (!fs.existsSync(testPdfPath)) {
       console.log('Test PDF not found, skipping test');
       test.skip();
@@ -23,9 +24,9 @@ test.describe('Image Preview Real-World Test', () => {
     }
 
     console.log('Uploading PDF:', testPdfPath);
-    
+
     // Upload the PDF file
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testPdfPath);
     
     // Wait for file to appear in the uploaded files list
@@ -102,10 +103,11 @@ test.describe('Image Preview Real-World Test', () => {
   test('Regular image should display immediately in preview', async ({ page }) => {
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
-    
+    await page.waitForTimeout(500);
+
     // Create a test PNG file
     const testImagePath = path.join(process.cwd(), 'test', 'test-receipt.png');
-    
+
     if (!fs.existsSync(testImagePath)) {
       // Create a simple PNG if it doesn't exist
       const pngBuffer = Buffer.from([
@@ -121,9 +123,9 @@ test.describe('Image Preview Real-World Test', () => {
       ]);
       fs.writeFileSync(testImagePath, pngBuffer);
     }
-    
+
     // Upload the image
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testImagePath);
     await page.waitForTimeout(1000);
     

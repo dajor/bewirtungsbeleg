@@ -96,7 +96,7 @@ async function uploadAndWaitForProcessing(page: any, filePath: string, fileType:
   );
 
   // Now upload the file
-  const fileInput = page.locator('input[type="file"]').first();
+  const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
   await fileInput.setInputFiles([filePath]);
 
   console.log(`✓ ${fileType} uploaded`);
@@ -146,6 +146,7 @@ test.describe('playwright-4-multi-pdf-combinations: Critical Multi-PDF Upload Te
     console.log('=== Navigate to Bewirtungsbeleg Form ===');
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     console.log('✓ Form page loaded');
   });
 

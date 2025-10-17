@@ -11,6 +11,7 @@ test.describe('ZUGFeRD PDF Generation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
   });
 
   test('should generate ZUGFeRD-compliant PDF with all required fields', async ({ page }) => {
@@ -69,7 +70,7 @@ test.describe('ZUGFeRD PDF Generation', () => {
       fs.writeFileSync(testImagePath, pngBuffer);
     }
     
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(testImagePath);
     await page.waitForTimeout(1000);
     

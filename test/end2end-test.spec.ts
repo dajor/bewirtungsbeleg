@@ -9,16 +9,18 @@ const __dirname = path.dirname(__filename);
 test('End-to-end Bewirtungsbeleg test', async ({ page }) => {
   // Set longer timeout for this test
   test.setTimeout(60000);
-  
+
   // Navigate to the Bewirtungsbeleg page
   await page.goto('/bewirtungsbeleg');
-  
+  await page.waitForLoadState('networkidle');
+  await page.waitForTimeout(500);
+
   // Wait for the page to load and take screenshot
   await page.waitForSelector('h1:has-text("Bewirtungsbeleg")');
   await page.screenshot({ path: path.join(__dirname, 'screenshot-1-initial.png'), fullPage: true });
-  
+
   // Upload the PDF file using FileInput
-  const fileInput = page.locator('input[type="file"]');
+  const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
   await fileInput.setInputFiles(path.join(__dirname, 'input.pdf'));
   
   // Wait for file to be processed and take screenshot

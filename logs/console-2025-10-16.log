@@ -1,0 +1,1579 @@
+[2025-10-16T17:29:39.853Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T17:29:40.067Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T17:33:21.130Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:33:28.551Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T17:33:28.551Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T17:33:28.551Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T17:33:28.582Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:33:28.583Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:33:28.694Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T17:33:28.694Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T17:33:28.694Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:33:28.806Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T17:33:28.806Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T17:33:28.806Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T17:33:28.920Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T17:33:28.920Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T17:33:28.920Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T17:33:28.920Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T17:33:28.923Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:33:34.477Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält Kreditkartendetails (teilweise maskierte Kartennummer) und Transaktionsinformationen, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält Kreditkartendetails (teilweise maskierte Kartennummer) und Transaktionsinformationen, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T17:33:34.477Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T17:33:55.670Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T17:33:55.670Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T17:33:55.670Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T17:33:55.670Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T17:33:55.671Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T17:33:55.672Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T17:33:55.672Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T17:33:55.672Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T17:33:55.672Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T17:33:55.672Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T17:33:56.674Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T17:33:56.676Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T17:34:02.892Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen und eine Adresse, aber keine sichtbare Kreditkartennummer.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen und eine Adresse, aber keine sichtbare Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T17:34:02.892Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T17:34:07.696Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values.gesamtbetrag = 
+[2025-10-16T17:34:07.697Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues (NOT immediately updated): form.values.gesamtbetrag = 
+[2025-10-16T17:34:07.697Z] [LOG  ] [/bewirtungsbeleg] 📋 This is expected - React state updates are async!
+[2025-10-16T17:34:07.697Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T17:36:10.048Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T17:36:11.133Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 1084ms
+[2025-10-16T17:40:28.661Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T17:40:28.727Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T17:40:33.843Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:40:44.503Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Enthält eine teilweise maskierte Kreditkartennummer, einen Betrag und Transaktionsdetails, aber keine detaillierte Auflistung von Artikeln.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Enthält eine teilweise maskierte Kreditkartennummer, einen Betrag und Transaktionsdetails, aber keine detaillierte Auflistung von Artikeln.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T17:40:44.503Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T17:40:44.503Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T17:40:44.533Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:40:44.534Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:40:44.651Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T17:40:44.651Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T17:40:44.651Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:40:44.782Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T17:40:44.782Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T17:40:44.782Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T17:40:44.907Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T17:40:44.908Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T17:40:44.908Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T17:40:44.908Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T17:40:44.910Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T17:40:52.586Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält Kreditkartendetails wie die teils maskierte Kartennummer und Transaktionsdaten, keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält Kreditkartendetails wie die teils maskierte Kartennummer und Transaktionsdaten, keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T17:40:52.586Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T17:41:01.292Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T17:41:01.293Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T17:41:03.064Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T17:41:03.068Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T17:41:14.506Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument zeigt detaillierte Positionen mit Preisen, aber keine Kreditkartennummer.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0.1,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument zeigt detaillierte Positionen mit Preisen, aber keine Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0.1,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T17:41:14.506Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T17:41:19.736Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T17:41:19.736Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T17:41:19.736Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T17:41:19.736Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T17:41:19.737Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T17:41:19.737Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values.gesamtbetrag = 
+[2025-10-16T17:41:19.737Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues: gesamtbetrag should be updated to 99.90
+[2025-10-16T17:41:19.737Z] [LOG  ] [/bewirtungsbeleg] 📋 Note: React state updates are async - value will be available in next render
+[2025-10-16T17:41:19.737Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T17:49:59.560Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T17:50:00.281Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 721ms
+[2025-10-16T17:50:20.128Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T17:50:20.273Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 145ms
+[2025-10-16T18:02:21.673Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:02:21.678Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T18:02:21.680Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:02:21.754Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:02:27.608Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:02:34.477Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:02:34.478Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:02:34.478Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:02:34.503Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:02:34.504Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:02:34.614Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:02:34.614Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:02:34.614Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:02:34.730Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:02:34.730Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:02:34.730Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:02:34.844Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:02:34.844Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:02:34.844Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:02:34.847Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:02:34.847Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:02:34.847Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:02:42.085Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:02:42.085Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T18:02:49.509Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:02:49.509Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T18:02:49.509Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T18:02:49.509Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T18:02:49.510Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T18:02:49.511Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T18:02:49.511Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T18:02:49.511Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T18:02:50.513Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T18:02:50.513Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:02:57.268Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, aber keine sichtbare Kreditkartennummer.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, aber keine sichtbare Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T18:02:57.268Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T18:03:02.544Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:03:02.544Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T18:03:02.544Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T18:03:02.544Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T18:03:02.545Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T18:03:02.545Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values.gesamtbetrag = 
+[2025-10-16T18:03:02.545Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues: gesamtbetrag should be updated to 99.90
+[2025-10-16T18:03:02.545Z] [LOG  ] [/bewirtungsbeleg] 📋 Note: React state updates are async - value will be available in next render
+[2025-10-16T18:03:02.545Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T18:04:06.733Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:04:06.971Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 238ms
+[2025-10-16T18:04:14.237Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:04:14.347Z] [ERROR] [/bewirtungsbeleg] ./src/app/components/ConsoleLoggerInit.tsx
+Error: Failed to read source code from /Users/daniel/dev/Bewritung/bewir/src/app/components/ConsoleLoggerInit.tsx
+
+Caused by:
+    No such file or directory (os error 2)
+
+Import trace for requested module:
+./src/app/components/ConsoleLoggerInit.tsx
+[2025-10-16T18:04:14.372Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:04:32.947Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:04:33.133Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 187ms
+[2025-10-16T18:09:29.289Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:09:29.866Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 577ms
+[2025-10-16T18:12:50.197Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:12:50.246Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:12:54.190Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:13:04.790Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Details zur Bezahlung, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Details zur Bezahlung, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:13:04.790Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:13:04.790Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:13:04.818Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:13:04.818Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:13:04.930Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:13:04.930Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:13:04.930Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:13:05.045Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:13:05.045Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:13:05.045Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:13:05.162Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:13:05.162Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:13:05.162Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:13:05.164Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:13:05.164Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:13:05.164Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:13:11.272Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält Kreditkartendetails wie eine maskierte Kartennummer, Beleg- und Trace-Nummer sowie den Gesamtbetrag. Es fehlen detaillierte Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält Kreditkartendetails wie eine maskierte Kartennummer, Beleg- und Trace-Nummer sowie den Gesamtbetrag. Es fehlen detaillierte Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:13:11.272Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T18:13:17.980Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:13:17.980Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T18:13:17.980Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T18:13:17.980Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T18:13:17.981Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T18:13:17.982Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T18:13:17.982Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T18:13:17.982Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T18:13:18.984Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T18:13:18.984Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:13:27.072Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, Restaurantname, Adresse und Gesamtbeträge, jedoch keine ersichtliche Kreditkartennummer.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, Restaurantname, Adresse und Gesamtbeträge, jedoch keine ersichtliche Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T18:13:27.072Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T18:13:31.896Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:13:31.896Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T18:13:31.896Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues: values should be updated to {"gesamtbetrag":"99.90","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 After setValues: values should be updated to {
+  "gesamtbetrag": "99.90",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] 📋 Note: React state updates are async - values will be available in next render
+[2025-10-16T18:13:31.897Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T18:35:26.949Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:35:27.013Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:35:45.918Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:35:46.493Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:35:46.947Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:35:46.947Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:35:46.947Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 454ms
+[2025-10-16T18:35:56.753Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument zeigt eine teilweise maskierte Kreditkartennummer und andere Transaktionsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument zeigt eine teilweise maskierte Kreditkartennummer und andere Transaktionsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:35:56.754Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:35:56.754Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:35:56.802Z] [WARN ] [/bewirtungsbeleg] [HMR] unexpected require((app-pages-browser)/./node_modules/pdf-lib/es/index.js) from disposed module (app-pages-browser)/./src/app/components/BewirtungsbelegForm.tsx
+[2025-10-16T18:35:56.830Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:35:56.830Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:35:56.830Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:35:56.982Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:35:56.982Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:35:56.982Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:35:57.099Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:35:57.099Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:35:57.099Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:35:57.104Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:35:57.104Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:35:57.104Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:04.604Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer, Transaktionsdetails und den Gesamtbetrag, jedoch keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer, Transaktionsdetails und den Gesamtbetrag, jedoch keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:36:04.604Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T18:36:04.612Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:11.448Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:36:11.448Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T18:36:11.448Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T18:36:11.448Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T18:36:11.449Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T18:36:11.450Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T18:36:11.450Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T18:36:11.450Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T18:36:12.452Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T18:36:12.452Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:36:13.540Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:36:13.540Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:36:13.541Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:36:13.565Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:13.565Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:13.576Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:36:13.576Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:36:13.576Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:13.695Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:36:13.695Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:36:13.695Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:36:13.811Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:36:13.811Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:36:13.811Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:36:13.813Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:36:13.813Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:36:13.813Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:36:16.672Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:36:17.537Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 865ms
+[2025-10-16T18:36:19.548Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, jedoch keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, jedoch keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:36:19.548Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T18:36:20.400Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen und Mehrwertsteuer, aber es gibt keine sichtbare Kreditkartennummer.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0.05,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen und Mehrwertsteuer, aber es gibt keine sichtbare Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T18:36:20.401Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T18:36:24.586Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T18:36:24.587Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T18:36:24.587Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T18:36:24.587Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T18:36:25.589Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T18:36:25.589Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:36:32.511Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, keine Kreditkartennummer oder andere Kreditkartendetails sichtbar.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, keine Kreditkartennummer oder andere Kreditkartendetails sichtbar.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T18:36:32.511Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T18:36:37.973Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:36:37.973Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues: values should be updated to {"gesamtbetrag":"99.90","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 After setValues: values should be updated to {
+  "gesamtbetrag": "99.90",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] 📋 Note: React state updates are async - values will be available in next render
+[2025-10-16T18:36:37.974Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T18:36:43.369Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:36:43.370Z] [LOG  ] [/bewirtungsbeleg] 📋 After setValues: values should be updated to {"gesamtbetrag":"99.90","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 After setValues: values should be updated to {
+  "gesamtbetrag": "99.90",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T18:36:43.370Z] [LOG  ] [/bewirtungsbeleg] 📋 Note: React state updates are async - values will be available in next render
+[2025-10-16T18:36:43.370Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T18:36:49.125Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:36:49.293Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 169ms
+[2025-10-16T18:41:11.418Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T18:41:11.789Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 371ms
+[2025-10-16T18:43:23.922Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:43:24.181Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T18:43:24.185Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.186Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.797Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:23.925Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:43:24.320Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T18:43:24.324Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.395Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.952Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:23.925Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T18:43:24.264Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T18:43:24.268Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.299Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T18:43:24.869Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.338Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument zeigt eine teilweise maskierte Kreditkartennummer und Zahlungsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument zeigt eine teilweise maskierte Kreditkartennummer und Zahlungsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:43:31.338Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:43:31.338Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:43:31.356Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.357Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.465Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:43:31.465Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:43:31.465Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.583Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:43:31.583Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:43:31.583Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:43:31.693Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:43:31.693Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:43:31.693Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:43:31.699Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:43:31.699Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:43:31.699Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.455Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Der Beleg enthält eine maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Der Beleg enthält eine maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:43:31.455Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T18:43:31.455Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T18:43:31.474Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.475Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.564Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:43:31.564Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:43:31.564Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:31.676Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:43:31.676Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:43:31.676Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:43:31.789Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:43:31.789Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:43:31.789Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:43:31.794Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:43:31.794Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T18:43:31.794Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:34.785Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, jedoch keine Kreditkartendetails.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0.05,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, jedoch keine Kreditkartendetails.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T18:43:34.785Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul1).pdf
+[2025-10-16T18:43:34.785Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul1).pdf
+[2025-10-16T18:43:34.803Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:34.804Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:34.884Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T18:43:34.884Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T18:43:34.884Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:34.994Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T18:43:34.994Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T18:43:34.994Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T18:43:35.108Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T18:43:35.108Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T18:43:35.108Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T18:43:35.113Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T18:43:35.113Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul1)_Seite_1.jpg
+[2025-10-16T18:43:35.114Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T18:43:38.146Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierte Auflistung von Produkten oder Dienstleistungen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails, aber keine detaillierte Auflistung von Produkten oder Dienstleistungen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T18:43:38.146Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T19:19:21.598Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:19:21.667Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:19:26.949Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:20:04.447Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails ohne detaillierte Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Transaktionsdetails ohne detaillierte Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:20:04.447Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T19:20:04.447Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T19:20:04.485Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:20:04.486Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:20:04.598Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T19:20:04.598Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T19:20:04.598Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:20:04.715Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T19:20:04.715Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T19:20:04.715Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:20:04.829Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T19:20:04.829Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T19:20:04.829Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T19:20:04.834Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T19:20:04.834Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T19:20:04.834Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:20:14.610Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:20:14.610Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T19:20:17.886Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:20:17.886Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T19:20:17.886Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T19:20:17.886Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T19:20:17.887Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T19:20:17.887Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T19:20:17.888Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T19:20:17.889Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T19:20:17.889Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T19:20:17.889Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T19:20:19.130Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T19:20:19.130Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:20:24.602Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, aber keine Kreditkartendetails.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0.05,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, aber keine Kreditkartendetails.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T19:20:24.603Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T19:20:32.653Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: refs = {"lastCreditCardAmountRef":"105.00","lastTipAmountRef":"0.00","lastTipMwstRef":"0.00"}
+📋 Before: refs = {
+  "lastCreditCardAmountRef": "105.00",
+  "lastTipAmountRef": "0.00",
+  "lastTipMwstRef": "0.00"
+}
+[2025-10-16T19:20:32.654Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving kreditkartenBetrag from ref: 105.00
+[2025-10-16T19:20:32.654Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeld from ref/OCR: 0.00
+[2025-10-16T19:20:32.654Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeldMwst from ref: 0.00
+[2025-10-16T19:20:32.654Z] [LOG  ] [/bewirtungsbeleg] ✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values
+[2025-10-16T19:20:32.654Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T19:26:14.811Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T19:26:15.479Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T19:26:15.547Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 68ms
+[2025-10-16T19:26:15.716Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 237ms
+[2025-10-16T19:28:34.130Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T19:34:39.556Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:34:39.623Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:34:44.787Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:34:54.204Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Zahlungsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und Zahlungsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:34:54.205Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T19:34:54.205Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T19:34:54.245Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:34:54.246Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:34:54.362Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T19:34:54.362Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T19:34:54.362Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:34:54.473Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T19:34:54.473Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T19:34:54.473Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:34:54.588Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T19:34:54.589Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T19:34:54.589Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T19:34:54.593Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T19:34:54.594Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T19:34:54.594Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:35:00.689Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer, Transaktionsdetails und einen Gesamtbetrag, jedoch keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer, Transaktionsdetails und einen Gesamtbetrag, jedoch keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:35:00.689Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T19:35:07.049Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:35:07.049Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T19:35:07.049Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"105.00","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "105.00",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T19:35:07.049Z] [LOG  ] [/bewirtungsbeleg] 📋 Kreditkartenbeleg contains invoice data - populating all fields
+[2025-10-16T19:35:07.050Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T19:35:07.050Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current = 105.00 type: string
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Both values present, calculating...
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid = 105 bill = 105
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: paid > bill? false
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: NOT calculating tip because paid <= bill
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":true,"kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"105.00","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": true,
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "105.00",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T19:35:07.051Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T19:35:08.055Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T19:35:08.055Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:35:18.692Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, aber keine erkennbaren Kreditkartendetails.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.1,"combinedProbability":0.05,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, aber keine erkennbaren Kreditkartendetails.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.1,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T19:35:18.693Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T19:35:24.414Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: refs = {"lastCreditCardAmountRef":"105.00","lastTipAmountRef":"0.00","lastTipMwstRef":"0.00"}
+📋 Before: refs = {
+  "lastCreditCardAmountRef": "105.00",
+  "lastTipAmountRef": "0.00",
+  "lastTipMwstRef": "0.00"
+}
+[2025-10-16T19:35:24.415Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving kreditkartenBetrag from ref: 105.00
+[2025-10-16T19:35:24.415Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeld from ref/OCR: 0.00
+[2025-10-16T19:35:24.416Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeldMwst from ref: 0.00
+[2025-10-16T19:35:24.416Z] [LOG  ] [/bewirtungsbeleg] ✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values
+[2025-10-16T19:35:24.416Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T19:38:30.170Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:38:30.336Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T19:38:30.341Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:38:30.344Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:38:31.274Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:38:40.274Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält Kreditkartendetails wie die maskierte Kartennummer und andere Transaktionsinformationen, aber keine detaillierten Positionen wie in einer Rechnung.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.1,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält Kreditkartendetails wie die maskierte Kartennummer und andere Transaktionsinformationen, aber keine detaillierten Positionen wie in einer Rechnung.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.1,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:38:40.274Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T19:38:40.274Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T19:38:40.295Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:38:40.296Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:38:40.419Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T19:38:40.419Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T19:38:40.419Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:38:40.532Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T19:38:40.532Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T19:38:40.532Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:38:40.645Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T19:38:40.645Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T19:38:40.645Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T19:38:40.651Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T19:38:40.651Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T19:38:40.652Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:39:50.729Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:39:50.892Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T19:39:50.896Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:39:50.900Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:39:53.881Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:41:14.246Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:41:14.382Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T19:41:14.386Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:41:14.425Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:42:42.518Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:42:52.385Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.2,"kreditkartenbelegProbability":0.95,"combinedProbability":0.1,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine Kreditkartennummer und Transaktionsdetails, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.2,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.1,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:42:52.385Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T19:42:52.385Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T19:42:52.417Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:42:52.418Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:42:52.523Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T19:42:52.523Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T19:42:52.523Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:42:52.749Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T19:42:52.749Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T19:42:52.749Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:42:52.887Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T19:42:52.887Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T19:42:52.887Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T19:42:52.889Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T19:42:52.889Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T19:42:52.889Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:43:01.190Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer und transaktionsspezifische Informationen, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.2,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer und transaktionsspezifische Informationen, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.2,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:43:01.190Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"","kreditkartenbetrag":"105,00","trinkgeld":"0.00"}
+Extracted data: {
+  "gesamtbetrag": "",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": "0.00"
+}
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current =  type: string
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T19:43:09.057Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Cannot calculate tip - missing values
+[2025-10-16T19:43:09.058Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag present? true
+[2025-10-16T19:43:09.058Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: invoiceAmount present? false
+[2025-10-16T19:43:09.059Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":"","kreditkartenBetrag":"105.00","trinkgeld":"0.00","trinkgeldMwst":"0.00","invoice":{"gesamtbetrag":"","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": "",
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "0.00",
+  "trinkgeldMwst": "0.00",
+  "invoice": {
+    "gesamtbetrag": "",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T19:43:09.059Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T19:43:09.059Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T19:43:10.062Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T19:43:10.062Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:43:12.328Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {}
+[2025-10-16T19:43:12.328Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T19:43:19.296Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: refs = {"lastCreditCardAmountRef":"105.00","lastTipAmountRef":"0.00","lastTipMwstRef":"0.00"}
+📋 Before: refs = {
+  "lastCreditCardAmountRef": "105.00",
+  "lastTipAmountRef": "0.00",
+  "lastTipMwstRef": "0.00"
+}
+[2025-10-16T19:43:19.297Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving kreditkartenBetrag from ref: 105.00
+[2025-10-16T19:43:19.297Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeld from ref/OCR: 0.00
+[2025-10-16T19:43:19.297Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving trinkgeldMwst from ref: 0.00
+[2025-10-16T19:43:19.297Z] [LOG  ] [/bewirtungsbeleg] ✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values
+[2025-10-16T19:43:19.297Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 handleKreditkartenBetragChange CALLED with value: 1 type: number
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current form.values.gesamtbetrag: 99.90 type: string
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current lastInvoiceAmountRef.current: 99.90
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 kkBetrag after conversion: 1
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 invoiceAmount from ref/form: 99.90
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Condition passed: kkBetrag && invoiceAmount
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Parsed values - gesamtbetrag: 99.9 kkBetragNum: 1
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Checking if 1 > 99.9 = false
+[2025-10-16T19:43:35.347Z] [LOG  ] [/bewirtungsbeleg] 🔍 Tip NOT calculated: kkBetragNum <= gesamtbetrag
+[2025-10-16T19:43:35.562Z] [LOG  ] [/bewirtungsbeleg] 🔍 handleKreditkartenBetragChange CALLED with value: 10 type: number
+[2025-10-16T19:43:35.562Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current form.values.gesamtbetrag: 99.90 type: string
+[2025-10-16T19:43:35.562Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current lastInvoiceAmountRef.current: 99.90
+[2025-10-16T19:43:35.562Z] [LOG  ] [/bewirtungsbeleg] 🔍 kkBetrag after conversion: 10
+[2025-10-16T19:43:35.563Z] [LOG  ] [/bewirtungsbeleg] 🔍 invoiceAmount from ref/form: 99.90
+[2025-10-16T19:43:35.563Z] [LOG  ] [/bewirtungsbeleg] 🔍 Condition passed: kkBetrag && invoiceAmount
+[2025-10-16T19:43:35.563Z] [LOG  ] [/bewirtungsbeleg] 🔍 Parsed values - gesamtbetrag: 99.9 kkBetragNum: 10
+[2025-10-16T19:43:35.563Z] [LOG  ] [/bewirtungsbeleg] 🔍 Checking if 10 > 99.9 = false
+[2025-10-16T19:43:35.563Z] [LOG  ] [/bewirtungsbeleg] 🔍 Tip NOT calculated: kkBetragNum <= gesamtbetrag
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 handleKreditkartenBetragChange CALLED with value: 105 type: number
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current form.values.gesamtbetrag: 99.90 type: string
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current lastInvoiceAmountRef.current: 99.90
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 kkBetrag after conversion: 105
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 invoiceAmount from ref/form: 99.90
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 Condition passed: kkBetrag && invoiceAmount
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 Parsed values - gesamtbetrag: 99.9 kkBetragNum: 105
+[2025-10-16T19:43:35.854Z] [LOG  ] [/bewirtungsbeleg] 🔍 Checking if 105 > 99.9 = true
+[2025-10-16T19:43:35.855Z] [LOG  ] [/bewirtungsbeleg] 💰 Auto-calculated tip: 5.10 = 105 - 99.9
+[2025-10-16T19:43:35.855Z] [LOG  ] [/bewirtungsbeleg] 💰 Auto-calculated tip MwSt: 0.97
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 handleKreditkartenBetragChange CALLED with value: 105 type: number
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current form.values.gesamtbetrag: 99.90 type: string
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 Current lastInvoiceAmountRef.current: 99.90
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 kkBetrag after conversion: 105
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 invoiceAmount from ref/form: 99.90
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 Condition passed: kkBetrag && invoiceAmount
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 Parsed values - gesamtbetrag: 99.9 kkBetragNum: 105
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 🔍 Checking if 105 > 99.9 = true
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 💰 Auto-calculated tip: 5.10 = 105 - 99.9
+[2025-10-16T19:43:37.699Z] [LOG  ] [/bewirtungsbeleg] 💰 Auto-calculated tip MwSt: 0.97
+[2025-10-16T19:57:49.142Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T19:57:49.193Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T19:57:54.817Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:58:01.384Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer sowie typische Kreditkartendetails, aber keine detaillierten Artikelpositionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer sowie typische Kreditkartendetails, aber keine detaillierten Artikelpositionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:58:01.384Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T19:58:01.385Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T19:58:01.425Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:58:01.426Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:58:01.547Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T19:58:01.547Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T19:58:01.547Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:58:01.669Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T19:58:01.669Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T19:58:01.669Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:58:01.782Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T19:58:01.782Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T19:58:01.782Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T19:58:01.784Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T19:58:01.784Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T19:58:01.784Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T19:58:06.211Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Beleg zeigt eine teilweise maskierte Kreditkartennummer und Transaktionsdaten, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Beleg zeigt eine teilweise maskierte Kreditkartennummer und Transaktionsdaten, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T19:58:06.211Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"","kreditkartenbetrag":"105,00","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": ""
+}
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current =  type: string
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Cannot calculate tip - missing values
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag present? true
+[2025-10-16T19:58:09.807Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: invoiceAmount present? false
+[2025-10-16T19:58:09.809Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":"","kreditkartenBetrag":"105.00","trinkgeld":"","trinkgeldMwst":"","invoice":{"gesamtbetrag":"","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": "",
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "",
+  "trinkgeldMwst": "",
+  "invoice": {
+    "gesamtbetrag": "",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T19:58:09.809Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T19:58:09.809Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T19:58:10.811Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T19:58:10.811Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T19:58:17.107Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":1,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, Zwischensumme und Mehrwertsteuer, jedoch keine Kreditkartennummer.","details":{"rechnungProbability":1,"kreditkartenbelegProbability":0,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 1,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, Zwischensumme und Mehrwertsteuer, jedoch keine Kreditkartennummer.",
+  "details": {
+    "rechnungProbability": 1,
+    "kreditkartenbelegProbability": 0,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T19:58:17.107Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T19:58:21.259Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: refs = {"lastCreditCardAmountRef":"105.00","lastTipAmountRef":"","lastTipMwstRef":""}
+📋 Before: refs = {
+  "lastCreditCardAmountRef": "105.00",
+  "lastTipAmountRef": "",
+  "lastTipMwstRef": ""
+}
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving kreditkartenBetrag from ref: 105.00
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] ✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values
+[2025-10-16T19:58:21.260Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully
+[2025-10-16T20:02:40.344Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:02:40.878Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:02:40.878Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:02:40.880Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 536ms
+[2025-10-16T20:02:40.332Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:02:41.585Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:02:41.586Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:02:41.588Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 1256ms
+[2025-10-16T20:02:52.901Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:02:53.146Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 245ms
+[2025-10-16T20:02:52.902Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:02:53.157Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 255ms
+[2025-10-16T20:03:16.721Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:03:16.880Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 159ms
+[2025-10-16T20:03:16.721Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] rebuilding
+[2025-10-16T20:03:16.925Z] [LOG  ] [/bewirtungsbeleg] [Fast Refresh] done in 204ms
+[2025-10-16T20:06:48.491Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T20:06:48.837Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T20:06:48.842Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:06:48.868Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:06:49.461Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:06:58.020Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Enthält Kreditkartennummer und Transaktionsdetails, jedoch keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Enthält Kreditkartennummer und Transaktionsdetails, jedoch keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T20:06:58.020Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T20:06:58.020Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T20:06:58.042Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:06:58.044Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:06:58.151Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T20:06:58.151Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T20:06:58.151Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:06:58.263Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T20:06:58.263Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T20:06:58.263Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T20:06:58.374Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T20:06:58.374Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T20:06:58.374Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T20:06:58.380Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T20:06:58.380Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T20:06:58.380Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:07:09.257Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine Kreditkartennummer und keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine Kreditkartennummer und keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T20:07:09.258Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T20:10:43.804Z] [INFO ] [/bewirtungsbeleg] 📝 Console logger initialized - logs will be saved to logs/ directory
+[2025-10-16T20:10:44.033Z] [WARN ] [/bewirtungsbeleg] Google Maps JavaScript API has been loaded directly without loading=async. This can result in suboptimal performance. For best-practice loading patterns please see https://goo.gle/js-api-loading
+[2025-10-16T20:10:44.038Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:10:44.085Z] [WARN ] [/bewirtungsbeleg] As of March 1st, 2025, google.maps.places.PlacesService is not available to new customers. Please use google.maps.places.Place instead. At this time, google.maps.places.PlacesService is not scheduled to be discontinued, but google.maps.places.Place is recommended over google.maps.places.PlacesService. While google.maps.places.PlacesService will continue to receive bug fixes for any major regressions, existing bugs in google.maps.places.PlacesService will not be addressed. At least 12 months notice will be given before support is discontinued. Please see https://developers.google.com/maps/legacy for additional details and https://developers.google.com/maps/documentation/javascript/places-migration-overview for the migration guide.
+[2025-10-16T20:10:44.665Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:10:50.391Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Der Beleg enthält eine teilweise maskierte Kreditkartennummer sowie Transaktionsdetails, aber keine detaillierten Positionen der Bestellung.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Der Beleg enthält eine teilweise maskierte Kreditkartennummer sowie Transaktionsdetails, aber keine detaillierten Positionen der Bestellung.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T20:10:50.391Z] [LOG  ] [/bewirtungsbeleg] Converting PDF: 14102025 (Paul2).pdf
+[2025-10-16T20:10:50.392Z] [LOG  ] [/bewirtungsbeleg] 🔄 Starting PDF conversion for all pages: 14102025 (Paul2).pdf
+[2025-10-16T20:10:50.419Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:10:50.421Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:10:50.505Z] [LOG  ] [/bewirtungsbeleg] 📄 PDF has 2 page(s)
+[2025-10-16T20:10:50.505Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 1/2...
+[2025-10-16T20:10:50.505Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:10:50.614Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 converted successfully
+[2025-10-16T20:10:50.614Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting page 2/2...
+[2025-10-16T20:10:50.615Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T20:10:50.724Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 converted successfully
+[2025-10-16T20:10:50.724Z] [LOG  ] [/bewirtungsbeleg] ✅ All 2 page(s) converted successfully
+[2025-10-16T20:10:50.724Z] [LOG  ] [/bewirtungsbeleg] Converted 2 page(s) from PDF
+[2025-10-16T20:10:50.729Z] [LOG  ] [/bewirtungsbeleg] ✅ Created 2 separate file entries for PDF pages
+[2025-10-16T20:10:50.729Z] [LOG  ] [/bewirtungsbeleg] Processing page 1/2: 14102025 (Paul2)_Seite_1.jpg
+[2025-10-16T20:10:50.729Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 1)...
+[2025-10-16T20:10:57.801Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Kreditkartenbeleg","confidence":0.95,"reason":"Das Dokument enthält eine teilweise maskierte Kreditkartennummer, aber keine detaillierten Positionen.","details":{"rechnungProbability":0.1,"kreditkartenbelegProbability":0.95,"combinedProbability":0.05,"hasDetailedItems":false,"hasCreditCardNumber":true}}
+Classification successful: {
+  "type": "Kreditkartenbeleg",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält eine teilweise maskierte Kreditkartennummer, aber keine detaillierten Positionen.",
+  "details": {
+    "rechnungProbability": 0.1,
+    "kreditkartenbelegProbability": 0.95,
+    "combinedProbability": 0.05,
+    "hasDetailedItems": false,
+    "hasCreditCardNumber": true
+  }
+}
+[2025-10-16T20:10:57.802Z] [LOG  ] [/bewirtungsbeleg] Page 1 classified as: Kreditkartenbeleg
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] Classification: Kreditkartenbeleg
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"","kreditkartenbetrag":"105,00","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "",
+  "kreditkartenbetrag": "105,00",
+  "trinkgeld": ""
+}
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Attempting to calculate tip...
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag = 105.00 type: string
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: lastInvoiceAmountRef.current =  type: string
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: form.values.gesamtbetrag (for comparison) = 
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: Cannot calculate tip - missing values
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: kreditkartenbetrag present? true
+[2025-10-16T20:11:03.223Z] [LOG  ] [/bewirtungsbeleg] 🔍 OCR: invoiceAmount present? false
+[2025-10-16T20:11:03.224Z] [LOG  ] [/bewirtungsbeleg] ✅ Credit card data added: {"invoiceFieldsPopulated":"","kreditkartenBetrag":"105.00","trinkgeld":"","trinkgeldMwst":"","invoice":{"gesamtbetrag":"","mwst":"","netto":""}}
+✅ Credit card data added: {
+  "invoiceFieldsPopulated": "",
+  "kreditkartenBetrag": "105.00",
+  "trinkgeld": "",
+  "trinkgeldMwst": "",
+  "invoice": {
+    "gesamtbetrag": "",
+    "mwst": "",
+    "netto": ""
+  }
+}
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] 🧮 OCR processing complete - attempting final tip calculation
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] 🧮 calculateAndSetTip CALLED
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] 🧮 Values for calculation:
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag (from ref/form): 105.00
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg]   - invoiceAmount (from ref/form): 
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] 🧮 Cannot calculate tip: missing values
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag present? true
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg]   - invoiceAmount present? false
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 1 processed successfully
+[2025-10-16T20:11:03.225Z] [LOG  ] [/bewirtungsbeleg] ⏳ Waiting 1 second before processing page 2...
+[2025-10-16T20:11:04.228Z] [LOG  ] [/bewirtungsbeleg] Processing page 2/2: 14102025 (Paul2)_Seite_2.jpg
+[2025-10-16T20:11:04.229Z] [LOG  ] [/bewirtungsbeleg] 🔄 Converting PDF using server-side API (page 2)...
+[2025-10-16T20:11:11.725Z] [LOG  ] [/bewirtungsbeleg] Classification successful: {"type":"Rechnung","confidence":0.95,"reason":"Das Dokument enthält detaillierte Positionen mit Preisen, Summen und MwSt. Angaben, aber keine Kreditkartendetails.","details":{"rechnungProbability":0.95,"kreditkartenbelegProbability":0.05,"combinedProbability":0,"hasDetailedItems":true,"hasCreditCardNumber":false}}
+Classification successful: {
+  "type": "Rechnung",
+  "confidence": 0.95,
+  "reason": "Das Dokument enthält detaillierte Positionen mit Preisen, Summen und MwSt. Angaben, aber keine Kreditkartendetails.",
+  "details": {
+    "rechnungProbability": 0.95,
+    "kreditkartenbelegProbability": 0.05,
+    "combinedProbability": 0,
+    "hasDetailedItems": true,
+    "hasCreditCardNumber": false
+  }
+}
+[2025-10-16T20:11:11.726Z] [LOG  ] [/bewirtungsbeleg] Page 2 classified as: Rechnung
+[2025-10-16T20:11:19.319Z] [LOG  ] [/bewirtungsbeleg] === Frontend Processing ===
+[2025-10-16T20:11:19.319Z] [LOG  ] [/bewirtungsbeleg] Classification: Rechnung
+[2025-10-16T20:11:19.319Z] [LOG  ] [/bewirtungsbeleg] Extracted data: {"gesamtbetrag":"99.90","trinkgeld":""}
+Extracted data: {
+  "gesamtbetrag": "99.90",
+  "trinkgeld": ""
+}
+[2025-10-16T20:11:19.319Z] [LOG  ] [/bewirtungsbeleg] 💾 Stored invoice amount in ref: 99.90
+[2025-10-16T20:11:19.319Z] [LOG  ] [/bewirtungsbeleg] 📋 Setting Rechnung data...
+[2025-10-16T20:11:19.320Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: form.values = {"gesamtbetrag":"","kreditkartenBetrag":"","trinkgeld":"","trinkgeldMwst":""}
+📋 Before: form.values = {
+  "gesamtbetrag": "",
+  "kreditkartenBetrag": "",
+  "trinkgeld": "",
+  "trinkgeldMwst": ""
+}
+[2025-10-16T20:11:19.320Z] [LOG  ] [/bewirtungsbeleg] 📋 Before: refs = {"lastCreditCardAmountRef":"105.00","lastTipAmountRef":"","lastTipMwstRef":""}
+📋 Before: refs = {
+  "lastCreditCardAmountRef": "105.00",
+  "lastTipAmountRef": "",
+  "lastTipMwstRef": ""
+}
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] ✅ Preserving kreditkartenBetrag from ref: 105.00
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] ✅ Using setFieldValue (NOT setValues) to avoid spreading stale form.values
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] 🧮 Rechnung processing complete - attempting tip calculation
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] 🧮 calculateAndSetTip CALLED
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] 🧮 Values for calculation:
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag (from ref/form): 105.00
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg]   - invoiceAmount (from ref/form): 99.90
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg] 🧮 Parsed values:
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag: 105
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg]   - gesamtbetrag: 99.9
+[2025-10-16T20:11:19.321Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag > gesamtbetrag? true
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 💰 Tip calculated:
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - trinkgeld: 5.10 = 105 - 99.9
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - trinkgeldMwst: 0.97
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] ✅ Tip calculation complete and stored in form + refs
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 🧮 OCR processing complete - attempting final tip calculation
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 🧮 calculateAndSetTip CALLED
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 🧮 Values for calculation:
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag (from ref/form): 105.00
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - invoiceAmount (from ref/form): 99.90
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 🧮 Parsed values:
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag: 105
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - gesamtbetrag: 99.9
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - kreditkartenBetrag > gesamtbetrag? true
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] 💰 Tip calculated:
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - trinkgeld: 5.10 = 105 - 99.9
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg]   - trinkgeldMwst: 0.97
+[2025-10-16T20:11:19.322Z] [LOG  ] [/bewirtungsbeleg] ✅ Tip calculation complete and stored in form + refs
+[2025-10-16T20:11:19.323Z] [LOG  ] [/bewirtungsbeleg] ✅ Page 2 processed successfully

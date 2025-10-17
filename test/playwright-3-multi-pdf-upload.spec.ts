@@ -20,6 +20,7 @@ test.describe('playwright-multi-pdf-upload: Multiple PDF Upload and Conversion',
 
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
 
     console.log('✓ Form page loaded');
 
@@ -34,7 +35,7 @@ test.describe('playwright-multi-pdf-upload: Multiple PDF Upload and Conversion',
     console.log('=== Step 3: Upload Both PDFs ===');
 
     // Find the file input (it should be hidden in the dropzone)
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
 
     // Upload both files at once
     await fileInput.setInputFiles([rechnungPath, kreditkartenPath]);

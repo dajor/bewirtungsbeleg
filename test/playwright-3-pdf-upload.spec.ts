@@ -73,6 +73,7 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
     // Navigate to signin page
     await page.goto('/auth/anmelden');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
 
     // Login with test credentials
     await page.getByTestId('login-email').fill(TEST_USER.email);
@@ -81,6 +82,8 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
 
     // Wait for redirect to bewirtungsbeleg page
     await page.waitForURL('**/bewirtungsbeleg**', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     console.log('Login successful, on /bewirtungsbeleg page');
   });
 
@@ -99,7 +102,7 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
     console.log('PDF file path:', rechnungPath);
 
     // Find the file input in the dropzone
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([rechnungPath]);
     console.log('File uploaded to dropzone');
 
@@ -340,7 +343,7 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
     const kreditkartenPath = path.join(__dirname, 'test-files', '19092025_* * Kundenbeleg.pdf');
     console.log('PDF file path:', kreditkartenPath);
 
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([kreditkartenPath]);
     console.log('File uploaded to dropzone');
 
@@ -421,7 +424,7 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
     const rechnungPath = path.join(__dirname, 'test-files', '19092025_(Vendor).pdf');
     const kreditkartenPath = path.join(__dirname, 'test-files', '19092025_* * Kundenbeleg.pdf');
 
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([rechnungPath, kreditkartenPath]);
     console.log('Both files uploaded to dropzone');
 
@@ -496,7 +499,7 @@ test.describe('playwright-pdf-upload: PDF Upload and Form Validation', () => {
     console.log('=== Step 1: Upload PDF ===');
 
     const rechnungPath = path.join(__dirname, 'test-files', '19092025_(Vendor).pdf');
-    const fileInput = page.locator('input[type="file"]').first();
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([rechnungPath]);
 
     // Wait for conversion and OCR

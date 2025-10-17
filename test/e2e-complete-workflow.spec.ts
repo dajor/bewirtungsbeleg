@@ -14,10 +14,11 @@ class BewirtungsbelegWorkflow {
   async navigate() {
     await this.page.goto('/bewirtungsbeleg');
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(500);
   }
 
   async uploadReceipt(filePath: string) {
-    const fileInput = this.page.locator('input[type="file"]');
+    const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles(filePath);
     await this.page.waitForTimeout(1000);
   }
@@ -246,7 +247,7 @@ test.describe('Complete Bewirtungsbeleg Workflow', () => {
       fs.writeFileSync(file2, 'PDF test content 2');
     }
 
-    const fileInput = page.locator('input[type="file"]');
+    const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
     await fileInput.setInputFiles([file1, file2]);
 
     // Fill form
