@@ -25,8 +25,8 @@ const TEST_FILES_DIR = path.join(process.cwd(), 'test/test-files');
 
 test.describe('Multi-Page PDF Field Preservation', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to the form (use 3001 since dev server is on 3001)
-    await page.goto('http://localhost:3001/bewirtungsbeleg');
+    // Navigate to the form (use baseURL from Playwright config)
+    await page.goto('/bewirtungsbeleg');
 
     // Wait for the page to be fully loaded
     await page.waitForLoadState('networkidle');
@@ -362,7 +362,7 @@ test.describe('Multi-Page PDF Field Preservation', () => {
 
 test.describe('Combined Receipt Tests (Both on Same Page)', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3001/bewirtungsbeleg');
+    await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
   });
 
@@ -505,7 +505,7 @@ test.describe('Combined Receipt Tests (Both on Same Page)', () => {
 
 test.describe('Multi-Page PDF Processing Order Independence', () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('http://localhost:3001/bewirtungsbeleg');
+    await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
   });
 

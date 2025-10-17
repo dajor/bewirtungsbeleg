@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Full PDF Conversion Test - Simulating BewirtungsbelegForm</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
+    .container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .section {
+      border: 1px solid #ddd;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    #status {
+      margin: 20px 0;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .success { background-color: #d4edda; color: #155724; }
+    .error { background-color: #f8d7da; color: #721c24; }
+    .info { background-color: #d1ecf1; color: #0c5460; }
+    .warning { background-color: #fff3cd; color: #856404; }
+    .log {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+    .log-entry {
+      margin: 5px 0;
+      padding: 5px;
+      border-left: 3px solid #007bff;
+      padding-left: 10px;
+    }
+    .log-entry.error {
+      border-left-color: #dc3545;
+      background-color: #f8d7da;
+    }
+    .log-entry.success {
+      border-left-color: #28a745;
+      background-color: #d4edda;
+    }
+    .page-preview {
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    .page-preview img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    button:disabled {
+      background-color: #6c757d;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>Full PDF Conversion Test - Simulating BewirtungsbelegForm</h1>
+  <p>This test simulates the exact conversion flow used in the main application.</p>
+
+  <div class="container">
+    <div class="section">
+      <h2>Upload & Test</h2>
+      <input type="file" id="fileInput" accept="application/pdf" />
+      <button onclick="testConversion()" id="testBtn">Test Conversion</button>
+      <button onclick="clearLog()" id="clearBtn">Clear Log</button>
+
+      <div id="status"></div>
+
+      <h3>Console Log</h3>
+      <div id="log" class="log"></div>
+    </div>
+
+    <div class="section">
+      <h2>Converted Pages</h2>
+      <div id="results"></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.min.mjs';
+
+    // Set worker path (same as in client-pdf-converter.ts)
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+
+    const logDiv = document.getElementById('log');
+
+    function addLog(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+
+      // Also log to browser console
+      console.log(message);
+    }
+
+    window.clearLog = function() {
+      logDiv.innerHTML = '';
+      document.getElementById('results').innerHTML = '';
+      document.getElementById('status').textContent = '';
+    };
+
+    // Simulate the exact flow from BewirtungsbelegForm.tsx
+    async function convertPdfPageToImage(file, pageNumber = 1, options = {}) {
+      const { scale = 2.0, format = 'jpeg', quality = 0.95 } = options;
+
+      addLog(`🔄 Converting page ${pageNumber} with scale ${scale}...`);
+
+      try {
+        // Load PDF document
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+        const totalPages = pdf.numPages;
+        addLog(`📄 PDF loaded: ${totalPages} page(s) total`);
+
+        if (pageNumber > totalPages) {
+          throw new Error(`Page ${pageNumber} does not exist (total: ${totalPages})`);
+        }
+
+        // Get the specific page
+        const page = await pdf.getPage(pageNumber);
+        addLog(`📖 Retrieved page ${pageNumber}`);
+
+        // Calculate viewport
+        const viewport = page.getViewport({ scale });
+        addLog(`📐 Viewport size: ${viewport.width}x${viewport.height}px`);
+
+        // Create canvas
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+
+        if (!context) {
+          throw new Error('Failed to get canvas 2D context');
+        }
+
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+
+        // Render PDF page to canvas
+        addLog(`🎨 Rendering page ${pageNumber} to canvas...`);
+        await page.render({
+          canvasContext: context,
+          viewport: viewport,
+          canvas: canvas
+        }).promise;
+
+        // Convert canvas to base64 data URL
+        const mimeType = format === 'png' ? 'image/png' : 'image/jpeg';
+        const dataUrl = canvas.toDataURL(mimeType, quality);
+
+        const sizeKB = Math.round(dataUrl.length / 1024);
+        addLog(`✅ Page ${pageNumber} converted successfully (${sizeKB} KB)`, 'success');
+
+        return dataUrl;
+
+      } catch (error) {
+        addLog(`❌ Error converting page ${pageNumber}: ${error.message}`, 'error');
+        throw error;
+      }
+    }
+
+    // Simulate PDFToImageConverter.convert with method: 'client'
+    async function convertWithClientMethod(file, page = 1) {
+      addLog(`🔧 PDFToImageConverter.convert called with method='client', page=${page}`);
+      return await convertPdfPageToImage(file, page, { scale: 2.0 });
+    }
+
+    // Simulate convertPdfToImages from BewirtungsbelegForm
+    async function convertPdfToImages(file) {
+      addLog(`🚀 Starting convertPdfToImages for: ${file.name}`, 'info');
+
+      try {
+        // Step 1: Get page count using pdf-lib (simulated - we'll use pdfjs instead)
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = new Uint8Array(arrayBuffer);
+
+        // Use pdfjs to get page count (pdf-lib would be used in real app)
+        const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+        const pageCount = pdf.numPages;
+        addLog(`📄 PDF has ${pageCount} page(s)`);
+
+        // Step 2: Convert each page
+        const convertedPages = [];
+        for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+          addLog(`🔄 Converting page ${pageNum}/${pageCount}...`);
+
+          const imageData = await convertWithClientMethod(file, pageNum);
+
+          const baseName = file.name.replace('.pdf', '');
+          const pageName = pageCount > 1 ? `${baseName}_Seite_${pageNum}` : baseName;
+
+          convertedPages.push({
+            pageNumber: pageNum,
+            data: imageData,
+            name: `${pageName}.jpg`
+          });
+
+          addLog(`✅ Page ${pageNum} processed successfully`, 'success');
+        }
+
+        addLog(`✅ All ${pageCount} page(s) converted successfully`, 'success');
+        return convertedPages;
+
+      } catch (error) {
+        addLog(`❌ PDF conversion failed: ${error.message}`, 'error');
+        throw new Error(`PDF conversion failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+
+    window.testConversion = async function() {
+      const fileInput = document.getElementById('fileInput');
+      const status = document.getElementById('status');
+      const results = document.getElementById('results');
+      const testBtn = document.getElementById('testBtn');
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        status.className = 'error';
+        status.textContent = 'Please select a PDF file';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      testBtn.disabled = true;
+
+      addLog(`📁 Testing file: ${file.name} (${Math.round(file.size / 1024)} KB)`);
+      addLog(`📋 File type: ${file.type}`);
+
+      status.className = 'info';
+      status.textContent = `Testing conversion of: ${file.name}...`;
+      results.innerHTML = '';
+
+      try {
+        // Simulate the exact flow from BewirtungsbelegForm
+        const convertedPages = await convertPdfToImages(file);
+
+        // Display results
+        results.innerHTML = '<h3>Conversion Results:</h3>';
+        convertedPages.forEach(page => {
+          const pageDiv = document.createElement('div');
+          pageDiv.className = 'page-preview';
+          pageDiv.innerHTML = `
+            <h4>Page ${page.pageNumber}: ${page.name}</h4>
+            <img src="${page.data}" alt="${page.name}" />
+          `;
+          results.appendChild(pageDiv);
+        });
+
+        status.className = 'success';
+        status.textContent = `✅ Successfully converted ${convertedPages.length} page(s)!`;
+        addLog(`🎉 Test completed successfully!`, 'success');
+
+      } catch (error) {
+        status.className = 'error';
+        status.textContent = `❌ Error: ${error.message}`;
+        addLog(`💥 Test failed: ${error.message}`, 'error');
+        console.error('Full error:', error);
+      } finally {
+        testBtn.disabled = false;
+      }
+    };
+  </script>
+</body>
+</html>

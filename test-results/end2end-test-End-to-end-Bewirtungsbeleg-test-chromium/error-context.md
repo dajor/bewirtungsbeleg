@@ -1,0 +1,229 @@
+# Test info
+
+- Name: End-to-end Bewirtungsbeleg test
+- Location: /Users/daniel/dev/Bewritung/bewir/test/end2end-test.spec.ts:9:1
+
+# Error details
+
+```
+Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+    1) <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/> aka getByRole('button', { name: 'Choose File' })
+    2) <input type="file" accept=".json"/> aka locator('div').filter({ hasText: /^JSON DownloadJSON Upload$/ }).locator('input[type="file"]')
+
+Call log:
+  - waiting for locator('input[type="file"]')
+
+    at /Users/daniel/dev/Bewritung/bewir/test/end2end-test.spec.ts:22:3
+```
+
+# Page snapshot
+
+```yaml
+- img "DocBits Logo"
+- heading "Bewirtungsbeleg" [level=1]
+- checkbox "Eigenbeleg (ohne Originalbeleg)"
+- text: Eigenbeleg (ohne Originalbeleg)
+- paragraph: "Aktivieren Sie diese Option, wenn Sie keinen Originalbeleg haben. Hinweis: Bei Eigenbelegen kann die Vorsteuer (MwSt.) nicht geltend gemacht werden."
+- heading "Allgemeine Angaben" [level=2]
+- paragraph: Foto/Scan der Rechnung
+- paragraph: Laden Sie Fotos, Scans oder PDFs hoch - die Daten werden automatisch extrahiert
+- button "Choose File"
+- img
+- paragraph: Dateien hier ablegen
+- paragraph: Bilder (PNG, JPEG, WEBP) oder PDFs, max. 5 Dateien
+- text: Datum der Bewirtung
+- textbox "Datum der Bewirtung"
+- text: Restaurant
+- textbox "Restaurant"
+- button "Restaurant suchen":
+  - img
+- text: Anschrift
+- textbox "Anschrift"
+- text: Art der Bewirtung
+- paragraph: Wählen Sie die Art der Bewirtung - dies beeinflusst die steuerliche Abzugsfähigkeit
+- radiogroup "Art der Bewirtung":
+  - radio "Kundenbewirtung (70% abzugsfähig)" [checked]
+  - text: Kundenbewirtung (70% abzugsfähig)
+  - paragraph: Für Geschäftsfreunde (Kunden, Geschäftspartner). 70% der Kosten sind als Betriebsausgabe abziehbar.
+  - radio "Mitarbeiterbewirtung (100% abzugsfähig)"
+  - text: Mitarbeiterbewirtung (100% abzugsfähig)
+  - paragraph: Für betriebliche Veranstaltungen (Teamessen, Arbeitsessen). 100% der Kosten sind als Betriebsausgabe abziehbar.
+- heading "Finanzielle Details" [level=2]
+- checkbox "Ausländische Rechnung (keine MwSt.)"
+- text: Ausländische Rechnung (keine MwSt.)
+- paragraph: Aktivieren Sie diese Option, wenn die Rechnung aus dem Ausland stammt. In diesem Fall wird der Gesamtbetrag als Netto behandelt.
+- separator
+- checkbox "ZUGFeRD-kompatibles PDF generieren"
+- text: ZUGFeRD-kompatibles PDF generieren
+- paragraph: Erstellt ein elektronisches Rechnungsformat nach ZUGFeRD 2.0 Standard für die digitale Archivierung
+- text: Gesamtbetrag (Brutto)
+- paragraph: Geben Sie den Gesamtbetrag der Rechnung ein (inkl. MwSt.)
+- textbox "Gesamtbetrag (Brutto)"
+- text: MwSt. Gesamtbetrag
+- paragraph: MwSt. (19%) wird automatisch berechnet
+- textbox "MwSt. Gesamtbetrag"
+- text: Netto Gesamtbetrag
+- paragraph: Netto wird automatisch berechnet
+- textbox "Netto Gesamtbetrag"
+- text: Betrag auf Kreditkarte/Bar
+- paragraph: Geben Sie den Betrag ein, der auf der Kreditkarte belastet wurde (inkl. Trinkgeld)
+- textbox "Betrag auf Kreditkarte/Bar"
+- text: Trinkgeld
+- paragraph: Geben Sie das Trinkgeld ein. Dies wird automatisch berechnet, wenn Sie den Betrag auf der Kreditkarte eingeben
+- textbox "Trinkgeld"
+- text: MwSt. Trinkgeld
+- paragraph: MwSt. (19%) wird automatisch berechnet
+- textbox "MwSt. Trinkgeld"
+- text: Zahlungsart
+- paragraph: Wählen Sie die Art der Zahlung. Die Rechnung muss auf die Firma ausgestellt sein.
+- textbox "Zahlungsart": Firmenkreditkarte
+- img
+- heading "Geschäftlicher Anlass" [level=2]
+- text: Geschäftlicher Anlass
+- paragraph: Geben Sie den konkreten Anlass an (z.B. 'Kundengespräch', 'Projektbesprechung')
+- textbox "Geschäftlicher Anlass"
+- text: Namen aller Teilnehmer
+- paragraph: Geben Sie die Namen aller Teilnehmer ein (auch Ihren eigenen Namen)
+- textbox "Namen aller Teilnehmer"
+- text: Namen der Geschäftspartner
+- paragraph: Geben Sie die Namen der Geschäftspartner ein
+- textbox "Namen der Geschäftspartner"
+- text: Firma der Geschäftspartner
+- paragraph: Geben Sie die Firma der Geschäftspartner ein
+- textbox "Firma der Geschäftspartner"
+- button "JSON Download":
+  - img
+  - text: JSON Download
+- img
+- button "JSON Upload"
+- button "Bewirtungsbeleg erstellen"
+- alert
+```
+
+# Test source
+
+```ts
+   1 | import { test, expect } from '@playwright/test';
+   2 | import { writeFileSync } from 'fs';
+   3 | import path from 'path';
+   4 | import { fileURLToPath } from 'url';
+   5 |
+   6 | const __filename = fileURLToPath(import.meta.url);
+   7 | const __dirname = path.dirname(__filename);
+   8 |
+   9 | test('End-to-end Bewirtungsbeleg test', async ({ page }) => {
+   10 |   // Set longer timeout for this test
+   11 |   test.setTimeout(60000);
+   12 |   
+   13 |   // Navigate to the Bewirtungsbeleg page
+   14 |   await page.goto('/bewirtungsbeleg');
+   15 |   
+   16 |   // Wait for the page to load and take screenshot
+   17 |   await page.waitForSelector('h1:has-text("Bewirtungsbeleg")');
+   18 |   await page.screenshot({ path: path.join(__dirname, 'screenshot-1-initial.png'), fullPage: true });
+   19 |   
+   20 |   // Upload the PDF file using FileInput
+   21 |   const fileInput = page.locator('input[type="file"]');
+>  22 |   await fileInput.setInputFiles(path.join(__dirname, 'input.pdf'));
+      |   ^ Error: locator.setInputFiles: Error: strict mode violation: locator('input[type="file"]') resolved to 2 elements:
+   23 |   
+   24 |   // Wait for file to be processed and take screenshot
+   25 |   await page.waitForTimeout(3000); // Give more time for OCR
+   26 |   await page.screenshot({ path: path.join(__dirname, 'screenshot-2-after-upload.png'), fullPage: true });
+   27 |   
+   28 |   // Calculate date 30 days ago
+   29 |   const date30DaysAgo = new Date();
+   30 |   date30DaysAgo.setDate(date30DaysAgo.getDate() - 30);
+   31 |   const formattedDate = date30DaysAgo.toLocaleDateString('de-DE', {
+   32 |     day: '2-digit',
+   33 |     month: '2-digit',
+   34 |     year: 'numeric'
+   35 |   });
+   36 |   
+   37 |   // Fill out the form fields
+   38 |   const formData = {
+   39 |     receiptType: 'kunden', // Kundenbewirtung
+   40 |     restaurant: 'Restaurant zur goldenen Gans',
+   41 |     restaurantAddress: 'Hauptstraße 42, 12345 Berlin',
+   42 |     date: formattedDate, // Date 30 days ago
+   43 |     occasion: 'Geschäftsessen mit Kunde ABC AG',
+   44 |     participants: `Max Mustermann (Musterfirma GmbH)
+   45 | Anna Schmidt (ABC AG)
+   46 | Peter Wagner (XYZ GmbH)
+   47 | Hans Meyer (Eigene Firma)`,
+   48 |     totalAmount: '185,50',
+   49 |     tipAmount: '18,50',
+   50 |     totalWithTip: '204,00'
+   51 |   };
+   52 |   
+   53 |   // Select receipt type (Kundenbewirtung)
+   54 |   await page.getByLabel('Kundenbewirtung (70% abzugsfähig)').click();
+   55 |   
+   56 |   // Fill restaurant information
+   57 |   await page.getByLabel('Restaurant').fill(formData.restaurant);
+   58 |   await page.getByLabel('Anschrift').fill(formData.restaurantAddress);
+   59 |   
+   60 |   // Fill date - try different approaches
+   61 |   const dateInput = page.getByLabel('Datum der Bewirtung');
+   62 |   await dateInput.click();
+   63 |   await page.waitForTimeout(1000);
+   64 |   
+   65 |   // Try to type the date directly if calendar doesn't work well
+   66 |   await dateInput.clear();
+   67 |   await dateInput.type(formData.date, { delay: 100 });
+   68 |   await page.keyboard.press('Enter');
+   69 |   await page.waitForTimeout(500);
+   70 |   
+   71 |   // Fill occasion
+   72 |   await page.getByLabel('Geschäftlicher Anlass').fill(formData.occasion);
+   73 |   
+   74 |   // Take screenshot after filling basic info
+   75 |   await page.screenshot({ path: path.join(__dirname, 'screenshot-3-basic-info.png'), fullPage: true });
+   76 |   
+   77 |   // Fill participants (it's a textarea for customer entertainment)
+   78 |   await page.getByLabel('Namen aller Teilnehmer').fill(formData.participants);
+   79 |   
+   80 |   // Take screenshot after adding participants
+   81 |   await page.screenshot({ path: path.join(__dirname, 'screenshot-4-participants.png'), fullPage: true });
+   82 |   
+   83 |   // Fill amounts - ensure they're visible first
+   84 |   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+   85 |   await page.waitForTimeout(500);
+   86 |   
+   87 |   // Fill total amount
+   88 |   const totalAmountInput = page.getByLabel('Gesamtbetrag (Brutto)');
+   89 |   await totalAmountInput.scrollIntoViewIfNeeded();
+   90 |   await totalAmountInput.click();
+   91 |   await totalAmountInput.clear();
+   92 |   await totalAmountInput.type(formData.totalAmount);
+   93 |   
+   94 |   // Fill tip
+   95 |   const tipInput = page.getByPlaceholder('Trinkgeld in Euro');
+   96 |   await tipInput.scrollIntoViewIfNeeded();
+   97 |   await tipInput.click();
+   98 |   await tipInput.clear();
+   99 |   await tipInput.type(formData.tipAmount);
+  100 |   
+  101 |   // Wait for calculations and form updates
+  102 |   await page.waitForTimeout(2000);
+  103 |   
+  104 |   // Fill the business partner company field
+  105 |   await page.getByLabel('Firma der Geschäftspartner').fill('Test Company GmbH');
+  106 |   
+  107 |   // Fill the business partner names field
+  108 |   await page.getByLabel('Namen der Geschäftspartner').fill('John Doe\nJane Smith');
+  109 |   
+  110 |   // Take screenshot before generating PDF
+  111 |   await page.screenshot({ path: path.join(__dirname, 'screenshot-5-complete-form.png'), fullPage: true });
+  112 |   
+  113 |   // Log form values to see what's actually there
+  114 |   const formValues = await page.evaluate(() => {
+  115 |     const inputs = document.querySelectorAll('input, textarea');
+  116 |     const values = {};
+  117 |     inputs.forEach(input => {
+  118 |       if (input.name || input.id) {
+  119 |         values[input.name || input.id] = input.value;
+  120 |       }
+  121 |     });
+  122 |     return values;
+```
