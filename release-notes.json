@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.50.0",
+      "date": "17.10.2025",
+      "changes": [
+        "Erhöhung der Zeitüberschreitung für Multi-Page PDF-Tests auf 90 Sekunden zur Verbesserung der Stabilität.",
+        "Verbesserung der OCR-Prompt-Logik, um den 'Gesamtbetrag' nicht aus reinen Kreditkartenbelegen zu extrahieren, was die Genauigkeit erhöht.",
+        "Behebung eines TypeScript-Fehlers in den Renderparametern von PDF.js durch Hinzufügung der fehlenden Eigenschaft 'canvas', was die Kompatibilität verbessert.",
+        "Einführung einer neuen Funktion zur Anzeige von Multi-Page PDFs mit separaten Dateikarten pro Seite, was die Benutzerfreundlichkeit für Dokumente mit mehreren Seiten verbessert."
+      ],
+      "build": "18582952910",
+      "commit": "b811515052e650f43af0110f65604d97e9cc0973"
+    },
+    {
       "version": "0.49.0",
       "date": "16.10.2025",
       "changes": [

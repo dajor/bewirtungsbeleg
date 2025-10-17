@@ -1,3 +1,5 @@
+Fix multi-page PDF test timeouts - increase to 90 seconds (Claude Assistant)
+Bump version to 0.49.0 #auto-release (dajor)
 Fix OpenAI OCR prompt to not extract gesamtbetrag from pure Kreditkartenbeleg (Claude Assistant)
 Bump version to 0.48.0 #auto-release (dajor)
 Fix multi-page PDF field preservation and manual tip calculation (Claude Assistant)
