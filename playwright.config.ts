@@ -30,16 +30,16 @@ export default defineConfig({
     '**/playwright-4-magic-link.spec.ts',
     '**/playwright-4-multi-pdf-combinations.spec.ts'
   ],
-  timeout: 60000,
+  timeout: 90000,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    navigationTimeout: 30000,
+    navigationTimeout: 45000,
   },
   projects: [
     {

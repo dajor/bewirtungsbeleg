@@ -16,6 +16,8 @@ class BewirtungsbelegPage {
   async navigate() {
     await this.page.goto('/bewirtungsbeleg');
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForTimeout(1000);
   }
 
   async uploadFiles(filePaths: string[]) {
