@@ -1,6 +1,20 @@
 {
   "versions": [
     {
+      "version": "0.52.0",
+      "date": "17.10.2025",
+      "changes": [
+        "Behebung der Playwright-Testkonfiguration und Generierung eines umfassenden Testberichts.",
+        "Verbesserung der kombinierten Quittungsextraktion mit räumlicher Anleitung.",
+        "Behebung von Timeouts bei Tests mit mehrseitigen PDFs durch Erhöhung auf 90 Sekunden.",
+        "Korrektur des OpenAI OCR-Prompts, um 'gesamtbetrag' nicht aus reinen Kreditkartenbelegen zu extrahieren.",
+        "Behebung von Erhaltungsproblemen bei Feldern in mehrseitigen PDFs und manuelle Trinkgeldberechnung.",
+        "Korrektur eines TypeScript-Fehlers in den PDF.js-Renderparametern durch Hinzufügen der fehlenden Canvas-Eigenschaft."
+      ],
+      "build": "18583645418",
+      "commit": "397c58b7930122d75042317c9dfedbaf113ec802"
+    },
+    {
       "version": "0.51.0",
       "date": "17.10.2025",
       "changes": [

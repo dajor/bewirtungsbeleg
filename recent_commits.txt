@@ -1,3 +1,5 @@
+Fix Playwright test configuration and generate comprehensive test report (Claude Assistant)
+Bump version to 0.51.0 #auto-release (dajor)
 Enhance combined receipt extraction with spatial guidance (Claude Assistant)
 Bump version to 0.50.0 #auto-release (dajor)
 Fix multi-page PDF test timeouts - increase to 90 seconds (Claude Assistant)
