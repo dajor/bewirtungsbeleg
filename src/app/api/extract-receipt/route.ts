@@ -208,24 +208,31 @@ export async function POST(request: Request) {
     } else if (classificationType === 'Rechnung&Kreditkartenbeleg') {
       extractionPrompt = `Dies ist ein kombiniertes Dokument mit SOWOHL Rechnung ALS AUCH Kreditkartenbeleg auf derselben Seite.
 
-      Extrahiere ALLE verfügbaren Informationen:
+      KRITISCHE ANWEISUNG - Du MUSST BEIDE Beträge extrahieren:
 
-      VON DER RECHNUNG:
+      1. KREDITKARTENBELEG (oft LINKS oder OBEN):
+         - kreditkartenbetrag: Der BEZAHLTE Betrag inkl. Trinkgeld
+         - Suche nach: "SUMME", "Betrag", "TOTAL", "Zahlung", "EUR:", "€"
+         - Dies ist normalerweise der GRÖSSERE Betrag
+         - BEISPIEL: "SUMME EUR: 45,00" → kreditkartenbetrag: "45,00"
+
+      2. RECHNUNG (oft RECHTS oder UNTEN):
+         - gesamtbetrag: Der Rechnungsbetrag (ohne Trinkgeld)
+         - Suche nach: "EC-Cash-Total", "Total", "Zwischensumme", "Gesamtbetrag"
+         - Dies ist normalerweise der KLEINERE Betrag
+         - BEISPIEL: "EC-Cash-Total *38,90" → gesamtbetrag: "38,90"
+
+      ZUSÄTZLICHE INFORMATIONEN:
       - restaurantName, restaurantAnschrift, datum (DD.MM.YYYY)
-      - gesamtbetrag: Der Rechnungsbetrag (z.B. "Total", "Summe")
-      - mwst: "MwSt", "Steuer", "Steuersumme"
-      - netto: "Netto", "Nettoumsatz"
-
-      VOM KREDITKARTENBELEG:
-      - kreditkartenbetrag: Der BEZAHLTE Betrag (meist größer, inkl. Trinkgeld)
-      - trinkgeld: Falls separat aufgeführt, oder berechne: kreditkartenbetrag - gesamtbetrag
+      - mwst, netto (falls verfügbar)
+      - trinkgeld: Wird automatisch berechnet als (kreditkartenbetrag - gesamtbetrag)
 
       WICHTIG:
-      - Suche nach BEIDEN Dokumenttypen auf derselben Seite
-      - Der Rechnungsbetrag (gesamtbetrag) ist meist kleiner als der bezahlte Betrag (kreditkartenbetrag)
-      - Trinkgeld = kreditkartenbetrag - gesamtbetrag
-      - Scanne das GESAMTE Dokument - die Informationen können ÜBERALL stehen
-      - Beträge können in verschiedenen Bereichen verteilt sein
+      - Scanne das GESAMTE Bild nach ZWEI verschiedenen Bereichen
+      - Links/Oben ist oft der Kreditkartenbeleg, Rechts/Unten die Rechnung
+      - Du MUSST beide Beträge finden - ein Fehlen ist ein Extraktionsfehler
+      - Der kreditkartenbetrag ist IMMER >= gesamtbetrag
+      - Wenn du nur einen Betrag findest, suche nochmal nach einem zweiten!
 
       Antworte NUR mit einem JSON-Objekt.`;
     }
