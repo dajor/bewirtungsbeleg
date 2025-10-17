@@ -1,3 +1,18 @@
+# Version 0.51.0
+Datum: 17.10.2025
+
+## Änderungen
+- Verbesserte Extraktion von kombinierten Belegen mit räumlicher Führung.
+- Erhöhung des Timeouts für Multi-Seiten PDF-Tests auf 90 Sekunden zur Vermeidung von Timeouts.
+- Behebung eines Fehlers bei der Extraktion von OCR-Daten aus Mehrseiten-PDFs, indem die Übergabe des Seitenparameters an die Konvertierungsfunktion korrigiert wurde.
+- Korrektur eines TypeScript-Fehlers in PDF.js Renderparametern durch Hinzufügen der fehlenden Canvas-Eigenschaft.
+
+## Technische Details
+- Build: 18583367578
+- Commit: 9a9ef33f391eb2dacc37f461f2584360303256d0
+
+---
+
 # Version 0.50.0
 Datum: 17.10.2025
 
