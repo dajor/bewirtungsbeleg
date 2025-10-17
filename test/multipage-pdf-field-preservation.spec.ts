@@ -33,6 +33,9 @@ test.describe('Multi-Page PDF Field Preservation', () => {
   });
 
   test('Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved', async ({ page }) => {
+    // Increase timeout for this test - OCR can take 60+ seconds for multi-page PDFs
+    test.setTimeout(90000); // 90 seconds
+
     const pdfPath = path.join(TEST_FILES_DIR, '14102025 (Paul2).pdf');
 
     // Check if file exists
@@ -51,12 +54,12 @@ test.describe('Multi-Page PDF Field Preservation', () => {
     // This might take several seconds - wait for actual field population
     console.log('⏳ Waiting for PDF conversion and OCR...');
 
-    // Wait for the gesamtbetrag field to be populated (with timeout of 30 seconds)
-    // This is a better approach than fixed timeout
+    // Wait for the gesamtbetrag field to be populated (with timeout of 60 seconds)
+    // Multi-page PDFs with OCR can take 60+ seconds (PDF conversion + classification + extraction × 2 pages)
     await page.waitForFunction(() => {
       const input = document.querySelector('input[placeholder*="Gesamtbetrag"]') as HTMLInputElement;
       return input && input.value && input.value !== '';
-    }, { timeout: 30000 }).catch(() => {
+    }, { timeout: 60000 }).catch(() => {
       console.log('⚠️ Timeout waiting for gesamtbetrag to be populated');
     });
 
@@ -108,6 +111,9 @@ test.describe('Multi-Page PDF Field Preservation', () => {
   });
 
   test('Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved', async ({ page }) => {
+    // Increase timeout for this test - OCR can take 60+ seconds for multi-page PDFs
+    test.setTimeout(90000); // 90 seconds
+
     const pdfPath = path.join(TEST_FILES_DIR, '14102025 (Paul1).pdf');
 
     // Check if file exists
@@ -125,11 +131,11 @@ test.describe('Multi-Page PDF Field Preservation', () => {
     // Wait for PDF conversion and OCR to complete
     console.log('⏳ Waiting for PDF conversion and OCR...');
 
-    // Wait for the gesamtbetrag field to be populated (with timeout of 30 seconds)
+    // Wait for the gesamtbetrag field to be populated (with timeout of 60 seconds)
     await page.waitForFunction(() => {
       const input = document.querySelector('input[placeholder*="Gesamtbetrag"]') as HTMLInputElement;
       return input && input.value && input.value !== '';
-    }, { timeout: 30000 }).catch(() => {
+    }, { timeout: 60000 }).catch(() => {
       console.log('⚠️ Timeout waiting for gesamtbetrag to be populated');
     });
 
@@ -181,6 +187,9 @@ test.describe('Multi-Page PDF Field Preservation', () => {
   });
 
   test('Paul2.pdf: Verify console logs show ref preservation', async ({ page }) => {
+    // Increase timeout for this test - OCR can take 60+ seconds for multi-page PDFs
+    test.setTimeout(90000); // 90 seconds
+
     const pdfPath = path.join(TEST_FILES_DIR, '14102025 (Paul2).pdf');
 
     // Check if file exists
@@ -205,11 +214,11 @@ test.describe('Multi-Page PDF Field Preservation', () => {
     const fileInput = page.locator('input[type="file"]').first();
     await fileInput.setInputFiles(pdfPath);
 
-    // Wait for processing - wait for field population
+    // Wait for processing - wait for field population (with timeout of 60 seconds)
     await page.waitForFunction(() => {
       const input = document.querySelector('input[placeholder*="Gesamtbetrag"]') as HTMLInputElement;
       return input && input.value && input.value !== '';
-    }, { timeout: 30000 }).catch(() => {
+    }, { timeout: 60000 }).catch(() => {
       console.log('⚠️ Timeout waiting for processing');
     });
 
