@@ -1,3 +1,6 @@
+Add updated Playwright test report after selector fix (Claude Assistant)
+Fix file input selector ambiguity in Playwright tests (Claude Assistant)
+Bump version to 0.52.0 #auto-release (dajor)
 Fix Playwright test configuration and generate comprehensive test report (Claude Assistant)
 Bump version to 0.51.0 #auto-release (dajor)
 Enhance combined receipt extraction with spatial guidance (Claude Assistant)

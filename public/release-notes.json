@@ -1,6 +1,22 @@
 {
   "versions": [
     {
+      "version": "0.53.0",
+      "date": "17.10.2025",
+      "changes": [
+        "Hinzugefuegt: Aktualisierten Playwright Testbericht nach der Korrektur des Selektors.",
+        "Behoben: Mehrdeutigkeit des Dateieingabeselektors in Playwright-Tests.",
+        "Behoben: Playwright Testkonfiguration korrigiert und umfassenden Testbericht generiert.",
+        "Verbessert: Kombinierte Belegerkennung mit raeumlicher Anleitung.",
+        "Behoben: Timeout-Probleme bei mehrseitigen PDF-Tests durch Erhoehung auf 90 Sekunden.",
+        "Behoben: OpenAI OCR-Prompt korrigiert, um 'Gesamtbetrag' nicht aus reinen Kreditkartenbelegen zu extrahieren.",
+        "Behoben: Erhaltung von Feldern bei mehrseitigen PDFs und manuelle Trinkgeldberechnung.",
+        "Behoben: TypeScript-Fehler in den Renderparametern von PDF.js durch Hinzufuegen der fehlenden Canvas-Eigenschaft."
+      ],
+      "build": "18583903607",
+      "commit": "545d33cce06f1c51d77a8e249a83e752542d21ca"
+    },
+    {
       "version": "0.52.0",
       "date": "17.10.2025",
       "changes": [
