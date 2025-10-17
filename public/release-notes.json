@@ -1,6 +1,18 @@
 {
   "versions": [
     {
+      "version": "0.54.0",
+      "date": "17.10.2025",
+      "changes": [
+        "Verbesserungen und detaillierte Berichte für Phase 1 Tests hinzugef&#252;gt",
+        "Erh&#246;hung der Timeouts und Hinzuf&#252;gung expliziter Wartezust&#228;nde f&#252;r Playwright-Tests",
+        "Aktualisierung der Playwright-Testberichte nach Korrektur der Selektoren und Behebung der Mehrdeutigkeit bei Dateieingabeselektoren",
+        "Erweiterung der kombinierten Belegextraktion mit r&#228;umlicher Anleitung"
+      ],
+      "build": "18584102994",
+      "commit": "4e55378c6e667e0ec84eef711668d8dcb11d99f0"
+    },
+    {
       "version": "0.53.0",
       "date": "17.10.2025",
       "changes": [

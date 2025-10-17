@@ -1,3 +1,18 @@
+# Version 0.54.0
+Datum: 17.10.2025
+
+## Änderungen
+- Verbesserungen und detaillierte Berichte für Phase 1 Tests hinzugef&#252;gt
+- Erh&#246;hung der Timeouts und Hinzuf&#252;gung expliziter Wartezust&#228;nde f&#252;r Playwright-Tests
+- Aktualisierung der Playwright-Testberichte nach Korrektur der Selektoren und Behebung der Mehrdeutigkeit bei Dateieingabeselektoren
+- Erweiterung der kombinierten Belegextraktion mit r&#228;umlicher Anleitung
+
+## Technische Details
+- Build: 18584102994
+- Commit: 4e55378c6e667e0ec84eef711668d8dcb11d99f0
+
+---
+
 # Version 0.53.0
 Datum: 17.10.2025
 
