@@ -10,9 +10,10 @@ test.describe('Simple PDF Conversion Test', () => {
   test('should display the upload area', async ({ page }) => {
     // Navigate to the form page
     await page.goto('/bewirtungsbeleg');
-    
+
     // Wait for page to load
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     
     // Check if the file input exists
     const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
@@ -31,6 +32,7 @@ test.describe('Simple PDF Conversion Test', () => {
     // Navigate to the form page
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     
     // Create test PDF path
     const testPdfPath = path.join(process.cwd(), 'test', '08042025_kreditbeleg_Pareo.pdf');

@@ -14,6 +14,7 @@ class BewirtungsbelegWorkflow {
   async navigate() {
     await this.page.goto('/bewirtungsbeleg');
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(500);
   }
 
   async uploadReceipt(filePath: string) {

@@ -11,6 +11,7 @@ test.describe('ZUGFeRD PDF Generation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
   });
 
   test('should generate ZUGFeRD-compliant PDF with all required fields', async ({ page }) => {

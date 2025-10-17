@@ -12,6 +12,7 @@ test.describe('Image Preview Real-World Test', () => {
     // Navigate to the actual page
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     
     // Create a real PDF file for testing
     const testPdfPath = path.join(process.cwd(), 'test', '08042025_kreditbeleg_Pareo.pdf');
@@ -102,6 +103,7 @@ test.describe('Image Preview Real-World Test', () => {
   test('Regular image should display immediately in preview', async ({ page }) => {
     await page.goto('/bewirtungsbeleg');
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(500);
     
     // Create a test PNG file
     const testImagePath = path.join(process.cwd(), 'test', 'test-receipt.png');

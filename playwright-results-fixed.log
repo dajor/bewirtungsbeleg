@@ -1,0 +1,1469 @@
+
+Running 63 tests using 7 workers
+
+[1A[2K[1/63] [chromium] › test/e2e-complete-workflow.spec.ts:238:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments
+[1A[2K[2/63] [chromium] › test/e2e-complete-workflow.spec.ts:93:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation
+[1A[2K[3/63] [chromium] › test/e2e-complete-workflow.spec.ts:271:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts
+[1A[2K[4/63] [chromium] › test/e2e-critical-scenarios.spec.ts:117:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg
+[1A[2K[5/63] [chromium] › test/e2e-complete-workflow.spec.ts:214:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation
+[1A[2K[6/63] [chromium] › test/e2e-critical-scenarios.spec.ts:146:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type
+[1A[2K[7/63] [chromium] › test/e2e-complete-workflow.spec.ts:158:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields
+[1A[2K  1) [chromium] › test/e2e-critical-scenarios.spec.ts:146:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m3[39m
+    Received:    [31m0[39m
+
+      159 |     
+      160 |     const uploadedFiles = await page.getUploadedFileNames();
+    > 161 |     expect(uploadedFiles.length).toBeGreaterThanOrEqual(3);
+          |                                  ^
+      162 |
+      163 |     await page.fillMinimalValidForm();
+      164 |     await page.clickButton('PDF generieren');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:161:34
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf140-le-attachments-of-same-type-chromium/error-context.md
+
+
+[1A[2K[8/63] [chromium] › test/e2e-critical-scenarios.spec.ts:170:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload
+[1A[2K  2) [chromium] › test/e2e-critical-scenarios.spec.ts:170:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      177 |     await page.uploadFiles([filePath]);
+      178 |     let files = await page.getUploadedFileNames();
+    > 179 |     expect(files.length).toBeGreaterThan(0);
+          |                          ^
+      180 |
+      181 |     // Remove file
+      182 |     await page.removeFile(0);
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:179:26
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-dc05b--file-removal-and-re-upload-chromium/error-context.md
+
+
+[1A[2K[9/63] [chromium] › test/e2e-critical-scenarios.spec.ts:200:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure
+[1A[2K  3) [chromium] › test/e2e-critical-scenarios.spec.ts:117:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:133:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-353ad-Rechnung-before-Kreditbeleg-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › test/e2e-complete-workflow.spec.ts:271:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      38 |   async fillFormField(fieldName: string, value: string) {
+      39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 40 |     await field.clear();
+         |                 ^
+      41 |     await field.fill(value);
+      42 |   }
+      43 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:40:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:273:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-401dd-orrectly-for-German-amounts-chromium/error-context.md
+
+
+[1A[2K  5) [chromium] › test/e2e-complete-workflow.spec.ts:158:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Daten extrahieren")')[22m
+
+
+      27 |   async clickExtractData() {
+      28 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
+    > 29 |     await extractButton.click();
+         |                         ^
+      30 |   }
+      31 |
+      32 |   async waitForOCRCompletion() {
+        at BewirtungsbelegWorkflow.clickExtractData (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:29:25)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:191:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-282ff-n-and-auto-fill-form-fields-chromium/error-context.md
+
+
+[1A[2K  6) [chromium] › test/e2e-complete-workflow.spec.ts:238:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      38 |   async fillFormField(fieldName: string, value: string) {
+      39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 40 |     await field.clear();
+         |                 ^
+      41 |     await field.fill(value);
+      42 |   }
+      43 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:40:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:256:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-bba11-F-with-multiple-attachments-chromium/error-context.md
+
+
+[1A[2K  7) [chromium] › test/e2e-complete-workflow.spec.ts:93:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      38 |   async fillFormField(fieldName: string, value: string) {
+      39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 40 |     await field.clear();
+         |                 ^
+      41 |     await field.fill(value);
+      42 |   }
+      43 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:40:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:132:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-3732b-ge-upload-to-PDF-generation-chromium/error-context.md
+
+
+[1A[2K  8) [chromium] › test/e2e-complete-workflow.spec.ts:214:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("PDF generieren")')[22m
+
+
+      56 |   async clickGeneratePDF() {
+      57 |     const generateButton = this.page.locator('button:has-text("PDF generieren")');
+    > 58 |     await generateButton.click();
+         |                          ^
+      59 |   }
+      60 |
+      61 |   async waitForPDFGeneration() {
+        at BewirtungsbelegWorkflow.clickGeneratePDF (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:58:26)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:216:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-0b43e--form-before-PDF-generation-chromium/error-context.md
+
+
+[1A[2K[10/63] [chromium] › test/e2e-critical-scenarios.spec.ts:328:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY
+[1A[2K[11/63] [chromium] › test/e2e-critical-scenarios.spec.ts:301:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format
+[1A[2K[12/63] [chromium] › test/e2e-critical-scenarios.spec.ts:253:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully
+[1A[2K[13/63] [chromium] › test/e2e-critical-scenarios.spec.ts:273:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input
+[1A[2K[14/63] [chromium] › test/e2e-critical-scenarios.spec.ts:346:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format
+[1A[2K[15/63] [chromium] › test/e2e-critical-scenarios.spec.ts:358:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment
+[1A[2K  9) [chromium] › test/e2e-critical-scenarios.spec.ts:200:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Daten extrahieren")')[22m
+
+
+      56 |
+      57 |   async clickButton(text: string) {
+    > 58 |     await this.page.locator(`button:has-text("${text}")`).click();
+         |                                                           ^
+      59 |   }
+      60 |
+      61 |   async getErrorMessages(): Promise<string[]> {
+        at BewirtungsbelegPage.clickButton (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:58:59)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:237:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-2eae8-ecover-from-OCR-API-failure-chromium/error-context.md
+
+
+[1A[2K[16/63] [chromium] › test/e2e-critical-scenarios.spec.ts:386:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT
+[1A[2K  10) [chromium] › test/e2e-critical-scenarios.spec.ts:273:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="gesamtbetrag"], textarea[name="gesamtbetrag"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:275:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-1a611-s-when-fixing-invalid-input-chromium/error-context.md
+
+
+[1A[2K  11) [chromium] › test/e2e-critical-scenarios.spec.ts:328:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"], textarea[name="datum"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:333:18
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d6aa0-rman-date-format-DD-MM-YYYY-chromium/error-context.md
+
+
+[1A[2K  12) [chromium] › test/e2e-critical-scenarios.spec.ts:346:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:347:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d333c-tip-amount-in-German-format-chromium/error-context.md
+
+
+[1A[2K  13) [chromium] › test/e2e-critical-scenarios.spec.ts:301:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:302:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4ed80-idate-German-decimal-format-chromium/error-context.md
+
+
+[1A[2K  14) [chromium] › test/e2e-critical-scenarios.spec.ts:253:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:265:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-accc6--network-timeout-gracefully-chromium/error-context.md
+
+
+[1A[2K  15) [chromium] › test/e2e-critical-scenarios.spec.ts:358:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:359:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-a590a--for-customer-entertainment-chromium/error-context.md
+
+
+[1A[2K[17/63] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked
+[1A[2K[18/63] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments
+[1A[2K[19/63] [chromium] › test/e2e-critical-scenarios.spec.ts:443:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts
+[1A[2K[20/63] [chromium] › test/e2e-critical-scenarios.spec.ts:425:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes
+[1A[2K[21/63] [chromium] › test/e2e-critical-scenarios.spec.ts:406:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format
+[1A[2K[22/63] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields
+[1A[2K  16) [chromium] › test/e2e-critical-scenarios.spec.ts:386:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:387:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf5a8-urrency-receipt-without-VAT-chromium/error-context.md
+
+
+[1A[2K[23/63] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments
+[1A[2K  17) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:190:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-1a0a1-ning-when-option-is-checked-chromium/error-context.md
+
+
+[1A[2K  18) [chromium] › test/e2e-critical-scenarios.spec.ts:443:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:444:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-ccca3-te-VAT-for-foreign-receipts-chromium/error-context.md
+
+
+[1A[2K  19) [chromium] › test/e2e-critical-scenarios.spec.ts:425:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:426:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-03b43-dle-multiple-currency-codes-chromium/error-context.md
+
+
+[1A[2K  20) [chromium] › test/e2e-critical-scenarios.spec.ts:406:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      46 |   async fillField(name: string, value: string) {
+      47 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 48 |     await field.clear();
+         |                 ^
+      49 |     await field.fill(value);
+      50 |   }
+      51 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:48:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:99:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:407:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4431a-lidate-exchange-rate-format-chromium/error-context.md
+
+
+[1A[2K  21) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:162:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-0c91c-eg-without-file-attachments-chromium/error-context.md
+
+
+[1A[2K  22) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:201:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-79753-rrectly-for-required-fields-chromium/error-context.md
+
+
+[1A[2K[24/63] [chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount
+[1A[2K[25/63] [chromium] › test/e2e-tip-calculation.spec.ts:215:3 › Tip Calculation - Manual Entry › should handle German decimal format (comma separator)
+[1A[2K[26/63] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content
+[1A[2K[27/63] [chromium] › test/e2e-tip-calculation.spec.ts:236:3 › Tip Calculation - Manual Entry › should not calculate tip when credit card amount < invoice amount
+[1A[2K[28/63] [chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card
+[1A[2K[29/63] [chromium] › test/e2e-tip-calculation.spec.ts:257:3 › Tip Calculation - Manual Entry › should not calculate tip when amounts are equal
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:257:3 › Tip Calculation - Manual Entry › should not calculate tip when amounts are equal
+
+🧪 TEST: No tip when amounts are equal
+
+[1A[2K✏️ Setting field "gesamtbetrag" to: 30.00
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:215:3 › Tip Calculation - Manual Entry › should handle German decimal format (comma separator)
+
+🧪 TEST: German decimal format with comma
+
+[1A[2K✏️ Setting field "gesamtbetrag" to: 29,90
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card
+
+🧪 TEST: OCR Auto-calculation of tip
+
+[1A[2K📤 Uploading Rechnung hochladen: /Users/daniel/dev/Bewritung/bewir/test/29092025_(Vendor).pdf
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount
+
+🧪 TEST: Manual entry tip calculation
+
+[1A[2K📤 Uploading Rechnung hochladen: /Users/daniel/dev/Bewritung/bewir/test/29092025_(Vendor).pdf
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:236:3 › Tip Calculation - Manual Entry › should not calculate tip when credit card amount < invoice amount
+
+🧪 TEST: No tip when credit card < invoice
+
+[1A[2K✏️ Setting field "gesamtbetrag" to: 50.00
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card
+✅ File uploaded: Rechnung hochladen
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount
+✅ File uploaded: Rechnung hochladen
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card
+📤 Uploading Kreditkarte hochladen: /Users/daniel/dev/Bewritung/bewir/test/08102025_Bezahlung MASTERCARD.pdf
+
+[1A[2K✅ File uploaded: Kreditkarte hochladen
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount
+🔍 Clicking "Daten extrahieren" button
+
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card
+🔍 Clicking "Daten extrahieren" button
+
+[1A[2K  23) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:216:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-c121f-nd-without-file-attachments-chromium/error-context.md
+
+
+[1A[2K[30/63] [chromium] › test/e2e-tip-calculation.spec.ts:287:3 › Tip Calculation - Reverse Flow › should calculate credit card amount when entering tip manually
+[1A[2K[chromium] › test/e2e-tip-calculation.spec.ts:287:3 › Tip Calculation - Reverse Flow › should calculate credit card amount when entering tip manually
+
+🧪 TEST: Calculate credit card from tip entry
+
+[1A[2K✏️ Setting field "gesamtbetrag" to: 29.90
+
+[1A[2K  24) [chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount 
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('button:has-text("Daten extrahieren")')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for locator('button:has-text("Daten extrahieren")')[22m
+
+
+      40 |     console.log('🔍 Clicking "Daten extrahieren" button');
+      41 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
+    > 42 |     await expect(extractButton).toBeVisible();
+         |                                 ^
+      43 |     await extractButton.click();
+      44 |   }
+      45 |
+        at TipCalculationWorkflow.clickExtractData (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:42:33)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:180:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-0a5aa-entering-credit-card-amount-chromium/error-context.md
+
+
+[1A[2K[31/63] [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields
+[1A[2K  25) [chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card 
+
+    Error: [31mTimed out 5000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('button:has-text("Daten extrahieren")')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 5000ms[22m
+    [2m  - waiting for locator('button:has-text("Daten extrahieren")')[22m
+
+
+      40 |     console.log('🔍 Clicking "Daten extrahieren" button');
+      41 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
+    > 42 |     await expect(extractButton).toBeVisible();
+         |                                 ^
+      43 |     await extractButton.click();
+      44 |   }
+      45 |
+        at TipCalculationWorkflow.clickExtractData (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:42:33)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:129:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-c2342-oth-invoice-and-credit-card-chromium/error-context.md
+
+
+[1A[2K[32/63] [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully
+[1A[2K  26) [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.check: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()[22m
+
+
+      28 |     ).first();
+      29 |     
+    > 30 |     await eigenbelegCheckbox.check();
+         |                              ^
+      31 |     await this.page.waitForTimeout(500); // Wait for UI state change
+      32 |   }
+      33 |
+        at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:235:20
+
+    Error Context: test-results/e2e-eigenbeleg-workflow-Ei-528a9--correct-Eigenbeleg-content-chromium/error-context.md
+
+
+[1A[2K  27) [chromium] › test/e2e-tip-calculation.spec.ts:236:3 › Tip Calculation - Manual Entry › should not calculate tip when credit card amount < invoice amount 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#gesamtbetrag, input[id="gesamtbetrag"]').first()[22m
+
+
+      83 |     // Mantine forms use IDs, not names
+      84 |     const field = this.page.locator(`#${fieldName}, input[id="${fieldName}"]`).first();
+    > 85 |     await field.clear();
+         |                 ^
+      86 |     await field.fill(value);
+      87 |
+      88 |     // Trigger blur to ensure onChange fires
+        at TipCalculationWorkflow.setFieldValue (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:85:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:240:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-13fe0--card-amount-invoice-amount-chromium/error-context.md
+
+
+[1A[2K  28) [chromium] › test/e2e-tip-calculation.spec.ts:215:3 › Tip Calculation - Manual Entry › should handle German decimal format (comma separator) 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#gesamtbetrag, input[id="gesamtbetrag"]').first()[22m
+
+
+      83 |     // Mantine forms use IDs, not names
+      84 |     const field = this.page.locator(`#${fieldName}, input[id="${fieldName}"]`).first();
+    > 85 |     await field.clear();
+         |                 ^
+      86 |     await field.fill(value);
+      87 |
+      88 |     // Trigger blur to ensure onChange fires
+        at TipCalculationWorkflow.setFieldValue (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:85:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:219:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-9d851-mal-format-comma-separator--chromium/error-context.md
+
+
+[1A[2K  29) [chromium] › test/e2e-tip-calculation.spec.ts:257:3 › Tip Calculation - Manual Entry › should not calculate tip when amounts are equal 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#gesamtbetrag, input[id="gesamtbetrag"]').first()[22m
+
+
+      83 |     // Mantine forms use IDs, not names
+      84 |     const field = this.page.locator(`#${fieldName}, input[id="${fieldName}"]`).first();
+    > 85 |     await field.clear();
+         |                 ^
+      86 |     await field.fill(value);
+      87 |
+      88 |     // Trigger blur to ensure onChange fires
+        at TipCalculationWorkflow.setFieldValue (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:85:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:261:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-d2a1b--tip-when-amounts-are-equal-chromium/error-context.md
+
+
+[1A[2K[33/63] [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD
+[1A[2K[34/63] [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD
+[1A[2K[35/63] [chromium] › test/e2e-zugferd.spec.ts:233:3 › ZUGFeRD Integration Tests › should properly format German addresses in ZUGFeRD XML
+[1A[2K[36/63] [chromium] › test/e2e-zugferd.spec.ts:278:3 › ZUGFeRD Integration Tests › should handle UTF-8 characters in ZUGFeRD data
+[1A[2K[37/63] [chromium] › test/eigenbeleg-validation-simple.spec.ts:10:3 › Eigenbeleg Validation Fix › should load bewirtungsbeleg page without errors
+[1A[2K  30) [chromium] › test/e2e-zugferd.spec.ts:278:3 › ZUGFeRD Integration Tests › should handle UTF-8 characters in ZUGFeRD data 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      291 |     });
+      292 |     
+    > 293 |     expect(response.ok()).toBeTruthy();
+          |                           ^
+      294 |   });
+      295 | });
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:293:27
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-Integr-b8bfd--characters-in-ZUGFeRD-data-chromium/error-context.md
+
+
+[1A[2K[38/63] [chromium] › test/eigenbeleg-validation-simple.spec.ts:19:3 › Eigenbeleg Validation Fix › should show Eigenbeleg checkbox and handle checking it
+[1A[2K[39/63] [chromium] › test/eigenbeleg-validation-simple.spec.ts:30:3 › Eigenbeleg Validation Fix › should not show validation error for image field when submitting basic form
+[1A[2K[40/63] [chromium] › test/eigenbeleg-validation-simple.spec.ts:82:3 › Eigenbeleg Validation Fix › should handle API validation correctly
+[1A[2K[chromium] › test/eigenbeleg-validation-simple.spec.ts:30:3 › Eigenbeleg Validation Fix › should not show validation error for image field when submitting basic form
+Form interaction failed, but checking for validation errors: locator.fill: Error: Input of type "file" cannot be filled
+Call log:
+[2m  - waiting for locator('input').nth(1)[22m
+[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>[22m
+[2m    - fill("Test Restaurant")[22m
+[2m  - attempting fill action[22m
+[2m    - waiting for element to be visible, enabled and editable[22m
+
+    at [90m/Users/daniel/dev/Bewritung/bewir/[39mtest/eigenbeleg-validation-simple.spec.ts:45:31 {
+  [[32mSymbol(step)[39m]: {
+    stepId: [32m'pw:api@11'[39m,
+    location: {
+      file: [32m'/Users/daniel/dev/Bewritung/bewir/test/eigenbeleg-validation-simple.spec.ts'[39m,
+      line: [33m45[39m,
+      column: [33m31[39m
+    },
+    category: [32m'pw:api'[39m,
+    title: [32m'locator.fill(Test Restaurant)'[39m,
+    apiName: [32m'locator.fill'[39m,
+    params: {
+      selector: [32m'input >> nth=1'[39m,
+      value: [32m'Test Restaurant'[39m,
+      strict: [33mtrue[39m
+    },
+    boxedStack: [90mundefined[39m,
+    steps: [],
+    attachmentIndices: [],
+    info: TestStepInfoImpl {
+      annotations: [],
+      _testInfo: [36m[TestInfoImpl][39m,
+      _stepId: [32m'pw:api@11'[39m
+    },
+    complete: [36m[Function: complete][39m,
+    endWallTime: [33m1760680327820[39m,
+    error: {
+      message: [32m'Error: locator.fill: Error: Input of type "file" cannot be filled\n'[39m +
+        [32m'Call log:\n'[39m +
+        [32m"\x1B[2m  - waiting for locator('input').nth(1)\x1B[22m\n"[39m +
+        [32m'\x1B[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - fill("Test Restaurant")\x1B[22m\n'[39m +
+        [32m'\x1B[2m  - attempting fill action\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - waiting for element to be visible, enabled and editable\x1B[22m\n'[39m,
+      stack: [32m'Error: locator.fill: Error: Input of type "file" cannot be filled\n'[39m +
+        [32m'Call log:\n'[39m +
+        [32m"\x1B[2m  - waiting for locator('input').nth(1)\x1B[22m\n"[39m +
+        [32m'\x1B[2m    - locator resolved to <input multiple type="file" tabindex="-1" accept="image/png,image/jpeg,image/webp,application/pdf"/>\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - fill("Test Restaurant")\x1B[22m\n'[39m +
+        [32m'\x1B[2m  - attempting fill action\x1B[22m\n'[39m +
+        [32m'\x1B[2m    - waiting for element to be visible, enabled and editable\x1B[22m\n'[39m +
+        [32m'\n'[39m +
+        [32m'    at /Users/daniel/dev/Bewritung/bewir/test/eigenbeleg-validation-simple.spec.ts:45:31'[39m,
+      cause: [90mundefined[39m
+    }
+  }
+}
+
+[1A[2K[41/63] [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test
+[1A[2K[42/63] [chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview
+[1A[2K  31) [chromium] › test/e2e-tip-calculation.spec.ts:287:3 › Tip Calculation - Reverse Flow › should calculate credit card amount when entering tip manually 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('#gesamtbetrag, input[id="gesamtbetrag"]').first()[22m
+
+
+      83 |     // Mantine forms use IDs, not names
+      84 |     const field = this.page.locator(`#${fieldName}, input[id="${fieldName}"]`).first();
+    > 85 |     await field.clear();
+         |                 ^
+      86 |     await field.fill(value);
+      87 |
+      88 |     // Trigger blur to ensure onChange fires
+        at TipCalculationWorkflow.setFieldValue (/Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:85:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-tip-calculation.spec.ts:291:20
+
+    Error Context: test-results/e2e-tip-calculation-Tip-Ca-fb85f--when-entering-tip-manually-chromium/error-context.md
+
+
+[1A[2K[43/63] [chromium] › test/image-preview-real.spec.ts:102:3 › Image Preview Real-World Test › Regular image should display immediately in preview
+[1A[2K[chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview
+Uploading PDF: /Users/daniel/dev/Bewritung/bewir/test/08042025_kreditbeleg_Pareo.pdf
+
+[1A[2K  32) [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test ─────────────────
+
+    Error: locator.fill: Error: strict mode violation: getByLabel('Restaurant') resolved to 2 elements:
+        1) <input value="" required="" aria-invalid="false" data-variant="default" id="mantine-iwe4b45rl" data-path="restaurantName" placeholder="Name des Restaurants" class="m_8fb7ebe7 mantine-Input-input mantine-TextInput-input"/> aka getByRole('textbox', { name: 'Restaurant' })
+        2) <button type="button" data-variant="subtle" aria-label="Restaurant suchen" data-testid="places-search-button" class="mantine-focus-auto mantine-active m_8d3f4000 mantine-ActionIcon-root m_87cf2631 mantine-UnstyledButton-root">…</button> aka getByTestId('places-search-button')
+
+    Call log:
+    [2m  - waiting for getByLabel('Restaurant')[22m
+
+
+      55 |   
+      56 |   // Fill restaurant information
+    > 57 |   await page.getByLabel('Restaurant').fill(formData.restaurant);
+         |                                       ^
+      58 |   await page.getByLabel('Anschrift').fill(formData.restaurantAddress);
+      59 |   
+      60 |   // Fill date - try different approaches
+        at /Users/daniel/dev/Bewritung/bewir/test/end2end-test.spec.ts:57:39
+
+    Error Context: test-results/end2end-test-End-to-end-Bewirtungsbeleg-test-chromium/error-context.md
+
+
+[1A[2K[44/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:35:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved
+[1A[2KClicking on file card to select it
+
+[1A[2K[chromium] › test/image-preview-real.spec.ts:102:3 › Image Preview Real-World Test › Regular image should display immediately in preview
+PNG image displayed with src: blob:http://localhost:3000/73f09157-f740-4c33-bb2e...
+
+[1A[2K[45/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:113:3 › Multi-Page PDF Field Preservation › Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:35:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved
+📄 Testing Paul2.pdf: Kreditkartenbeleg → Rechnung
+
+[1A[2K⏳ Waiting for PDF conversion and OCR...
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:113:3 › Multi-Page PDF Field Preservation › Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved
+📄 Testing Paul1.pdf: Rechnung → Kreditkartenbeleg
+
+[1A[2K  33) [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      16 |   test('should generate ZUGFeRD-compliant PDF with all required fields', async ({ page }) => {
+      17 |     // Fill in the form with complete data
+    > 18 |     await page.fill('input[name="datum"]', '15.04.2024');
+         |                ^
+      19 |     await page.fill('input[name="restaurantName"]', 'Restaurant Zur Post');
+      20 |     await page.fill('input[name="restaurantAnschrift"]', 'Hauptstraße 42');
+      21 |     await page.fill('input[name="restaurantPlz"]', '10115');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:18:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-af460-DF-with-all-required-fields-chromium/error-context.md
+
+
+[1A[2K⏳ Waiting for PDF conversion and OCR...
+
+[1A[2K[46/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:189:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Verify console logs show ref preservation
+[1A[2K  34) [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      103 |   test('should handle ZUGFeRD generation errors gracefully', async ({ page }) => {
+      104 |     // Fill minimal required fields
+    > 105 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      106 |     await page.fill('input[name="restaurantName"]', 'Test Restaurant');
+      107 |     await page.fill('textarea[name="teilnehmer"]', 'Test Person');
+      108 |     await page.fill('textarea[name="anlass"]', 'Test');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:105:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-23e71-eneration-errors-gracefully-chromium/error-context.md
+
+
+[1A[2K[47/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:246:3 › Multi-Page PDF Field Preservation › Edge case: Empty tip (kreditkartenbetrag equals gesamtbetrag)
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:189:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Verify console logs show ref preservation
+📄 Testing console logs for ref preservation
+
+[1A[2K[chromium] › test/image-preview-real.spec.ts:11:3 › Image Preview Real-World Test › PDF should be converted and displayed in Image Editor preview
+Image Editor is visible
+
+[1A[2K✅ SUCCESS: Image preview is visible!
+
+[1A[2KImage source: data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEBbgFuAAD...
+
+[1A[2KRotation controls enabled: [33mtrue[39m
+
+[1A[2K[48/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:265:3 › Multi-Page PDF Field Preservation › Edge case: Negative tip (kreditkartenbetrag less than gesamtbetrag)
+[1A[2K  35) [chromium] › test/multipage-pdf-field-preservation.spec.ts:246:3 › Multi-Page PDF Field Preservation › Edge case: Empty tip (kreditkartenbetrag equals gesamtbetrag) 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m0[39m
+    Received: [31mNaN[39m
+
+      259 |     const tipValue = parseFloat(trinkgeld.replace(',', '.'));
+      260 |
+    > 261 |     expect(tipValue).toBe(0.00);
+          |                      ^
+      262 |     console.log('✅ Edge case: Empty tip correctly calculated as 0.00');
+      263 |   });
+      264 |
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:261:22
+
+    Error Context: test-results/multipage-pdf-field-preser-cb4cd-betrag-equals-gesamtbetrag--chromium/error-context.md
+
+
+[1A[2K[49/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:286:3 › Multi-Page PDF Field Preservation › Paul3.jpg: Combined receipt - both amounts on same page
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:265:3 › Multi-Page PDF Field Preservation › Edge case: Negative tip (kreditkartenbetrag less than gesamtbetrag)
+Edge case: Negative tip scenario, trinkgeld = 
+
+[1A[2K[50/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:369:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Both amounts extracted correctly
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:286:3 › Multi-Page PDF Field Preservation › Paul3.jpg: Combined receipt - both amounts on same page
+📄 Testing Paul3.jpg: Combined receipt (Kreditkartenbeleg + Rechnung on same page)
+
+[1A[2K⏳ Waiting for OCR...
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:369:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Both amounts extracted correctly
+🧪 Testing combined receipt extraction with spatial guidance
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:113:3 › Multi-Page PDF Field Preservation › Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved
+📊 Extracted Values:
+
+[1A[2K  gesamtbetrag: 99.90
+
+[1A[2K  kreditkartenBetrag: 
+
+[1A[2K  trinkgeld: 
+
+[1A[2K  trinkgeldMwst: 
+
+[1A[2K✅ gesamtbetrag correct: 99.90
+
+[1A[2K  36) [chromium] › test/multipage-pdf-field-preservation.spec.ts:113:3 › Multi-Page PDF Field Preservation › Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"105.00"[39m
+    Received: [31m""[39m
+
+      169 |
+      170 |     // 2. Credit card amount from Page 2 (Kreditkartenbeleg)
+    > 171 |     expect(kreditkartenBetrag).toBe('105.00');
+          |                                ^
+      172 |     console.log('✅ kreditkartenBetrag correct: 105.00');
+      173 |
+      174 |     // 3. Tip should be calculated correctly (105.00 - 99.90 = 5.10)
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:171:32
+
+    Error Context: test-results/multipage-pdf-field-preser-81536--fields-should-be-preserved-chromium/error-context.md
+
+
+[1A[2K[51/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:418:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Verify classification as Rechnung&Kreditkartenbeleg
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:418:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Verify classification as Rechnung&Kreditkartenbeleg
+🧪 Testing combined receipt classification
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:286:3 › Multi-Page PDF Field Preservation › Paul3.jpg: Combined receipt - both amounts on same page
+📊 Extracted Values:
+
+[1A[2K  gesamtbetrag: 38.90
+
+[1A[2K  kreditkartenBetrag: 
+
+[1A[2K  trinkgeld: 6.10
+
+[1A[2K  trinkgeldMwst: 
+
+[1A[2K✅ gesamtbetrag correct: 38.90
+
+[1A[2K  37) [chromium] › test/multipage-pdf-field-preservation.spec.ts:286:3 › Multi-Page PDF Field Preservation › Paul3.jpg: Combined receipt - both amounts on same page 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m"45.00"[39m
+    Received: [31m""[39m
+
+      342 |
+      343 |     // 2. CRITICAL: Credit card amount from left side (SUMME EUR: 45,00) MUST BE EXTRACTED
+    > 344 |     expect(kreditkartenBetrag).toBe('45.00');
+          |                                ^
+      345 |     console.log('✅ kreditkartenBetrag extracted: 45.00');
+      346 |
+      347 |     // 3. Tip should be calculated correctly (45.00 - 38.90 = 6.10)
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:344:32
+
+    Error Context: test-results/multipage-pdf-field-preser-97420---both-amounts-on-same-page-chromium/error-context.md
+
+
+[1A[2K[52/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:460:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Tip calculation after both amounts extracted
+[1A[2K  38) [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      189 |   test('should include business entertainment deductibility in ZUGFeRD', async ({ page }) => {
+      190 |     // Test customer entertainment (70% deductible)
+    > 191 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      192 |     await page.fill('input[name="restaurantName"]', 'Restaurant Test');
+      193 |     await page.fill('input[name="gesamtbetrag"]', '100,00');
+      194 |     await page.fill('textarea[name="teilnehmer"]', 'Kunde A, Kunde B');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:191:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-568ca-nt-deductibility-in-ZUGFeRD-chromium/error-context.md
+
+
+[1A[2K  39) [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: page.fill: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"]')[22m
+
+
+      142 |   test('should validate VAT breakdown for ZUGFeRD', async ({ page }) => {
+      143 |     // Fill form with specific VAT rates
+    > 144 |     await page.fill('input[name="datum"]', '15.04.2024');
+          |                ^
+      145 |     await page.fill('input[name="restaurantName"]', 'Test Restaurant');
+      146 |     await page.fill('input[name="restaurantAnschrift"]', 'Test Straße 1');
+      147 |     await page.fill('input[name="restaurantPlz"]', '12345');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-zugferd.spec.ts:144:16
+
+    Error Context: test-results/e2e-zugferd-ZUGFeRD-PDF-Ge-4175f-e-VAT-breakdown-for-ZUGFeRD-chromium/error-context.md
+
+
+[1A[2K[53/63] [chromium] › test/multipage-pdf-field-preservation.spec.ts:512:3 › Multi-Page PDF Processing Order Independence › Processing order should not affect final result
+[1A[2K[54/63] [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:369:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Both amounts extracted correctly
+Verifying both amounts extracted:
+
+[1A[2K  Invoice (gesamtbetrag): 38.90
+
+[1A[2K  Credit Card (kreditkartenbetrag): 
+
+[1A[2K  40) [chromium] › test/multipage-pdf-field-preservation.spec.ts:369:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Both amounts extracted correctly 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mnot[2m.[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: not [32m""[39m
+
+      405 |     // Both fields MUST be populated
+      406 |     expect(gesamtbetrag).not.toBe('');
+    > 407 |     expect(kreditkartenBetrag).not.toBe('');
+          |                                    ^
+      408 |
+      409 |     // Credit card amount should be >= invoice amount
+      410 |     const kkNum = parseFloat(kreditkartenBetrag.replace(',', '.'));
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:407:36
+
+    Error Context: test-results/multipage-pdf-field-preser-00918-amounts-extracted-correctly-chromium/error-context.md
+
+
+[1A[2K[55/63] [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:460:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Tip calculation after both amounts extracted
+🧪 Testing tip calculation for combined receipt
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:512:3 › Multi-Page PDF Processing Order Independence › Processing order should not affect final result
+✅ Processing order independence verified by Paul1 and Paul2 tests
+
+[1A[2K[56/63] [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully
+[1A[2K  41) [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully 
+
+    Error: locator.isVisible: Error: strict mode violation: locator('[role="alert"]') resolved to 3 elements:
+        1) <div role="alert" class="m_a513464 mantine-Notification-root">…</div> aka getByRole('alert').filter({ hasText: 'FehlerFehler bei der PDF-' })
+        2) <div role="alert" data-variant="light" id="mantine-ex3sfnzlv" class="m_66836ed3 mantine-Alert-root" aria-describedby="mantine-ex3sfnzlv-body">…</div> aka locator('#mantine-ex3sfnzlv')
+        3) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+    [2m    - checking visibility of locator('[role="alert"]')[22m
+
+
+      76 |
+      77 |   async isErrorMessageVisible(): Promise<boolean> {
+    > 78 |     return await this.page.locator('[role="alert"]').isVisible();
+         |                                                      ^
+      79 |   }
+      80 |
+      81 |   async extractData() {
+        at BewirtungsbelegPage.isErrorMessageVisible (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:78:54)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:196:52
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f4b3c-onversion-errors-gracefully-chromium/error-context.md
+
+
+[1A[2K[57/63] [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:189:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Verify console logs show ref preservation
+🔍 Console: 📋 Before: refs = {lastCreditCardAmountRef: 105.00, lastTipAmountRef: 0.00, lastTipMwstRef: 0.00}
+
+[1A[2K🔍 Console: ✅ Preserving kreditkartenBetrag from ref: 105.00
+
+[1A[2K🔍 Console: ✅ Preserving trinkgeld from ref/OCR: 0.00
+
+[1A[2K🔍 Console: ✅ Preserving trinkgeldMwst from ref: 0.00
+
+[1A[2K  42) [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file 
+
+    Error: locator.isVisible: Error: strict mode violation: locator('[role="alert"]') resolved to 3 elements:
+        1) <div role="alert" class="m_a513464 mantine-Notification-root">…</div> aka getByRole('alert').filter({ hasText: 'FehlerFehler bei der PDF-' })
+        2) <div role="alert" data-variant="light" id="mantine-4qj9bqnx3" class="m_66836ed3 mantine-Alert-root" aria-describedby="mantine-4qj9bqnx3-body">…</div> aka getByRole('alert').filter({ hasText: 'Failed to convert PDF. Please' })
+        3) <div role="alert" aria-live="assertive" id="__next-route-announcer__"></div> aka locator('[id="__next-route-announcer__"]')
+
+    Call log:
+    [2m    - checking visibility of locator('[role="alert"]')[22m
+
+
+      76 |
+      77 |   async isErrorMessageVisible(): Promise<boolean> {
+    > 78 |     return await this.page.locator('[role="alert"]').isVisible();
+         |                                                      ^
+      79 |   }
+      80 |
+      81 |   async extractData() {
+        at BewirtungsbelegPage.isErrorMessageVisible (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:78:54)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:226:38
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-3affd-rror-when-removing-PDF-file-chromium/error-context.md
+
+
+[1A[2K[58/63] [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion
+[1A[2K✅ Found preservation logs: [33m2[39m
+
+[1A[2K  43) [chromium] › test/multipage-pdf-field-preservation.spec.ts:189:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Verify console logs show ref preservation 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      240 |     );
+      241 |
+    > 242 |     expect(fixLogs.length).toBeGreaterThan(0);
+          |                            ^
+      243 |     console.log('✅ Found fix logs:', fixLogs.length);
+      244 |   });
+      245 |
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:242:28
+
+    Error Context: test-results/multipage-pdf-field-preser-dedf7--logs-show-ref-preservation-chromium/error-context.md
+
+
+[1A[2K[59/63] [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation
+[1A[2K  44) [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      264 |     // Image should be displayed immediately
+      265 |     const isImageVisible = await bewirtungsbelegPage.isImageDisplayed();
+    > 266 |     expect(isImageVisible).toBeTruthy();
+          |                            ^
+      267 |
+      268 |     // Rotation should be enabled
+      269 |     const isRotateEnabled = await bewirtungsbelegPage.isRotateButtonEnabled();
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:266:28
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-d05de-NG-files-without-conversion-chromium/error-context.md
+
+
+[1A[2K[60/63] [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files
+[1A[2K  45) [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it 
+
+    Error: [31mTimed out 10000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('text=Converting PDF...')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 10000ms[22m
+    [2m  - waiting for locator('text=Converting PDF...')[22m
+
+
+      24 |   async waitForPdfConversion() {
+      25 |     // Wait for "Converting PDF..." message to appear
+    > 26 |     await expect(this.page.locator('text=Converting PDF...')).toBeVisible({ timeout: 10000 });
+         |                                                               ^
+      27 |     
+      28 |     // Wait for conversion to complete (message disappears)
+      29 |     await expect(this.page.locator('text=Converting PDF...')).toBeHidden({ timeout: 30000 });
+        at BewirtungsbelegPage.waitForPdfConversion (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:26:63)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:125:31
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f4d1a-PDF-to-image-and-display-it-chromium/error-context.md
+
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:418:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Verify classification as Rechnung&Kreditkartenbeleg
+⚠️ Classification log not found - check if classification is working
+
+[1A[2K[61/63] [chromium] › test/pdf-simple.spec.ts:10:3 › Simple PDF Conversion Test › should display the upload area
+[1A[2K  46) [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion 
+
+    Error: [31mTimed out 10000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('text=Converting PDF...')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 10000ms[22m
+    [2m  - waiting for locator('text=Converting PDF...')[22m
+
+
+      24 |   async waitForPdfConversion() {
+      25 |     // Wait for "Converting PDF..." message to appear
+    > 26 |     await expect(this.page.locator('text=Converting PDF...')).toBeVisible({ timeout: 10000 });
+         |                                                               ^
+      27 |     
+      28 |     // Wait for conversion to complete (message disappears)
+      29 |     await expect(this.page.locator('text=Converting PDF...')).toBeHidden({ timeout: 30000 });
+        at BewirtungsbelegPage.waitForPdfConversion (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:26:63)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:154:31
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-f18ed-ntrols-after-PDF-conversion-chromium/error-context.md
+
+
+[1A[2K[62/63] [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads
+[1A[2K[63/63] [chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+[1A[2K[chromium] › test/pdf-simple.spec.ts:10:3 › Simple PDF Conversion Test › should display the upload area
+Dropzone visible: [33mfalse[39m
+
+[1A[2K[chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+Uploading PDF from: /Users/daniel/dev/Bewritung/bewir/test/08042025_kreditbeleg_Pareo.pdf
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:460:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Tip calculation after both amounts extracted
+Tip calculation: NaN - 38.9 = NaN
+
+[1A[2KActual tip: 6.1
+
+[1A[2K  47) [chromium] › test/multipage-pdf-field-preservation.spec.ts:460:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Tip calculation after both amounts extracted 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeCloseTo[2m([22m[32mexpected[39m[2m, [22mprecision[2m)[22m
+
+    Expected: [32mNaN[39m
+    Received: [31m6.1[39m
+
+    Expected precision:    2
+    Expected difference: < [32m0.005[39m
+    Received difference:   [31mNaN[39m
+
+      498 |     console.log(`Actual tip: ${tipNum}`);
+      499 |
+    > 500 |     expect(tipNum).toBeCloseTo(expectedTip, 2);
+          |                    ^
+      501 |
+      502 |     console.log('✅ Tip correctly calculated from both extracted amounts');
+      503 |   });
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:500:20
+
+    Error Context: test-results/multipage-pdf-field-preser-685c5-fter-both-amounts-extracted-chromium/error-context.md
+
+
+[1A[2K  48) [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThanOrEqual[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: >= [32m1[39m
+    Received:    [31m0[39m
+
+      398 |     const fileCards = page.locator('[data-testid="file-card"]');
+      399 |     const fileCount = await fileCards.count();
+    > 400 |     expect(fileCount).toBeGreaterThanOrEqual(1);
+          |                       ^
+      401 |   });
+      402 | });
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:400:23
+
+    Error Context: test-results/pdf-conversion-Multiple-Fi-f6e27-mixed-PDF-and-image-uploads-chromium/error-context.md
+
+
+[1A[2K  49) [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mfalse[39m
+
+      295 |     // 4. Rotate right
+      296 |     await bewirtungsbelegPage.rotateImageRight();
+    > 297 |     expect(await bewirtungsbelegPage.isEditedBadgeVisible()).toBeTruthy();
+          |                                                              ^
+      298 |
+      299 |     // 5. Rotate left
+      300 |     await bewirtungsbelegPage.rotateImageLeft();
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:297:62
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-8c1a5--PDF-workflow-with-rotation-chromium/error-context.md
+
+
+[1A[2K[chromium] › test/pdf-simple.spec.ts:30:3 › Simple PDF Conversion Test › should upload and convert a PDF
+Number of images found: [33m1[39m
+
+[1A[2KImage 0: alt="DocBits Logo", src starts with: /docbits.svg
+
+[1A[2KAlert 0: 
+
+[1A[2K[chromium] › test/multipage-pdf-field-preservation.spec.ts:35:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved
+📊 Extracted Values:
+
+[1A[2K  gesamtbetrag: 99.90
+
+[1A[2K  kreditkartenBetrag: 105.00
+
+[1A[2K  trinkgeld: 
+
+[1A[2K  trinkgeldMwst: 
+
+[1A[2K✅ gesamtbetrag correct: 99.90
+
+[1A[2K✅ kreditkartenBetrag PRESERVED: 105.00
+
+[1A[2K  50) [chromium] › test/multipage-pdf-field-preservation.spec.ts:35:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeCloseTo[2m([22m[32mexpected[39m[2m, [22mprecision[2m)[22m
+
+    Expected: [32m5.1[39m
+    Received: [31mNaN[39m
+
+    Expected precision:    2
+    Expected difference: < [32m0.005[39m
+    Received difference:   [31mNaN[39m
+
+       98 |     // 3. Tip should be calculated correctly (105.00 - 99.90 = 5.10)
+       99 |     const tipValue = parseFloat(trinkgeld.replace(',', '.'));
+    > 100 |     expect(tipValue).toBeCloseTo(5.10, 2);
+          |                      ^
+      101 |     console.log('✅ trinkgeld calculated correctly: 5.10');
+      102 |
+      103 |     // 4. Tip MwSt should be ~0.97 (19% of 5.10)
+        at /Users/daniel/dev/Bewritung/bewir/test/multipage-pdf-field-preservation.spec.ts:100:22
+
+    Error Context: test-results/multipage-pdf-field-preser-9adeb--fields-should-be-preserved-chromium/error-context.md
+
+
+[1A[2K  51) [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files 
+
+    Error: [31mTimed out 10000ms waiting for [39m[2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m()[22m
+
+    Locator: locator('text=Converting PDF...')
+    Expected: visible
+    Received: <element(s) not found>
+    Call log:
+    [2m  - expect.toBeVisible with timeout 10000ms[22m
+    [2m  - waiting for locator('text=Converting PDF...')[22m
+
+
+      24 |   async waitForPdfConversion() {
+      25 |     // Wait for "Converting PDF..." message to appear
+    > 26 |     await expect(this.page.locator('text=Converting PDF...')).toBeVisible({ timeout: 10000 });
+         |                                                               ^
+      27 |     
+      28 |     // Wait for conversion to complete (message disappears)
+      29 |     await expect(this.page.locator('text=Converting PDF...')).toBeHidden({ timeout: 30000 });
+        at BewirtungsbelegPage.waitForPdfConversion (/Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:26:63)
+        at /Users/daniel/dev/Bewritung/bewir/test/pdf-conversion.spec.ts:334:31
+
+    Error Context: test-results/pdf-conversion-PDF-to-Imag-35ec8-extract-data-from-PDF-files-chromium/error-context.md
+
+
+[1A[2K  51 failed
+    [chromium] › test/e2e-complete-workflow.spec.ts:93:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation 
+    [chromium] › test/e2e-complete-workflow.spec.ts:158:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields 
+    [chromium] › test/e2e-complete-workflow.spec.ts:214:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation 
+    [chromium] › test/e2e-complete-workflow.spec.ts:238:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments 
+    [chromium] › test/e2e-complete-workflow.spec.ts:271:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:117:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:146:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:170:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:200:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:253:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:273:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:301:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:328:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:346:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:358:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:386:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:406:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:425:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes 
+    [chromium] › test/e2e-critical-scenarios.spec.ts:443:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:197:3 › Eigenbeleg Workflow › should handle form validation correctly for required fields 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:212:3 › Eigenbeleg Workflow › should work with and without file attachments 
+    [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:231:3 › Eigenbeleg PDF Content Verification › should generate PDF with correct Eigenbeleg content 
+    [chromium] › test/e2e-tip-calculation.spec.ts:117:3 › Tip Calculation - OCR Extraction › should auto-calculate tip after OCR extracts both invoice and credit card 
+    [chromium] › test/e2e-tip-calculation.spec.ts:172:3 › Tip Calculation - Manual Entry › should auto-calculate tip when manually entering credit card amount 
+    [chromium] › test/e2e-tip-calculation.spec.ts:215:3 › Tip Calculation - Manual Entry › should handle German decimal format (comma separator) 
+    [chromium] › test/e2e-tip-calculation.spec.ts:236:3 › Tip Calculation - Manual Entry › should not calculate tip when credit card amount < invoice amount 
+    [chromium] › test/e2e-tip-calculation.spec.ts:257:3 › Tip Calculation - Manual Entry › should not calculate tip when amounts are equal 
+    [chromium] › test/e2e-tip-calculation.spec.ts:287:3 › Tip Calculation - Reverse Flow › should calculate credit card amount when entering tip manually 
+    [chromium] › test/e2e-zugferd.spec.ts:16:3 › ZUGFeRD PDF Generation › should generate ZUGFeRD-compliant PDF with all required fields 
+    [chromium] › test/e2e-zugferd.spec.ts:103:3 › ZUGFeRD PDF Generation › should handle ZUGFeRD generation errors gracefully 
+    [chromium] › test/e2e-zugferd.spec.ts:142:3 › ZUGFeRD PDF Generation › should validate VAT breakdown for ZUGFeRD 
+    [chromium] › test/e2e-zugferd.spec.ts:189:3 › ZUGFeRD PDF Generation › should include business entertainment deductibility in ZUGFeRD 
+    [chromium] › test/e2e-zugferd.spec.ts:278:3 › ZUGFeRD Integration Tests › should handle UTF-8 characters in ZUGFeRD data 
+    [chromium] › test/end2end-test.spec.ts:9:1 › End-to-end Bewirtungsbeleg test ───────────────────
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:35:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Kreditkartenbeleg first, then Rechnung - fields should be preserved 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:113:3 › Multi-Page PDF Field Preservation › Paul1.pdf: Rechnung first, then Kreditkartenbeleg - fields should be preserved 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:189:3 › Multi-Page PDF Field Preservation › Paul2.pdf: Verify console logs show ref preservation 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:246:3 › Multi-Page PDF Field Preservation › Edge case: Empty tip (kreditkartenbetrag equals gesamtbetrag) 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:286:3 › Multi-Page PDF Field Preservation › Paul3.jpg: Combined receipt - both amounts on same page 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:369:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Both amounts extracted correctly 
+    [chromium] › test/multipage-pdf-field-preservation.spec.ts:460:3 › Combined Receipt Tests (Both on Same Page) › Combined receipt: Tip calculation after both amounts extracted 
+    [chromium] › test/pdf-conversion.spec.ts:103:3 › PDF to Image Conversion › should convert PDF to image and display it 
+    [chromium] › test/pdf-conversion.spec.ts:137:3 › PDF to Image Conversion › should enable rotation controls after PDF conversion 
+    [chromium] › test/pdf-conversion.spec.ts:168:3 › PDF to Image Conversion › should handle PDF conversion errors gracefully 
+    [chromium] › test/pdf-conversion.spec.ts:200:3 › PDF to Image Conversion › should clear error when removing PDF file 
+    [chromium] › test/pdf-conversion.spec.ts:236:3 › PDF to Image Conversion › should handle PNG files without conversion 
+    [chromium] › test/pdf-conversion.spec.ts:273:3 › PDF to Image Conversion › should complete full PDF workflow with rotation 
+    [chromium] › test/pdf-conversion.spec.ts:310:3 › PDF to Image Conversion › should not extract data from PDF files 
+    [chromium] › test/pdf-conversion.spec.ts:358:3 › Multiple File Handling › should handle mixed PDF and image uploads 
+  12 passed (2.9m)
+
+[36m  Serving HTML report at http://localhost:9323. Press Ctrl+C to quit.[39m
