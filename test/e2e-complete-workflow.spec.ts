@@ -16,6 +16,20 @@ class BewirtungsbelegWorkflow {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForLoadState('domcontentloaded');
     await this.page.waitForTimeout(1000);
+    await this.waitForFormReady();
+  }
+
+  async waitForFormReady() {
+    // Wait for key form elements to be visible - ensures form is fully rendered
+    // This is CRITICAL to prevent "element not found" timeouts
+    try {
+      await this.page.waitForSelector('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]', {
+        state: 'visible',
+        timeout: 15000
+      });
+    } catch (e) {
+      console.warn('File input not visible after 15s, but continuing anyway');
+    }
   }
 
   async uploadReceipt(filePath: string) {

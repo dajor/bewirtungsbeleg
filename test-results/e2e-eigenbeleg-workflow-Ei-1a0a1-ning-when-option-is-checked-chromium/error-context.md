@@ -6,42 +6,12 @@
 # Error details
 
 ```
-Error: locator.check: Test timeout of 60000ms exceeded.
+Error: locator.check: Target page, context or browser has been closed
 Call log:
   - waiting for locator('label:has-text("Eigenbeleg") input[type="checkbox"]').or(locator('input[type="checkbox"]').filter({ has: locator('text=Eigenbeleg') })).or(locator('[data-testid="eigenbeleg-checkbox"]')).first()
 
     at EigenbelegWorkflow.checkEigenbelegOption (/Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:30:30)
     at /Users/daniel/dev/Bewritung/bewir/test/e2e-eigenbeleg-workflow.spec.ts:190:20
-```
-
-# Page snapshot
-
-```yaml
-- alert
-- dialog:
-  - heading "Build Error" [level=1]
-  - paragraph: Failed to compile
-  - text: Next.js (14.2.29) is outdated
-  - link "(learn more)":
-    - /url: https://nextjs.org/docs/messages/version-staleness
-  - link "./src/lib/opensearch.ts:8:1":
-    - text: ./src/lib/opensearch.ts:8:1
-    - img
-  - text: "Module not found: Can't resolve '@opensearch-project/opensearch' 6 | */ 7 | > 8 | import { Client } from '@opensearch-project/opensearch'; | ^ 9 | // AWS Sigv4 Signer requires aws-sdk v2, which conflicts with our AWS SDK v3 usage 10 | // If you need AWS OpenSearch, install aws-sdk separately or use basic auth 11 | // import { AwsSigv4Signer } from '@opensearch-project/opensearch/aws';"
-  - link "https://nextjs.org/docs/messages/module-not-found":
-    - /url: https://nextjs.org/docs/messages/module-not-found
-  - text: "Import trace for requested module:"
-  - link "./src/middleware/ensure-user-index.ts":
-    - text: ./src/middleware/ensure-user-index.ts
-    - img
-  - link "./src/lib/auth.ts":
-    - text: ./src/lib/auth.ts
-    - img
-  - link "./src/app/api/auth/[...nextauth]/route.ts":
-    - text: ./src/app/api/auth/[...nextauth]/route.ts
-    - img
-  - contentinfo:
-    - paragraph: This error occurred during the build process and can only be dismissed by fixing the error.
 ```
 
 # Test source
@@ -77,7 +47,7 @@ Call log:
    28 |     ).first();
    29 |     
 >  30 |     await eigenbelegCheckbox.check();
-      |                              ^ Error: locator.check: Test timeout of 60000ms exceeded.
+      |                              ^ Error: locator.check: Target page, context or browser has been closed
    31 |     await this.page.waitForTimeout(500); // Wait for UI state change
    32 |   }
    33 |

@@ -1,0 +1,426 @@
+
+Running 61 tests using 2 workers
+
+[1A[2K[1/61] [chromium] › test/e2e-complete-workflow.spec.ts:158:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields
+[1A[2K[2/61] [chromium] › test/e2e-complete-workflow.spec.ts:93:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation
+[1A[2K  1) [chromium] › test/e2e-complete-workflow.spec.ts:158:3 › Complete Bewirtungsbeleg Workflow › should handle OCR extraction and auto-fill form fields 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("Daten extrahieren")')[22m
+
+
+      27 |   async clickExtractData() {
+      28 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
+    > 29 |     await extractButton.click();
+         |                         ^
+      30 |   }
+      31 |
+      32 |   async waitForOCRCompletion() {
+        at BewirtungsbelegWorkflow.clickExtractData (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:29:25)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:191:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-282ff-n-and-auto-fill-form-fields-chromium/error-context.md
+
+
+[1A[2K  2) [chromium] › test/e2e-complete-workflow.spec.ts:93:3 › Complete Bewirtungsbeleg Workflow › should complete full workflow from image upload to PDF generation 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      38 |   async fillFormField(fieldName: string, value: string) {
+      39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 40 |     await field.clear();
+         |                 ^
+      41 |     await field.fill(value);
+      42 |   }
+      43 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:40:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:132:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-3732b-ge-upload-to-PDF-generation-chromium/error-context.md
+
+
+[1A[2K[3/61] [chromium] › test/e2e-complete-workflow.spec.ts:238:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments
+[1A[2K[4/61] [chromium] › test/e2e-complete-workflow.spec.ts:214:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation
+[1A[2K  3) [chromium] › test/e2e-complete-workflow.spec.ts:214:3 › Complete Bewirtungsbeleg Workflow › should validate form before PDF generation 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('button:has-text("PDF generieren")')[22m
+
+
+      56 |   async clickGeneratePDF() {
+      57 |     const generateButton = this.page.locator('button:has-text("PDF generieren")');
+    > 58 |     await generateButton.click();
+         |                          ^
+      59 |   }
+      60 |
+      61 |   async waitForPDFGeneration() {
+        at BewirtungsbelegWorkflow.clickGeneratePDF (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:58:26)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:216:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-0b43e--form-before-PDF-generation-chromium/error-context.md
+
+
+[1A[2K  4) [chromium] › test/e2e-complete-workflow.spec.ts:238:3 › Complete Bewirtungsbeleg Workflow › should handle PDF with multiple attachments 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.setInputFiles: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first()[22m
+
+
+      250 |
+      251 |     const fileInput = page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
+    > 252 |     await fileInput.setInputFiles([file1, file2]);
+          |     ^
+      253 |
+      254 |     // Fill form
+      255 |     await workflow.fillFormField('restaurantName', 'Multi-Attachment Test');
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:252:5
+
+    Error Context: test-results/e2e-complete-workflow-Comp-bba11-F-with-multiple-attachments-chromium/error-context.md
+
+
+[1A[2K[5/61] [chromium] › test/e2e-complete-workflow.spec.ts:270:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts
+[1A[2K[6/61] [chromium] › test/e2e-critical-scenarios.spec.ts:119:3 › E2E Test 2: Multiple File Handling with Ordering › should maintain correct file order: Rechnung before Kreditbeleg
+[1A[2K[7/61] [chromium] › test/e2e-critical-scenarios.spec.ts:131:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type
+[1A[2K  5) [chromium] › test/e2e-complete-workflow.spec.ts:270:3 › Complete Bewirtungsbeleg Workflow › should calculate VAT correctly for German amounts 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      38 |   async fillFormField(fieldName: string, value: string) {
+      39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+    > 40 |     await field.clear();
+         |                 ^
+      41 |     await field.fill(value);
+      42 |   }
+      43 |
+        at BewirtungsbelegWorkflow.fillFormField (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:40:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:272:20
+
+    Error Context: test-results/e2e-complete-workflow-Comp-401dd-orrectly-for-German-amounts-chromium/error-context.md
+
+
+[1A[2K[8/61] [chromium] › test/e2e-critical-scenarios.spec.ts:155:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload
+[1A[2K  6) [chromium] › test/e2e-critical-scenarios.spec.ts:131:3 › E2E Test 2: Multiple File Handling with Ordering › should handle multiple attachments of same type 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.setInputFiles: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"][accept*="image"]').first()[22m
+
+
+      24 |     // Use the main receipt upload input (not the JSON import input)
+      25 |     const fileInput = this.page.locator('input[type="file"][accept*="image"]').first();
+    > 26 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      27 |     await this.page.waitForTimeout(1000);
+      28 |   }
+      29 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:26:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:143:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf140-le-attachments-of-same-type-chromium/error-context.md
+
+
+[1A[2K[9/61] [chromium] › test/e2e-critical-scenarios.spec.ts:185:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure
+[1A[2K  7) [chromium] › test/e2e-critical-scenarios.spec.ts:155:3 › E2E Test 2: Multiple File Handling with Ordering › should allow file removal and re-upload 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.setInputFiles: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"][accept*="image"]').first()[22m
+
+
+      24 |     // Use the main receipt upload input (not the JSON import input)
+      25 |     const fileInput = this.page.locator('input[type="file"][accept*="image"]').first();
+    > 26 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      27 |     await this.page.waitForTimeout(1000);
+      28 |   }
+      29 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:26:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:162:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-dc05b--file-removal-and-re-upload-chromium/error-context.md
+
+
+[1A[2K[10/61] [chromium] › test/e2e-critical-scenarios.spec.ts:238:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully
+[1A[2K  8) [chromium] › test/e2e-critical-scenarios.spec.ts:185:3 › E2E Test 3: Error Recovery and Retry › should recover from OCR API failure 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.setInputFiles: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[type="file"][accept*="image"]').first()[22m
+
+
+      24 |     // Use the main receipt upload input (not the JSON import input)
+      25 |     const fileInput = this.page.locator('input[type="file"][accept*="image"]').first();
+    > 26 |     await fileInput.setInputFiles(filePaths);
+         |     ^
+      27 |     await this.page.waitForTimeout(1000);
+      28 |   }
+      29 |
+        at BewirtungsbelegPage.uploadFiles (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:26:5)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:219:5
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-2eae8-ecover-from-OCR-API-failure-chromium/error-context.md
+
+
+[1A[2K[11/61] [chromium] › test/e2e-critical-scenarios.spec.ts:258:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input
+[1A[2K  9) [chromium] › test/e2e-critical-scenarios.spec.ts:238:3 › E2E Test 3: Error Recovery and Retry › should handle network timeout gracefully 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:250:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-accc6--network-timeout-gracefully-chromium/error-context.md
+
+
+[1A[2K[12/61] [chromium] › test/e2e-critical-scenarios.spec.ts:286:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format
+[1A[2K  10) [chromium] › test/e2e-critical-scenarios.spec.ts:258:3 › E2E Test 3: Error Recovery and Retry › should clear errors when fixing invalid input 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="gesamtbetrag"], textarea[name="gesamtbetrag"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:260:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-1a611-s-when-fixing-invalid-input-chromium/error-context.md
+
+
+[1A[2K[13/61] [chromium] › test/e2e-critical-scenarios.spec.ts:313:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY
+[1A[2K  11) [chromium] › test/e2e-critical-scenarios.spec.ts:286:3 › E2E Test 4: Form Validation with German Formats › should validate German decimal format 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:287:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4ed80-idate-German-decimal-format-chromium/error-context.md
+
+
+[1A[2K[14/61] [chromium] › test/e2e-critical-scenarios.spec.ts:331:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format
+[1A[2K  12) [chromium] › test/e2e-critical-scenarios.spec.ts:313:3 › E2E Test 4: Form Validation with German Formats › should validate German date format DD.MM.YYYY 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="datum"], textarea[name="datum"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:318:18
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d6aa0-rman-date-format-DD-MM-YYYY-chromium/error-context.md
+
+
+[1A[2K[15/61] [chromium] › test/e2e-critical-scenarios.spec.ts:343:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment
+[1A[2K  13) [chromium] › test/e2e-critical-scenarios.spec.ts:331:3 › E2E Test 4: Form Validation with German Formats › should handle tip amount in German format 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:332:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-d333c-tip-amount-in-German-format-chromium/error-context.md
+
+
+[1A[2K[16/61] [chromium] › test/e2e-critical-scenarios.spec.ts:371:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT
+[1A[2K  14) [chromium] › test/e2e-critical-scenarios.spec.ts:343:3 › E2E Test 4: Form Validation with German Formats › should validate conditional fields for customer entertainment 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:344:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-a590a--for-customer-entertainment-chromium/error-context.md
+
+
+[1A[2K[17/61] [chromium] › test/e2e-critical-scenarios.spec.ts:391:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format
+[1A[2K  15) [chromium] › test/e2e-critical-scenarios.spec.ts:371:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle foreign currency receipt without VAT 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:372:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-cf5a8-urrency-receipt-without-VAT-chromium/error-context.md
+
+
+[1A[2K[18/61] [chromium] › test/e2e-critical-scenarios.spec.ts:410:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes
+[1A[2K  16) [chromium] › test/e2e-critical-scenarios.spec.ts:391:3 › E2E Test 5: Foreign Currency Receipt Handling › should validate exchange rate format 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:392:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-4431a-lidate-exchange-rate-format-chromium/error-context.md
+
+
+[1A[2K[19/61] [chromium] › test/e2e-critical-scenarios.spec.ts:428:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts
+[1A[2K  17) [chromium] › test/e2e-critical-scenarios.spec.ts:410:3 › E2E Test 5: Foreign Currency Receipt Handling › should handle multiple currency codes 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:411:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-03b43-dle-multiple-currency-codes-chromium/error-context.md
+
+
+[1A[2K[20/61] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:155:3 › Eigenbeleg Workflow › should successfully create PDF for Eigenbeleg without file attachments
+[1A[2K  18) [chromium] › test/e2e-critical-scenarios.spec.ts:428:3 › E2E Test 5: Foreign Currency Receipt Handling › should not calculate VAT for foreign receipts 
+
+    [31mTest timeout of 90000ms exceeded.[39m
+
+    Error: locator.clear: Test timeout of 90000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('input[name="restaurantName"], textarea[name="restaurantName"]')[22m
+
+
+      48 |   async fillField(name: string, value: string) {
+      49 |     const field = this.page.locator(`input[name="${name}"], textarea[name="${name}"]`);
+    > 50 |     await field.clear();
+         |                 ^
+      51 |     await field.fill(value);
+      52 |   }
+      53 |
+        at BewirtungsbelegPage.fillField (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:50:17)
+        at BewirtungsbelegPage.fillMinimalValidForm (/Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:101:16)
+        at /Users/daniel/dev/Bewritung/bewir/test/e2e-critical-scenarios.spec.ts:429:16
+
+    Error Context: test-results/e2e-critical-scenarios-E2E-ccca3-te-VAT-for-foreign-receipts-chromium/error-context.md
+
+
+[1A[2K[21/61] [chromium] › test/e2e-eigenbeleg-workflow.spec.ts:186:3 › Eigenbeleg Workflow › should show Eigenbeleg warning when option is checked

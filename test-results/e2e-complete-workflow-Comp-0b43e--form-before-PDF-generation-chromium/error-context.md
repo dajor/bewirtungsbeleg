@@ -1,17 +1,17 @@
 # Test info
 
 - Name: Complete Bewirtungsbeleg Workflow >> should validate form before PDF generation
-- Location: /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:213:3
+- Location: /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:214:3
 
 # Error details
 
 ```
-Error: locator.click: Test timeout of 60000ms exceeded.
+Error: locator.click: Test timeout of 90000ms exceeded.
 Call log:
   - waiting for locator('button:has-text("PDF generieren")')
 
-    at BewirtungsbelegWorkflow.clickGeneratePDF (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:57:26)
-    at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:215:20
+    at BewirtungsbelegWorkflow.clickGeneratePDF (/Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:58:26)
+    at /Users/daniel/dev/Bewritung/bewir/test/e2e-complete-workflow.spec.ts:216:20
 ```
 
 # Page snapshot
@@ -63,146 +63,147 @@ Call log:
    14 |   async navigate() {
    15 |     await this.page.goto('/bewirtungsbeleg');
    16 |     await this.page.waitForLoadState('networkidle');
-   17 |     await this.page.waitForTimeout(500);
-   18 |   }
-   19 |
-   20 |   async uploadReceipt(filePath: string) {
-   21 |     const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
-   22 |     await fileInput.setInputFiles(filePath);
-   23 |     await this.page.waitForTimeout(1000);
-   24 |   }
-   25 |
-   26 |   async clickExtractData() {
-   27 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
-   28 |     await extractButton.click();
-   29 |   }
-   30 |
-   31 |   async waitForOCRCompletion() {
-   32 |     // Wait for loading spinner to appear and disappear
-   33 |     await this.page.waitForSelector('[role="progressbar"]', { state: 'visible', timeout: 5000 });
-   34 |     await this.page.waitForSelector('[role="progressbar"]', { state: 'hidden', timeout: 30000 });
-   35 |   }
-   36 |
-   37 |   async fillFormField(fieldName: string, value: string) {
-   38 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
-   39 |     await field.clear();
-   40 |     await field.fill(value);
-   41 |   }
-   42 |
-   43 |   async selectDropdown(fieldName: string, value: string) {
-   44 |     const dropdown = this.page.locator(`select[name="${fieldName}"]`);
-   45 |     await dropdown.selectOption(value);
-   46 |   }
-   47 |
-   48 |   async setDate(fieldName: string, date: string) {
-   49 |     // German date format DD.MM.YYYY
-   50 |     const dateInput = this.page.locator(`input[name="${fieldName}"]`);
-   51 |     await dateInput.clear();
-   52 |     await dateInput.fill(date);
-   53 |   }
-   54 |
-   55 |   async clickGeneratePDF() {
-   56 |     const generateButton = this.page.locator('button:has-text("PDF generieren")');
->  57 |     await generateButton.click();
-      |                          ^ Error: locator.click: Test timeout of 60000ms exceeded.
-   58 |   }
-   59 |
-   60 |   async waitForPDFGeneration() {
-   61 |     // Wait for success message or PDF download
-   62 |     await this.page.waitForSelector('[role="alert"]:has-text("erfolgreich")', { timeout: 10000 });
-   63 |   }
-   64 |
-   65 |   async getFormValue(fieldName: string): Promise<string> {
-   66 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
-   67 |     return await field.inputValue();
-   68 |   }
-   69 |
-   70 |   async hasError(): Promise<boolean> {
-   71 |     const errorAlert = this.page.locator('[role="alert"][data-type="error"]');
-   72 |     return await errorAlert.isVisible();
-   73 |   }
-   74 |
-   75 |   async getErrorMessage(): Promise<string | null> {
-   76 |     const errorAlert = this.page.locator('[role="alert"][data-type="error"]');
-   77 |     if (await errorAlert.isVisible()) {
-   78 |       return await errorAlert.textContent();
-   79 |     }
-   80 |     return null;
-   81 |   }
-   82 | }
-   83 |
-   84 | test.describe('Complete Bewirtungsbeleg Workflow', () => {
-   85 |   let workflow: BewirtungsbelegWorkflow;
-   86 |
-   87 |   test.beforeEach(async ({ page }) => {
-   88 |     workflow = new BewirtungsbelegWorkflow(page);
-   89 |     await workflow.navigate();
-   90 |   });
-   91 |
-   92 |   test('should complete full workflow from image upload to PDF generation', async ({ page }) => {
-   93 |     // Step 1: Upload receipt image
-   94 |     const testImagePath = path.join(process.cwd(), 'test', 'test-receipt.png');
-   95 |     
-   96 |     // Create a simple test image if it doesn't exist
-   97 |     if (!fs.existsSync(testImagePath)) {
-   98 |       // Create a minimal PNG file
-   99 |       const pngBuffer = Buffer.from([
-  100 |         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
-  101 |         0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
-  102 |         0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-  103 |         0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
-  104 |         0xDE, 0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41,
-  105 |         0x54, 0x08, 0x99, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
-  106 |         0x00, 0x00, 0x03, 0x00, 0x01, 0x5E, 0xF9, 0x51,
-  107 |         0x36, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
-  108 |         0x44, 0xAE, 0x42, 0x60, 0x82
-  109 |       ]);
-  110 |       fs.writeFileSync(testImagePath, pngBuffer);
-  111 |     }
-  112 |
-  113 |     await workflow.uploadReceipt(testImagePath);
-  114 |
-  115 |     // Step 2: Extract data with OCR (mock or real)
-  116 |     // Check if extract button is available
-  117 |     const extractButton = page.locator('button:has-text("Daten extrahieren")');
-  118 |     if (await extractButton.isVisible()) {
-  119 |       await workflow.clickExtractData();
-  120 |       
-  121 |       // Wait for OCR to complete (or mock response)
-  122 |       try {
-  123 |         await workflow.waitForOCRCompletion();
-  124 |       } catch (e) {
-  125 |         // OCR might fail with test image, continue with manual data
-  126 |         console.log('OCR extraction skipped or failed, continuing with manual data entry');
-  127 |       }
-  128 |     }
-  129 |
-  130 |     // Step 3: Fill/Edit form fields
-  131 |     await workflow.fillFormField('restaurantName', 'Restaurant Mustermann');
-  132 |     await workflow.fillFormField('restaurantAnschrift', 'Musterstraße 123, 12345 Berlin');
-  133 |     await workflow.setDate('datum', '06.08.2025');
-  134 |     await workflow.fillFormField('teilnehmer', 'Max Mustermann, Erika Musterfrau');
-  135 |     await workflow.fillFormField('anlass', 'Geschäftsessen - Projektbesprechung');
-  136 |     await workflow.fillFormField('gesamtbetrag', '119,00'); // German decimal format
-  137 |     
-  138 |     // Select payment type and entertainment type
-  139 |     await workflow.selectDropdown('zahlungsart', 'firma');
-  140 |     await workflow.selectDropdown('bewirtungsart', 'kunden');
-  141 |     
-  142 |     // Add business partner info for customer entertainment
-  143 |     await workflow.fillFormField('geschaeftspartnerNamen', 'Herr Schmidt, Frau Müller');
-  144 |     await workflow.fillFormField('geschaeftspartnerFirma', 'ABC GmbH');
-  145 |
-  146 |     // Step 4: Generate PDF
-  147 |     await workflow.clickGeneratePDF();
-  148 |     
-  149 |     // Step 5: Verify PDF generation success
-  150 |     await workflow.waitForPDFGeneration();
-  151 |     
-  152 |     // Verify no errors occurred
-  153 |     const hasError = await workflow.hasError();
-  154 |     expect(hasError).toBe(false);
-  155 |   });
-  156 |
-  157 |   test('should handle OCR extraction and auto-fill form fields', async ({ page }) => {
+   17 |     await this.page.waitForLoadState('domcontentloaded');
+   18 |     await this.page.waitForTimeout(1000);
+   19 |   }
+   20 |
+   21 |   async uploadReceipt(filePath: string) {
+   22 |     const fileInput = this.page.locator('input[type="file"][accept*="image"], input[type="file"][accept*="pdf"]').first();
+   23 |     await fileInput.setInputFiles(filePath);
+   24 |     await this.page.waitForTimeout(1000);
+   25 |   }
+   26 |
+   27 |   async clickExtractData() {
+   28 |     const extractButton = this.page.locator('button:has-text("Daten extrahieren")');
+   29 |     await extractButton.click();
+   30 |   }
+   31 |
+   32 |   async waitForOCRCompletion() {
+   33 |     // Wait for loading spinner to appear and disappear
+   34 |     await this.page.waitForSelector('[role="progressbar"]', { state: 'visible', timeout: 5000 });
+   35 |     await this.page.waitForSelector('[role="progressbar"]', { state: 'hidden', timeout: 30000 });
+   36 |   }
+   37 |
+   38 |   async fillFormField(fieldName: string, value: string) {
+   39 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+   40 |     await field.clear();
+   41 |     await field.fill(value);
+   42 |   }
+   43 |
+   44 |   async selectDropdown(fieldName: string, value: string) {
+   45 |     const dropdown = this.page.locator(`select[name="${fieldName}"]`);
+   46 |     await dropdown.selectOption(value);
+   47 |   }
+   48 |
+   49 |   async setDate(fieldName: string, date: string) {
+   50 |     // German date format DD.MM.YYYY
+   51 |     const dateInput = this.page.locator(`input[name="${fieldName}"]`);
+   52 |     await dateInput.clear();
+   53 |     await dateInput.fill(date);
+   54 |   }
+   55 |
+   56 |   async clickGeneratePDF() {
+   57 |     const generateButton = this.page.locator('button:has-text("PDF generieren")');
+>  58 |     await generateButton.click();
+      |                          ^ Error: locator.click: Test timeout of 90000ms exceeded.
+   59 |   }
+   60 |
+   61 |   async waitForPDFGeneration() {
+   62 |     // Wait for success message or PDF download
+   63 |     await this.page.waitForSelector('[role="alert"]:has-text("erfolgreich")', { timeout: 10000 });
+   64 |   }
+   65 |
+   66 |   async getFormValue(fieldName: string): Promise<string> {
+   67 |     const field = this.page.locator(`input[name="${fieldName}"], textarea[name="${fieldName}"]`);
+   68 |     return await field.inputValue();
+   69 |   }
+   70 |
+   71 |   async hasError(): Promise<boolean> {
+   72 |     const errorAlert = this.page.locator('[role="alert"][data-type="error"]');
+   73 |     return await errorAlert.isVisible();
+   74 |   }
+   75 |
+   76 |   async getErrorMessage(): Promise<string | null> {
+   77 |     const errorAlert = this.page.locator('[role="alert"][data-type="error"]');
+   78 |     if (await errorAlert.isVisible()) {
+   79 |       return await errorAlert.textContent();
+   80 |     }
+   81 |     return null;
+   82 |   }
+   83 | }
+   84 |
+   85 | test.describe('Complete Bewirtungsbeleg Workflow', () => {
+   86 |   let workflow: BewirtungsbelegWorkflow;
+   87 |
+   88 |   test.beforeEach(async ({ page }) => {
+   89 |     workflow = new BewirtungsbelegWorkflow(page);
+   90 |     await workflow.navigate();
+   91 |   });
+   92 |
+   93 |   test('should complete full workflow from image upload to PDF generation', async ({ page }) => {
+   94 |     // Step 1: Upload receipt image
+   95 |     const testImagePath = path.join(process.cwd(), 'test', 'test-receipt.png');
+   96 |     
+   97 |     // Create a simple test image if it doesn't exist
+   98 |     if (!fs.existsSync(testImagePath)) {
+   99 |       // Create a minimal PNG file
+  100 |       const pngBuffer = Buffer.from([
+  101 |         0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+  102 |         0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52,
+  103 |         0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
+  104 |         0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+  105 |         0xDE, 0x00, 0x00, 0x00, 0x0C, 0x49, 0x44, 0x41,
+  106 |         0x54, 0x08, 0x99, 0x63, 0xF8, 0xCF, 0xC0, 0x00,
+  107 |         0x00, 0x00, 0x03, 0x00, 0x01, 0x5E, 0xF9, 0x51,
+  108 |         0x36, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
+  109 |         0x44, 0xAE, 0x42, 0x60, 0x82
+  110 |       ]);
+  111 |       fs.writeFileSync(testImagePath, pngBuffer);
+  112 |     }
+  113 |
+  114 |     await workflow.uploadReceipt(testImagePath);
+  115 |
+  116 |     // Step 2: Extract data with OCR (mock or real)
+  117 |     // Check if extract button is available
+  118 |     const extractButton = page.locator('button:has-text("Daten extrahieren")');
+  119 |     if (await extractButton.isVisible()) {
+  120 |       await workflow.clickExtractData();
+  121 |       
+  122 |       // Wait for OCR to complete (or mock response)
+  123 |       try {
+  124 |         await workflow.waitForOCRCompletion();
+  125 |       } catch (e) {
+  126 |         // OCR might fail with test image, continue with manual data
+  127 |         console.log('OCR extraction skipped or failed, continuing with manual data entry');
+  128 |       }
+  129 |     }
+  130 |
+  131 |     // Step 3: Fill/Edit form fields
+  132 |     await workflow.fillFormField('restaurantName', 'Restaurant Mustermann');
+  133 |     await workflow.fillFormField('restaurantAnschrift', 'Musterstraße 123, 12345 Berlin');
+  134 |     await workflow.setDate('datum', '06.08.2025');
+  135 |     await workflow.fillFormField('teilnehmer', 'Max Mustermann, Erika Musterfrau');
+  136 |     await workflow.fillFormField('anlass', 'Geschäftsessen - Projektbesprechung');
+  137 |     await workflow.fillFormField('gesamtbetrag', '119,00'); // German decimal format
+  138 |     
+  139 |     // Select payment type and entertainment type
+  140 |     await workflow.selectDropdown('zahlungsart', 'firma');
+  141 |     await workflow.selectDropdown('bewirtungsart', 'kunden');
+  142 |     
+  143 |     // Add business partner info for customer entertainment
+  144 |     await workflow.fillFormField('geschaeftspartnerNamen', 'Herr Schmidt, Frau Müller');
+  145 |     await workflow.fillFormField('geschaeftspartnerFirma', 'ABC GmbH');
+  146 |
+  147 |     // Step 4: Generate PDF
+  148 |     await workflow.clickGeneratePDF();
+  149 |     
+  150 |     // Step 5: Verify PDF generation success
+  151 |     await workflow.waitForPDFGeneration();
+  152 |     
+  153 |     // Verify no errors occurred
+  154 |     const hasError = await workflow.hasError();
+  155 |     expect(hasError).toBe(false);
+  156 |   });
+  157 |
+  158 |   test('should handle OCR extraction and auto-fill form fields', async ({ page }) => {
 ```
